@@ -100,7 +100,7 @@ export default function Usuarios() {
         </div>
       )}
 
-      <div className="card">
+      <div className="card w-75">
         <div className="table-responsive">
           <table className="table table-hover mb-0">
             <thead className="table-light">

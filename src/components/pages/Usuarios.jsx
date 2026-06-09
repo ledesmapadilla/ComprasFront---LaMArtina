@@ -1,17 +1,18 @@
 import { useState } from 'react'
 
 const USUARIOS_INIT = [
-  { id: 1, nombre: 'Juan Pérez', email: 'juan@lamartinacompras.com', rol: 'solicitante', activo: true },
-  { id: 2, nombre: 'María García', email: 'maria@lamartinacompras.com', rol: 'aprobador', activo: true },
+  { id: 1, nombre: 'Juan Pérez', usuario: 'juanperez', password: '123456', rol: 'solicitante' },
+  { id: 2, nombre: 'María García', usuario: 'mariagarcia', password: '123456', rol: 'aprobador' },
 ]
 
-const FORM_INIT = { nombre: '', email: '', rol: 'solicitante', activo: true }
+const FORM_INIT = { nombre: '', usuario: '', password: '', rol: 'solicitante' }
 
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState(USUARIOS_INIT)
   const [form, setForm] = useState(FORM_INIT)
   const [editId, setEditId] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [busqueda, setBusqueda] = useState('')
 
   const abrirNuevo = () => {
     setForm(FORM_INIT)
@@ -20,7 +21,7 @@ export default function Usuarios() {
   }
 
   const abrirEditar = (u) => {
-    setForm({ nombre: u.nombre, email: u.email, rol: u.rol, activo: u.activo })
+    setForm({ nombre: u.nombre, usuario: u.usuario, password: u.password, rol: u.rol })
     setEditId(u.id)
     setShowModal(true)
   }
@@ -47,9 +48,10 @@ export default function Usuarios() {
     }
   }
 
-  const toggleActivo = (id) => {
-    setUsuarios(usuarios.map(u => u.id === id ? { ...u, activo: !u.activo } : u))
-  }
+  const lista = usuarios.filter(u =>
+    u.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    u.usuario.toLowerCase().includes(busqueda.toLowerCase())
+  )
 
   return (
     <div className="container py-4">
@@ -62,43 +64,40 @@ export default function Usuarios() {
           </button>
         </div>
 
+        <input
+          className="form-control mb-3"
+          placeholder="Buscar por nombre o usuario..."
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+        />
+
         <div className="card">
           <div className="table-responsive">
             <table className="table table-hover mb-0">
               <thead className="table-light">
                 <tr>
                   <th>Nombre</th>
-                  <th>Email</th>
+                  <th>Usuario</th>
+                  <th>Contraseña</th>
                   <th>Rol</th>
-                  <th>Estado</th>
-                  <th></th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {usuarios.map(u => (
+                {lista.map(u => (
                   <tr key={u.id}>
                     <td>{u.nombre}</td>
-                    <td>{u.email}</td>
+                    <td>{u.usuario}</td>
+                    <td>{'•'.repeat(u.password.length)}</td>
                     <td><span className="badge bg-secondary">{u.rol}</span></td>
-                    <td>
-                      <span className={`badge ${u.activo ? 'bg-success' : 'bg-danger'}`}>
-                        {u.activo ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
                     <td className="text-nowrap">
                       <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(u)}>Editar</button>
-                      <button
-                        className={`btn btn-sm me-1 ${u.activo ? 'btn-outline-warning' : 'btn-outline-success'}`}
-                        onClick={() => toggleActivo(u.id)}
-                      >
-                        {u.activo ? 'Desactivar' : 'Activar'}
-                      </button>
                       <button className="btn btn-sm btn-outline-danger" onClick={() => borrar(u.id)}>Borrar</button>
                     </td>
                   </tr>
                 ))}
-                {usuarios.length === 0 && (
-                  <tr><td colSpan={5} className="text-center text-muted">Sin usuarios</td></tr>
+                {lista.length === 0 && (
+                  <tr><td colSpan={5} className="text-center text-muted">Sin resultados</td></tr>
                 )}
               </tbody>
             </table>
@@ -106,7 +105,6 @@ export default function Usuarios() {
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog">
@@ -127,13 +125,23 @@ export default function Usuarios() {
                     />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Email</label>
+                    <label className="form-label">Usuario</label>
                     <input
-                      type="email"
                       className="form-control"
-                      value={form.email}
-                      onChange={e => setForm({ ...form, email: e.target.value })}
+                      value={form.usuario}
+                      onChange={e => setForm({ ...form, usuario: e.target.value })}
                       required
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Contraseña</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      value={form.password}
+                      onChange={e => setForm({ ...form, password: e.target.value })}
+                      required={!editId}
+                      placeholder={editId ? 'Dejar vacío para no cambiar' : ''}
                     />
                   </div>
                   <div className="mb-3">

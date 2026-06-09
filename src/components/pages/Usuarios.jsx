@@ -43,10 +43,11 @@ export default function Usuarios() {
 
   return (
     <div className="container py-4">
+      <div className="w-75 mx-auto">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">Usuarios</h4>
         {!showForm && (
-          <button className="btn btn-dark text-nowrap" onClick={() => setShowForm(true)}>
+          <button className="btn btn-dark" onClick={() => setShowForm(true)}>
             + Nuevo usuario
           </button>
         )}
@@ -100,7 +101,7 @@ export default function Usuarios() {
         </div>
       )}
 
-      <div className="card w-75 mx-auto">
+      <div className="card">
         <div className="table-responsive">
           <table className="table table-hover mb-0">
             <thead className="table-light">
@@ -137,6 +138,7 @@ export default function Usuarios() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   )

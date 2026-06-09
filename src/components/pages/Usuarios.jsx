@@ -123,8 +123,8 @@ export default function Usuarios() {
                       {u.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
-                  <td className="d-flex gap-2">
-                    <button className="btn btn-sm btn-outline-secondary" onClick={() => editar(u)}>Editar</button>
+                  <td className="text-nowrap">
+                    <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => editar(u)}>Editar</button>
                     <button
                       className={`btn btn-sm ${u.activo ? 'btn-outline-danger' : 'btn-outline-success'}`}
                       onClick={() => toggleActivo(u.id)}

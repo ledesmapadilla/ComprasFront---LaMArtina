@@ -46,7 +46,7 @@ export default function Usuarios() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">Usuarios</h4>
         {!showForm && (
-          <button className="btn btn-dark" onClick={() => setShowForm(true)}>
+          <button className="btn btn-dark text-nowrap" onClick={() => setShowForm(true)}>
             + Nuevo usuario
           </button>
         )}

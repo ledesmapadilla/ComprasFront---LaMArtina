@@ -1,50 +1,63 @@
-import { useState } from 'react'
-
-const USUARIOS_INIT = [
-  { id: 1, nombre: 'Juan Pérez', usuario: 'juanperez', password: '123456', rol: 'solicitante' },
-  { id: 2, nombre: 'María García', usuario: 'mariagarcia', password: '123456', rol: 'aprobador' },
-]
+import { useState, useEffect } from 'react'
+import { api } from '../../services/api'
 
 const FORM_INIT = { nombre: '', usuario: '', password: '', rol: 'solicitante' }
 
 export default function Usuarios() {
-  const [usuarios, setUsuarios] = useState(USUARIOS_INIT)
+  const [usuarios, setUsuarios] = useState([])
   const [form, setForm] = useState(FORM_INIT)
   const [editId, setEditId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [busqueda, setBusqueda] = useState('')
+  const [error, setError] = useState('')
+
+  const cargar = () => api.get('/usuarios').then(setUsuarios).catch(() => {})
+  useEffect(() => { cargar() }, [])
 
   const abrirNuevo = () => {
     setForm(FORM_INIT)
     setEditId(null)
+    setError('')
     setShowModal(true)
   }
 
   const abrirEditar = (u) => {
-    setForm({ nombre: u.nombre, usuario: u.usuario, password: u.password, rol: u.rol })
-    setEditId(u.id)
+    setForm({ nombre: u.nombre, usuario: u.usuario, password: '', rol: u.rol })
+    setEditId(u._id)
+    setError('')
     setShowModal(true)
   }
 
   const cerrar = () => {
     setForm(FORM_INIT)
     setEditId(null)
+    setError('')
     setShowModal(false)
   }
 
-  const guardar = (e) => {
+  const guardar = async (e) => {
     e.preventDefault()
-    if (editId) {
-      setUsuarios(usuarios.map(u => u.id === editId ? { ...u, ...form } : u))
-    } else {
-      setUsuarios([...usuarios, { ...form, id: Date.now() }])
+    setError('')
+    try {
+      if (editId) {
+        await api.put(`/usuarios/${editId}`, form)
+      } else {
+        await api.post('/usuarios', form)
+      }
+      cargar()
+      cerrar()
+    } catch (err) {
+      setError(err.message)
     }
-    cerrar()
   }
 
-  const borrar = (id) => {
-    if (window.confirm('¿Borrar usuario?')) {
-      setUsuarios(usuarios.filter(u => u.id !== id))
+  const borrar = async (id) => {
+    if (!window.confirm('¿Borrar usuario?')) return
+    try {
+      await api.delete(`/usuarios/${id}`)
+      cargar()
+    } catch (err) {
+      alert(err.message)
     }
   }
 
@@ -85,19 +98,19 @@ export default function Usuarios() {
               </thead>
               <tbody>
                 {lista.map(u => (
-                  <tr key={u.id}>
+                  <tr key={u._id}>
                     <td>{u.nombre}</td>
                     <td>{u.usuario}</td>
-                    <td>{'•'.repeat(u.password.length)}</td>
+                    <td>••••••</td>
                     <td><span className="badge bg-secondary">{u.rol}</span></td>
                     <td className="text-nowrap">
                       <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(u)}>Editar</button>
-                      <button className="btn btn-sm btn-outline-danger" onClick={() => borrar(u.id)}>Borrar</button>
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => borrar(u._id)}>Borrar</button>
                     </td>
                   </tr>
                 ))}
                 {lista.length === 0 && (
-                  <tr><td colSpan={5} className="text-center text-muted">Sin resultados</td></tr>
+                  <tr><td colSpan={5} className="text-center text-muted py-3">Sin resultados</td></tr>
                 )}
               </tbody>
             </table>
@@ -115,42 +128,28 @@ export default function Usuarios() {
               </div>
               <form onSubmit={guardar}>
                 <div className="modal-body">
+                  {error && <div className="alert alert-danger py-2">{error}</div>}
                   <div className="mb-3">
                     <label className="form-label">Nombre</label>
-                    <input
-                      className="form-control"
-                      value={form.nombre}
-                      onChange={e => setForm({ ...form, nombre: e.target.value })}
-                      required
-                    />
+                    <input className="form-control" value={form.nombre}
+                      onChange={e => setForm({ ...form, nombre: e.target.value })} required />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Usuario</label>
-                    <input
-                      className="form-control"
-                      value={form.usuario}
-                      onChange={e => setForm({ ...form, usuario: e.target.value })}
-                      required
-                    />
+                    <input className="form-control" value={form.usuario}
+                      onChange={e => setForm({ ...form, usuario: e.target.value })} required />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Contraseña</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      value={form.password}
+                    <input type="password" className="form-control" value={form.password}
                       onChange={e => setForm({ ...form, password: e.target.value })}
                       required={!editId}
-                      placeholder={editId ? 'Dejar vacío para no cambiar' : ''}
-                    />
+                      placeholder={editId ? 'Dejar vacío para no cambiar' : ''} />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Rol</label>
-                    <select
-                      className="form-select"
-                      value={form.rol}
-                      onChange={e => setForm({ ...form, rol: e.target.value })}
-                    >
+                    <select className="form-select" value={form.rol}
+                      onChange={e => setForm({ ...form, rol: e.target.value })}>
                       <option value="superadmin">Superadministrador</option>
                       <option value="solicitante">Solicitante</option>
                       <option value="aprobador">Aprobador</option>

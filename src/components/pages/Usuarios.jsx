@@ -85,6 +85,7 @@ export default function Usuarios() {
                     value={form.rol}
                     onChange={e => setForm({ ...form, rol: e.target.value })}
                   >
+                    <option value="superadmin">Superadministrador</option>
                     <option value="solicitante">Solicitante</option>
                     <option value="aprobador">Aprobador</option>
                     <option value="comprador">Comprador</option>

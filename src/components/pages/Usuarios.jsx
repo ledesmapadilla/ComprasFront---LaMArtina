@@ -42,7 +42,7 @@ export default function Usuarios() {
   }
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">Usuarios</h4>
         {!showForm && (
@@ -100,7 +100,7 @@ export default function Usuarios() {
         </div>
       )}
 
-      <div className="card w-75">
+      <div className="card w-75 mx-auto">
         <div className="table-responsive">
           <table className="table table-hover mb-0">
             <thead className="table-light">

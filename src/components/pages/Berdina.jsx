@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 const tarjetas = [
-  { titulo: 'Pedido',     icono: 'bi-cart3',          ruta: '/berdina/pedido',     color: 'var(--card-pedido)' },
+  { titulo: 'Pedidos',    icono: 'bi-cart3',          ruta: '/berdina/pedidos',    color: 'var(--card-pedido)' },
   { titulo: 'Pendientes', icono: 'bi-hourglass-split', ruta: '/berdina/pendientes', color: 'var(--card-pendientes)' },
   { titulo: 'Stock',      icono: 'bi-box-seam',        ruta: '/berdina/stock',      color: 'var(--card-stock)' },
 ]
@@ -17,8 +17,8 @@ function Tarjeta({ titulo, icono, ruta, color }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        width: 200,
-        height: 200,
+        width: 260,
+        height: 260,
         cursor: 'pointer',
         borderRadius: 14,
         backgroundColor: color,

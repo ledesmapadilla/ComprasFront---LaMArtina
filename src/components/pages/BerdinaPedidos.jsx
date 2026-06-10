@@ -91,10 +91,10 @@ export default function BerdinaPedidos() {
   }
 
   return (
-    <div className="container-fluid flex-grow-1 d-flex flex-column py-4">
+    <div className="container-fluid flex-grow-1 d-flex flex-column pt-2">
 
       {/* Header */}
-      <div className="container d-flex justify-content-between align-items-center mb-4">
+      <div className="container d-flex justify-content-between align-items-center mb-2">
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
           Compras · Berdina
         </p>
@@ -102,7 +102,7 @@ export default function BerdinaPedidos() {
       </div>
 
       <div className="container">
-        <h4 className="text-center mb-4" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Pedidos</h4>
+        <h4 className="text-center mb-2" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Pedidos</h4>
 
         <div className="d-flex justify-content-between align-items-center mb-3">
           <input

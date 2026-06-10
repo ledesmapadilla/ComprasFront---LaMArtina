@@ -36,7 +36,7 @@ function Tarjeta({ titulo, icono, ruta, color }) {
       }}
     >
       <i className={`bi ${icono}`} style={{ fontSize: 56, color: '#fff' }} />
-      <span style={{ fontWeight: 700, fontSize: 19, color: '#fff', letterSpacing: 0.5 }}>{titulo}</span>
+      <span style={{ fontWeight: 700, fontSize: 19, color: '#fff', letterSpacing: 1, textTransform: 'uppercase' }}>{titulo}</span>
     </div>
   )
 }
@@ -49,13 +49,14 @@ export default function Berdina() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 40,
+      gap: 48,
+      paddingBottom: '10vh',
     }}>
       <div style={{ textAlign: 'center' }}>
         <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
           Compras
         </p>
-        <h2 style={{ margin: 0, fontWeight: 700, fontSize: 36, color: 'var(--color-text)' }}>
+        <h2 style={{ margin: 0, fontWeight: 700, fontSize: 36, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: 3 }}>
           Berdina
         </h2>
       </div>

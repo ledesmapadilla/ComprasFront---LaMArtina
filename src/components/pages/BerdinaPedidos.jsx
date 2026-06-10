@@ -105,12 +105,24 @@ export default function BerdinaPedidos() {
         <h4 className="text-center mb-2" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Pedidos</h4>
 
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <input
-            className="form-control w-25"
-            placeholder="Buscar por repuesto, grupo, urgencia, estado..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-          />
+          <div style={{ position: 'relative', width: '25%' }}>
+            <input
+              className="form-control"
+              placeholder="Buscar por repuesto, grupo, urgencia, estado..."
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+            />
+            {busqueda && (
+              <span
+                onClick={() => setBusqueda('')}
+                style={{
+                  position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                  cursor: 'pointer', fontSize: 14, fontWeight: 900,
+                  color: 'var(--color-muted)', zIndex: 5, userSelect: 'none',
+                }}
+              >✕</span>
+            )}
+          </div>
           <button className="btn btn-outline-dark" onClick={() => navigate('/berdina/pedidos/nuevo')}>+ Nuevo pedido</button>
         </div>
 

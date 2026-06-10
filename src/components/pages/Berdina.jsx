@@ -29,13 +29,14 @@ function Tarjeta({ titulo, icono, ruta, color }) {
         gap: 12,
         transition: 'transform 0.18s ease, box-shadow 0.18s ease',
         transform: hovered ? 'translateY(-6px) scale(1.03)' : 'translateY(0) scale(1)',
+        border: '1px solid rgba(45,58,74,0.15)',
         boxShadow: hovered
-          ? `0 12px 32px rgba(0,0,0,0.22), 0 0 20px color-mix(in srgb, ${color} 60%, transparent)`
-          : '0 3px 10px rgba(0,0,0,0.12)',
+          ? '0 12px 32px rgba(0,0,0,0.15), 0 0 24px rgba(0,0,0,0.08)'
+          : '0 2px 8px rgba(0,0,0,0.08)',
       }}
     >
-      <i className={`bi ${icono}`} style={{ fontSize: 52, color: '#fff' }} />
-      <span style={{ fontWeight: 700, fontSize: 17, color: '#fff', letterSpacing: 0.5 }}>{titulo}</span>
+      <i className={`bi ${icono}`} style={{ fontSize: 52, color: 'var(--color-primary)' }} />
+      <span style={{ fontWeight: 700, fontSize: 17, color: 'var(--color-primary)', letterSpacing: 0.5 }}>{titulo}</span>
     </div>
   )
 }

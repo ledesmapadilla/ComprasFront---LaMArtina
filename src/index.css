@@ -7,9 +7,9 @@
   --color-text:          #2d3a4a;
   --color-muted:         #7a8a9a;
 
-  --card-pedido:         #a0b8cc;
-  --card-pendientes:     #c4b49a;
-  --card-stock:          #9abcae;
+  --card-pedido:         #c8dff0;
+  --card-pendientes:     #f0dfc8;
+  --card-stock:          #c8f0e0;
 }
 
 body {

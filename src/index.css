@@ -1,9 +1,14 @@
 .modal-content {
   border: 1.5px solid #000 !important;
 }
-.modal-content .form-control,
-.modal-content .form-select {
-  border-color: #000 !important;
+.modal .form-control,
+.modal .form-select {
+  border: 1px solid #000 !important;
+}
+.modal .form-control:focus,
+.modal .form-select:focus {
+  border: 1px solid #000 !important;
+  box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25) !important;
 }
 
 #root {

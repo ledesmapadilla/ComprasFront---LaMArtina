@@ -106,7 +106,7 @@ export default function BerdinaPedidos() {
 
         <div className="d-flex justify-content-between align-items-center mb-3">
           <input
-            className="form-control w-50"
+            className="form-control w-25"
             placeholder="Buscar por repuesto, destino, urgencia, estado..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}

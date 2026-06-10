@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { api } from '../../services/api'
+import SelectConX from '../ui/SelectConX'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
 const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Hervicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
@@ -108,10 +109,11 @@ export default function NuevoPedido() {
                 </div>
                 <div className="col-3">
                   <label className="form-label form-label-sm w-100 text-center">Urgencia*</label>
-                  <select className="form-select form-select-sm" value={itemForm.urgencia}
+                  <SelectConX size="sm" value={itemForm.urgencia}
                     onChange={e => setItemForm({ ...itemForm, urgencia: e.target.value })}>
+                    <option value="">-- Urgencia --</option>
                     {URGENCIAS.map(u => <option key={u}>{u}</option>)}
-                  </select>
+                  </SelectConX>
                 </div>
               </div>
 
@@ -124,10 +126,11 @@ export default function NuevoPedido() {
                 </div>
                 <div className="col-4">
                   <label className="form-label form-label-sm w-100 text-center">Grupo*</label>
-                  <select className="form-select form-select-sm" value={itemForm.grupo}
+                  <SelectConX size="sm" value={itemForm.grupo}
                     onChange={e => setItemForm({ ...itemForm, grupo: e.target.value })}>
+                    <option value="">-- Grupo --</option>
                     {GRUPOS.map(g => <option key={g}>{g}</option>)}
-                  </select>
+                  </SelectConX>
                 </div>
               </div>
 

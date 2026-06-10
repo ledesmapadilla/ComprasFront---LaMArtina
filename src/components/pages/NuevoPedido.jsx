@@ -148,9 +148,9 @@ export default function NuevoPedido() {
         {/* Tabla de ítems cargados */}
         {items.length > 0 && (
           <div className="card mb-3">
-            <div style={{ maxHeight: 280, overflowY: 'scroll', overflowX: 'auto', minHeight: 0, display: 'block' }}>
+            <div className="table-responsive">
               <table className="table table-hover table-striped mb-0">
-                <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'var(--color-primary)', color: '#fff' }}>
+                <thead>
                   <tr>
                     <th>Repuesto</th>
                     <th>Cant.</th>

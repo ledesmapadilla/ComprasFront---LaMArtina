@@ -115,9 +115,10 @@ export default function BerdinaPedidos() {
         </div>
 
         <div className="card">
-          <div className="table-responsive">
+          <div className="table-responsive" style={{ maxHeight: 500, overflowY: 'auto' }}>
+            <style>{`.pedidos-thead th { position: sticky; top: 0; z-index: 1; background-color: var(--color-primary); color: #fff; }`}</style>
             <table className="table table-hover table-striped mb-0">
-              <thead>
+              <thead className="pedidos-thead">
                 <tr>
                   <th>N° Pedido</th>
                   <th>Fecha</th>

@@ -26,27 +26,39 @@ function Tarjeta({ titulo, icono, ruta, color }) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 12,
+        gap: 14,
         transition: 'transform 0.18s ease, box-shadow 0.18s ease',
         transform: hovered ? 'translateY(-6px) scale(1.03)' : 'translateY(0) scale(1)',
-        border: '1px solid rgba(45,58,74,0.15)',
+        border: '1px solid rgba(0,0,0,0.12)',
         boxShadow: hovered
-          ? '0 12px 32px rgba(0,0,0,0.15), 0 0 24px rgba(0,0,0,0.08)'
-          : '0 2px 8px rgba(0,0,0,0.08)',
+          ? '0 12px 32px rgba(0,0,0,0.22), 0 0 24px rgba(0,0,0,0.10)'
+          : '0 3px 10px rgba(0,0,0,0.12)',
       }}
     >
-      <i className={`bi ${icono}`} style={{ fontSize: 52, color: '#fff' }} />
-      <span style={{ fontWeight: 700, fontSize: 17, color: '#fff', letterSpacing: 0.5 }}>{titulo}</span>
+      <i className={`bi ${icono}`} style={{ fontSize: 56, color: '#fff' }} />
+      <span style={{ fontWeight: 700, fontSize: 19, color: '#fff', letterSpacing: 0.5 }}>{titulo}</span>
     </div>
   )
 }
 
 export default function Berdina() {
   return (
-    <div style={{ minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 32 }}>
-      <h4 className="mb-2">Berdina</h4>
-      <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', justifyContent: 'center' }}>
-        {tarjetas.map((t) => <Tarjeta key={t.titulo} {...t} />)}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Header top-left */}
+      <div style={{ padding: '28px 36px 0' }}>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+          Compras
+        </p>
+        <h2 style={{ margin: 0, fontWeight: 700, color: 'var(--color-text)', fontSize: 32 }}>
+          Berdina
+        </h2>
+      </div>
+
+      {/* Cards centered */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: 36, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {tarjetas.map((t) => <Tarjeta key={t.titulo} {...t} />)}
+        </div>
       </div>
     </div>
   )

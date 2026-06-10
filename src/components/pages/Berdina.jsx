@@ -51,9 +51,14 @@ export default function Berdina() {
       justifyContent: 'center',
       gap: 40,
     }}>
-      <h2 style={{ margin: 0, fontWeight: 700, fontSize: 36, color: 'var(--color-text)' }}>
-        Berdina
-      </h2>
+      <div style={{ textAlign: 'center' }}>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
+          Compras
+        </p>
+        <h2 style={{ margin: 0, fontWeight: 700, fontSize: 36, color: 'var(--color-text)' }}>
+          Berdina
+        </h2>
+      </div>
       <div style={{ display: 'flex', gap: 36, flexWrap: 'wrap', justifyContent: 'center' }}>
         {tarjetas.map((t) => <Tarjeta key={t.titulo} {...t} />)}
       </div>

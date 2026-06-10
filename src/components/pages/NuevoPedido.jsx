@@ -46,9 +46,9 @@ export default function NuevoPedido() {
   }
 
   return (
-    <div className="container-fluid flex-grow-1 d-flex flex-column pt-2">
+    <div className="container-fluid flex-grow-1 d-flex flex-column pt-1">
 
-      <div className="container d-flex justify-content-between align-items-center mb-2">
+      <div className="container d-flex justify-content-between align-items-center mb-1">
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
           Compras · Berdina · Pedidos
         </p>
@@ -56,18 +56,17 @@ export default function NuevoPedido() {
       </div>
 
       <div className="container">
-        <h4 className="text-center mb-3" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Nuevo Pedido</h4>
-
-        {/* Fecha */}
-        <div className="mb-3" style={{ maxWidth: 220 }}>
-          <label className="form-label fw-semibold">Fecha del pedido</label>
-          <input type="date" className="form-control" value={fecha} onChange={e => setFecha(e.target.value)} />
-        </div>
+        <h4 className="text-center mb-2" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Nuevo Pedido</h4>
 
         {/* Formulario ítem */}
         <div className="card mb-3 mx-auto" style={{ maxWidth: 680 }}>
-          <div className="card-header fw-semibold" style={{ backgroundColor: '#4a6b8a', color: '#fff' }}>
-            Agregar ítem
+          <div className="card-header fw-semibold d-flex justify-content-between align-items-center" style={{ backgroundColor: '#4a6b8a', color: '#fff' }}>
+            <span>Agregar ítem</span>
+            <div className="d-flex align-items-center gap-2">
+              <label className="mb-0" style={{ fontSize: 13 }}>Fecha</label>
+              <input type="date" className="form-control form-control-sm" style={{ width: 150 }}
+                value={fecha} onChange={e => setFecha(e.target.value)} />
+            </div>
           </div>
           <div className="card-body">
             <form onSubmit={agregarFila}>

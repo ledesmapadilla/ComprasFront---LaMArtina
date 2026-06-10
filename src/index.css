@@ -1,6 +1,10 @@
 .modal-content {
   border: 1.5px solid #000 !important;
 }
+.modal-content .form-control,
+.modal-content .form-select {
+  border-color: #000 !important;
+}
 
 #root {
   min-height: 100vh;

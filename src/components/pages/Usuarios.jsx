@@ -80,7 +80,7 @@ export default function Usuarios() {
         </div>
 
         <input
-          className="form-control mb-3"
+          className="form-control mb-3 w-50"
           placeholder="Buscar por nombre o usuario..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}

@@ -43,26 +43,23 @@ function Tarjeta({ titulo, icono, ruta, color }) {
 
 export default function Berdina() {
   return (
-    <div style={{
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 48,
-      paddingBottom: '10vh',
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
-          Compras
-        </p>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+
+      {/* COMPRAS — arriba izquierda */}
+      <p style={{ margin: '24px 0 0 32px', fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
+        Compras
+      </p>
+
+      {/* BERDINA + tarjetas — centrado */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 48, paddingBottom: '6vh' }}>
         <h2 style={{ margin: 0, fontWeight: 700, fontSize: 36, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: 3 }}>
           Berdina
         </h2>
+        <div style={{ display: 'flex', gap: 36, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {tarjetas.map((t) => <Tarjeta key={t.titulo} {...t} />)}
+        </div>
       </div>
-      <div style={{ display: 'flex', gap: 36, flexWrap: 'wrap', justifyContent: 'center' }}>
-        {tarjetas.map((t) => <Tarjeta key={t.titulo} {...t} />)}
-      </div>
+
     </div>
   )
 }

@@ -117,7 +117,7 @@ export default function BerdinaPedidos() {
         <div className="card">
           <div className="table-responsive" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
             <table className="table table-hover table-striped mb-0">
-              <thead style={{ backgroundColor: '#4a6b8a', color: '#fff' }}>
+              <thead className="thead-blue">
                 <tr>
                   <th>N° Pedido</th>
                   <th>Fecha</th>

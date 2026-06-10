@@ -74,9 +74,13 @@ body {
 }
 
 /* Tablas */
-.table thead {
-  background-color: var(--color-primary);
-  color: #fff;
+.table thead th {
+  background-color: var(--color-primary) !important;
+  color: #fff !important;
+}
+.table .thead-blue th {
+  background-color: #4a6b8a !important;
+  color: #fff !important;
 }
 .table .row-critica td {
   color: #dc3545 !important;

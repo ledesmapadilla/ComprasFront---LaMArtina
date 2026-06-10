@@ -22,7 +22,7 @@ export default function BerdinaPedidos() {
   useEffect(() => { cargar() }, [])
 
   const items = pedidos.flatMap(p =>
-    p.items.map(item => ({ ...item, nro_pedido: p.nro_pedido, fecha: p.fecha, pedidoId: p._id }))
+    (p.items || []).map(item => ({ ...item, nro_pedido: p.nro_pedido, fecha: p.fecha, pedidoId: p._id }))
   )
 
   const lista = items.filter(item =>

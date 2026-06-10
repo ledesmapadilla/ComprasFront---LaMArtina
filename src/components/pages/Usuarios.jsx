@@ -143,7 +143,7 @@ export default function Usuarios() {
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Contraseña</label>
-                    <input type="password" className="form-control" value={form.password}
+                    <input type="text" className="form-control" value={form.password}
                       onChange={e => setForm({ ...form, password: e.target.value })}
                       required={!editId}
                       placeholder={editId ? 'Dejar vacío para no cambiar' : ''} />

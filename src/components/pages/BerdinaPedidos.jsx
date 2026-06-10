@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { api } from '../../services/api'
-import SelectConX from '../ui/SelectConX'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
 const ESTADOS   = ['Pedido', 'Pendiente', 'En proceso', 'Completado', 'Cancelado']
@@ -194,24 +193,24 @@ export default function BerdinaPedidos() {
                   <div className="row mb-3">
                     <div className="col">
                       <label className="form-label">Grupo*</label>
-                      <SelectConX value={form.grupo} onChange={e => setForm({ ...form, grupo: e.target.value })}>
-                        <option value="">-- Grupo --</option>
+                      <select className="form-select" value={form.grupo}
+                        onChange={e => setForm({ ...form, grupo: e.target.value })}>
                         {GRUPOS.map(g => <option key={g}>{g}</option>)}
-                      </SelectConX>
+                      </select>
                     </div>
                     <div className="col">
                       <label className="form-label">Urgencia*</label>
-                      <SelectConX value={form.urgencia} onChange={e => setForm({ ...form, urgencia: e.target.value })}>
-                        <option value="">-- Urgencia --</option>
+                      <select className="form-select" value={form.urgencia}
+                        onChange={e => setForm({ ...form, urgencia: e.target.value })}>
                         {URGENCIAS.map(u => <option key={u}>{u}</option>)}
-                      </SelectConX>
+                      </select>
                     </div>
                     <div className="col">
                       <label className="form-label">Estado*</label>
-                      <SelectConX value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })}>
-                        <option value="">-- Estado --</option>
+                      <select className="form-select" value={form.estado}
+                        onChange={e => setForm({ ...form, estado: e.target.value })}>
                         {ESTADOS.map(s => <option key={s}>{s}</option>)}
-                      </SelectConX>
+                      </select>
                     </div>
                   </div>
                 </div>

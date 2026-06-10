@@ -5,7 +5,8 @@ import { api } from '../../services/api'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
 const ESTADOS   = ['Pendiente', 'En proceso', 'Completado', 'Cancelado']
-const FORM_INIT = { fecha: '', nombre_repuesto: '', descripcion: '', urgencia: 'Media', destino: '', estado: 'Pendiente' }
+const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Hervicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Otros']
+const FORM_INIT = { fecha: '', nombre_repuesto: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
 
 export default function BerdinaPedidos() {
   const navigate = useNavigate()
@@ -30,7 +31,8 @@ export default function BerdinaPedidos() {
       nombre_repuesto: p.nombre_repuesto,
       descripcion: p.descripcion,
       urgencia: p.urgencia,
-      destino: p.destino,
+      grupo: p.grupo,
+      cc: p.cc || '',
       estado: p.estado,
     })
     setEditId(p._id)
@@ -76,7 +78,7 @@ export default function BerdinaPedidos() {
   }
 
   const lista = pedidos.filter(p =>
-    [p.nombre_repuesto, p.descripcion, p.destino, p.urgencia, p.estado]
+    [p.nombre_repuesto, p.descripcion, p.grupo, p.cc, p.urgencia, p.estado]
       .some(v => v?.toLowerCase().includes(busqueda.toLowerCase()))
   )
 
@@ -123,7 +125,8 @@ export default function BerdinaPedidos() {
                   <th>Repuesto</th>
                   <th>Descripción</th>
                   <th>Urgencia</th>
-                  <th>Destino</th>
+                  <th>Grupo</th>
+                  <th>C.C.</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -135,7 +138,8 @@ export default function BerdinaPedidos() {
                     <td>{p.nombre_repuesto}</td>
                     <td>{p.descripcion}</td>
                     <td>{badgeUrgencia(p.urgencia)}</td>
-                    <td>{p.destino}</td>
+                    <td>{p.grupo}</td>
+                    <td>{p.cc}</td>
                     <td>{badgeEstado(p.estado)}</td>
                     <td className="text-nowrap">
                       <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(p)}>Editar</button>
@@ -186,9 +190,16 @@ export default function BerdinaPedidos() {
                     </select>
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Destino*</label>
-                    <input className="form-control" value={form.destino}
-                      onChange={e => setForm({ ...form, destino: e.target.value })} required />
+                    <label className="form-label">Grupo*</label>
+                    <select className="form-select" value={form.grupo}
+                      onChange={e => setForm({ ...form, grupo: e.target.value })}>
+                      {GRUPOS.map(g => <option key={g}>{g}</option>)}
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">C.C.</label>
+                    <input className="form-control" value={form.cc}
+                      onChange={e => setForm({ ...form, cc: e.target.value })} />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Estado*</label>

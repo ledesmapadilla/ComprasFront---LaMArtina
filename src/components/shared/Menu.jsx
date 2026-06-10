@@ -4,7 +4,7 @@ export default function Menu() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
       <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
-        <img src="/logo LM-transp.png" alt="Logo La Martina" height="40" />
+        <img src="/logo LM.jpg" alt="Logo La Martina" height="40" />
         <span className="fw-bold fs-5">La Martina
           <span className="text-secondary fw-normal fs-6 ms-2">Compras</span>
         </span>

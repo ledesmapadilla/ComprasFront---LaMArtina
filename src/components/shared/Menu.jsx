@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom'
 
 export default function Menu() {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3" style={{ paddingLeft: '4rem' }}>
-      <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <Link className="navbar-brand d-flex align-items-center gap-2" to="/" style={{ marginLeft: '80px' }}>
         <img
           src="/logo LM.jpg"
           alt="Logo La Martina"

@@ -9,6 +9,12 @@ const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herv
 
 const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
 
+const estiloX = {
+  position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+  cursor: 'pointer', fontSize: 13, fontWeight: 900, color: 'var(--color-muted)',
+  zIndex: 5, userSelect: 'none', lineHeight: 1,
+}
+
 export default function BerdinaPedidos() {
   const navigate = useNavigate()
   const [pedidos, setPedidos] = useState([])
@@ -16,7 +22,11 @@ export default function BerdinaPedidos() {
   const [editPedidoId, setEditPedidoId] = useState(null)
   const [editItemId, setEditItemId] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [busqueda, setBusqueda] = useState('')
+  const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', estado: '' }
+  const [filtros, setFiltros] = useState(FILTROS_INIT)
+  const setF = (k, v) => setFiltros(f => ({ ...f, [k]: v }))
+  const limpiar = () => setFiltros(FILTROS_INIT)
+  const hayFiltros = Object.values(filtros).some(v => v !== '')
 
   const cargar = () => api.get('/berdina/pedidos').then(setPedidos).catch(() => {})
   useEffect(() => { cargar() }, [])
@@ -25,10 +35,16 @@ export default function BerdinaPedidos() {
     (p.items || []).map(item => ({ ...item, nro_pedido: p.nro_pedido, fecha: p.fecha, pedidoId: p._id }))
   )
 
-  const lista = items.filter(item =>
-    [item.nombre_repuesto, item.descripcion, item.grupo, item.cc, item.urgencia, item.estado]
-      .some(v => v?.toLowerCase().includes(busqueda.toLowerCase()))
-  )
+  const lista = items.filter(item => {
+    if (filtros.nro && !String(item.nro_pedido).includes(filtros.nro)) return false
+    if (filtros.fecha && item.fecha?.slice(0, 10) !== filtros.fecha) return false
+    if (filtros.cc && !item.cc?.toLowerCase().includes(filtros.cc.toLowerCase())) return false
+    if (filtros.repuesto && !item.nombre_repuesto?.toLowerCase().includes(filtros.repuesto.toLowerCase())) return false
+    if (filtros.urgencia && item.urgencia !== filtros.urgencia) return false
+    if (filtros.grupo && item.grupo !== filtros.grupo) return false
+    if (filtros.estado && item.estado !== filtros.estado) return false
+    return true
+  })
 
   const abrirEditar = (item) => {
     setForm({
@@ -104,26 +120,77 @@ export default function BerdinaPedidos() {
       <div className="container">
         <h4 className="text-center mb-2" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Pedidos</h4>
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div style={{ position: 'relative', width: '25%' }}>
-            <input
-              className="form-control"
-              placeholder="Buscar por repuesto, grupo, urgencia, estado..."
-              value={busqueda}
-              onChange={e => setBusqueda(e.target.value)}
-            />
-            {busqueda && (
-              <span
-                onClick={() => setBusqueda('')}
-                style={{
-                  position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-                  cursor: 'pointer', fontSize: 14, fontWeight: 900,
-                  color: 'var(--color-muted)', zIndex: 5, userSelect: 'none',
-                }}
-              >✕</span>
-            )}
+        <div className="d-flex flex-wrap gap-2 align-items-end mb-3">
+          {/* N° Pedido */}
+          <div>
+            <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>N° Pedido</label>
+            <div style={{ position: 'relative' }}>
+              <input className="form-control form-control-sm" style={{ width: 80 }} value={filtros.nro} onChange={e => setF('nro', e.target.value)} placeholder="N°" />
+              {filtros.nro && <span onClick={() => setF('nro', '')} style={estiloX}>✕</span>}
+            </div>
           </div>
-          <button className="btn btn-outline-dark" onClick={() => navigate('/berdina/pedidos/nuevo')}>+ Nuevo pedido</button>
+          {/* Fecha */}
+          <div>
+            <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Fecha</label>
+            <div style={{ position: 'relative' }}>
+              <input type="date" className="form-control form-control-sm" value={filtros.fecha} onChange={e => setF('fecha', e.target.value)} />
+              {filtros.fecha && <span onClick={() => setF('fecha', '')} style={estiloX}>✕</span>}
+            </div>
+          </div>
+          {/* C.C. */}
+          <div>
+            <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>C.C.</label>
+            <div style={{ position: 'relative' }}>
+              <input className="form-control form-control-sm" style={{ width: 80 }} value={filtros.cc} onChange={e => setF('cc', e.target.value)} placeholder="C.C." />
+              {filtros.cc && <span onClick={() => setF('cc', '')} style={estiloX}>✕</span>}
+            </div>
+          </div>
+          {/* Repuesto */}
+          <div>
+            <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Repuesto</label>
+            <div style={{ position: 'relative' }}>
+              <input className="form-control form-control-sm" style={{ width: 160 }} value={filtros.repuesto} onChange={e => setF('repuesto', e.target.value)} placeholder="Repuesto..." />
+              {filtros.repuesto && <span onClick={() => setF('repuesto', '')} style={estiloX}>✕</span>}
+            </div>
+          </div>
+          {/* Urgencia */}
+          <div>
+            <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Urgencia</label>
+            <div style={{ position: 'relative' }}>
+              <select className="form-select form-select-sm" style={{ width: 110, ...(filtros.urgencia ? { backgroundImage: 'none' } : {}) }} value={filtros.urgencia} onChange={e => setF('urgencia', e.target.value)}>
+                <option value="">Todas</option>
+                {URGENCIAS.map(u => <option key={u}>{u}</option>)}
+              </select>
+              {filtros.urgencia && <span onClick={() => setF('urgencia', '')} style={estiloX}>✕</span>}
+            </div>
+          </div>
+          {/* Grupo */}
+          <div>
+            <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Grupo</label>
+            <div style={{ position: 'relative' }}>
+              <select className="form-select form-select-sm" style={{ width: 140, ...(filtros.grupo ? { backgroundImage: 'none' } : {}) }} value={filtros.grupo} onChange={e => setF('grupo', e.target.value)}>
+                <option value="">Todos</option>
+                {GRUPOS.map(g => <option key={g}>{g}</option>)}
+              </select>
+              {filtros.grupo && <span onClick={() => setF('grupo', '')} style={estiloX}>✕</span>}
+            </div>
+          </div>
+          {/* Estado */}
+          <div>
+            <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Estado</label>
+            <div style={{ position: 'relative' }}>
+              <select className="form-select form-select-sm" style={{ width: 130, ...(filtros.estado ? { backgroundImage: 'none' } : {}) }} value={filtros.estado} onChange={e => setF('estado', e.target.value)}>
+                <option value="">Todos</option>
+                {ESTADOS.map(s => <option key={s}>{s}</option>)}
+              </select>
+              {filtros.estado && <span onClick={() => setF('estado', '')} style={estiloX}>✕</span>}
+            </div>
+          </div>
+
+          <div className="ms-auto d-flex gap-2 align-items-end">
+            {hayFiltros && <button className="btn btn-sm btn-outline-secondary" onClick={limpiar}>Limpiar</button>}
+            <button className="btn btn-outline-dark btn-sm" onClick={() => navigate('/berdina/pedidos/nuevo')}>+ Nuevo pedido</button>
+          </div>
         </div>
 
         <div className="card">

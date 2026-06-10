@@ -6,7 +6,7 @@ import { api } from '../../services/api'
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
 const ESTADOS   = ['Pendiente', 'En proceso', 'Completado', 'Cancelado']
 const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Hervicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
-const FORM_INIT = { fecha: '', nombre_repuesto: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
+const FORM_INIT = { fecha: '', nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
 
 export default function BerdinaPedidos() {
   const navigate = useNavigate()
@@ -29,6 +29,7 @@ export default function BerdinaPedidos() {
     setForm({
       fecha: p.fecha?.slice(0, 10) || '',
       nombre_repuesto: p.nombre_repuesto,
+      cant: p.cant || '',
       descripcion: p.descripcion,
       urgencia: p.urgencia,
       grupo: p.grupo,
@@ -123,6 +124,7 @@ export default function BerdinaPedidos() {
                 <tr>
                   <th>Fecha</th>
                   <th>Repuesto</th>
+                  <th>Cant.</th>
                   <th>Descripción</th>
                   <th>Urgencia</th>
                   <th>Grupo</th>
@@ -136,6 +138,7 @@ export default function BerdinaPedidos() {
                   <tr key={p._id}>
                     <td>{p.fecha?.slice(0, 10)}</td>
                     <td>{p.nombre_repuesto}</td>
+                    <td>{p.cant}</td>
                     <td>{p.descripcion}</td>
                     <td>{badgeUrgencia(p.urgencia)}</td>
                     <td>{p.grupo}</td>
@@ -176,6 +179,11 @@ export default function BerdinaPedidos() {
                     <label className="form-label">Nombre repuesto*</label>
                     <input className="form-control" value={form.nombre_repuesto}
                       onChange={e => setForm({ ...form, nombre_repuesto: e.target.value })} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Cant.</label>
+                    <input type="number" min="1" className="form-control" value={form.cant}
+                      onChange={e => setForm({ ...form, cant: e.target.value })} />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Descripción</label>

@@ -71,41 +71,44 @@ export default function NuevoPedido() {
           </div>
           <div className="card-body">
             <form onSubmit={agregarFila}>
-              <div className="row mb-2">
-                <div className="col-7">
-                  <label className="form-label">Nombre repuesto*</label>
-                  <input className="form-control" value={itemForm.nombre_repuesto}
+              {/* Fila 1: Nombre · Cant. · C.C. · Urgencia */}
+              <div className="row mb-2 g-2">
+                <div className="col-5">
+                  <label className="form-label form-label-sm">Nombre repuesto*</label>
+                  <input className="form-control form-control-sm" value={itemForm.nombre_repuesto}
                     onChange={e => setItemForm({ ...itemForm, nombre_repuesto: e.target.value })} required />
                 </div>
                 <div className="col-2">
-                  <label className="form-label">Cant.</label>
-                  <input type="number" min="1" className="form-control" value={itemForm.cant}
+                  <label className="form-label form-label-sm">Cant.</label>
+                  <input type="number" min="1" className="form-control form-control-sm" value={itemForm.cant}
                     onChange={e => setItemForm({ ...itemForm, cant: e.target.value })} />
                 </div>
-                <div className="col-3">
-                  <label className="form-label">C.C.</label>
-                  <input className="form-control" value={itemForm.cc}
+                <div className="col-2">
+                  <label className="form-label form-label-sm">C.C.</label>
+                  <input className="form-control form-control-sm" value={itemForm.cc}
                     onChange={e => setItemForm({ ...itemForm, cc: e.target.value })} />
                 </div>
-              </div>
-              <div className="mb-2">
-                <label className="form-label">Descripción</label>
-                <textarea className="form-control" rows={2} value={itemForm.descripcion}
-                  onChange={e => setItemForm({ ...itemForm, descripcion: e.target.value })} />
-              </div>
-              <div className="row mb-3">
-                <div className="col">
-                  <label className="form-label">Grupo*</label>
-                  <select className="form-select" value={itemForm.grupo}
-                    onChange={e => setItemForm({ ...itemForm, grupo: e.target.value })}>
-                    {GRUPOS.map(g => <option key={g}>{g}</option>)}
-                  </select>
-                </div>
-                <div className="col">
-                  <label className="form-label">Urgencia*</label>
-                  <select className="form-select" value={itemForm.urgencia}
+                <div className="col-3">
+                  <label className="form-label form-label-sm">Urgencia*</label>
+                  <select className="form-select form-select-sm" value={itemForm.urgencia}
                     onChange={e => setItemForm({ ...itemForm, urgencia: e.target.value })}>
                     {URGENCIAS.map(u => <option key={u}>{u}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Fila 2: Descripción · Grupo */}
+              <div className="row mb-3 g-2">
+                <div className="col-7">
+                  <label className="form-label form-label-sm">Descripción</label>
+                  <textarea className="form-control form-control-sm" rows={2} value={itemForm.descripcion}
+                    onChange={e => setItemForm({ ...itemForm, descripcion: e.target.value })} />
+                </div>
+                <div className="col-5">
+                  <label className="form-label form-label-sm">Grupo*</label>
+                  <select className="form-select form-select-sm" value={itemForm.grupo}
+                    onChange={e => setItemForm({ ...itemForm, grupo: e.target.value })}>
+                    {GRUPOS.map(g => <option key={g}>{g}</option>)}
                   </select>
                 </div>
               </div>

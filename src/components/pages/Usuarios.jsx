@@ -88,7 +88,7 @@ export default function Usuarios() {
 
         <div className="card">
           <div className="table-responsive">
-            <table className="table table-hover mb-0">
+            <table className="table table-hover table-striped mb-0">
               <thead className="table-light">
                 <tr>
                   <th>Nombre</th>

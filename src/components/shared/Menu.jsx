@@ -46,6 +46,11 @@ export default function Menu() {
                   Proveedores
                 </Link>
               </li>
+              <li>
+                <Link className="dropdown-item" to="/altas/centros-costo">
+                  Centros de Costo
+                </Link>
+              </li>
             </ul>
           </li>
           <li className="nav-item">

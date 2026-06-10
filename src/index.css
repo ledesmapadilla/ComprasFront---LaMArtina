@@ -45,7 +45,7 @@ body {
   border: 1.5px solid var(--color-primary) !important;
 }
 .modal-header {
-  background-color: var(--color-primary);
+  background-color: #4a6b8a;
   color: #fff;
 }
 .modal-header .btn-close {

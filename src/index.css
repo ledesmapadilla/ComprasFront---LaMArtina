@@ -1,16 +1,81 @@
+:root {
+  --color-primary:   #1b2f55;
+  --color-primary-hover: #243d70;
+  --color-accent:    #e8960c;
+  --color-accent-hover: #d4830a;
+  --color-bg:        #f0f2f7;
+  --color-surface:   #ffffff;
+  --color-text:      #1b2f55;
+  --color-muted:     #6b7a99;
+
+  --card-pedido:     #3b6fd4;
+  --card-pendientes: #e8960c;
+  --card-stock:      #2eaf7d;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Navbar */
+.navbar.navbar-dark.bg-dark {
+  background-color: var(--color-primary) !important;
+  border-bottom: 3px solid var(--color-accent);
+}
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+  color: var(--color-accent) !important;
+}
+.navbar .dropdown-menu {
+  border: 1px solid var(--color-primary);
+}
+.navbar .dropdown-item:hover {
+  background-color: var(--color-primary);
+  color: var(--color-accent) !important;
+}
+
+/* Modales */
 .modal-content {
-  border: 1.5px solid #000 !important;
+  border: 1.5px solid var(--color-primary) !important;
+}
+.modal-header {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+.modal-header .btn-close {
+  filter: invert(1);
 }
 .modal .form-control,
 .modal .form-select {
-  border: 1px solid #000 !important;
+  border: 1px solid var(--color-primary) !important;
 }
 .modal .form-control:focus,
 .modal .form-select:focus {
-  border: 1px solid #000 !important;
-  box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid var(--color-accent) !important;
+  box-shadow: 0 0 0 0.2rem rgba(232, 150, 12, 0.3) !important;
 }
 
+/* Botones outline-dark → colores del proyecto */
+.btn-outline-dark {
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+.btn-outline-dark:hover {
+  background-color: var(--color-primary) !important;
+  color: #fff !important;
+}
+
+/* Tablas */
+.table thead {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+.table-hover tbody tr:hover {
+  background-color: rgba(27, 47, 85, 0.06);
+}
+
+/* Layout */
 #root {
   min-height: 100vh;
   display: flex;

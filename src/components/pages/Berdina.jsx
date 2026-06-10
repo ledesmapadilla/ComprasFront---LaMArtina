@@ -2,12 +2,12 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 const tarjetas = [
-  { titulo: 'Pedido', icono: 'bi-cart3', ruta: '/berdina/pedido' },
-  { titulo: 'Pendientes', icono: 'bi-hourglass-split', ruta: '/berdina/pendientes' },
-  { titulo: 'Stock', icono: 'bi-box-seam', ruta: '/berdina/stock' },
+  { titulo: 'Pedido',     icono: 'bi-cart3',          ruta: '/berdina/pedido',     color: 'var(--card-pedido)' },
+  { titulo: 'Pendientes', icono: 'bi-hourglass-split', ruta: '/berdina/pendientes', color: 'var(--card-pendientes)' },
+  { titulo: 'Stock',      icono: 'bi-box-seam',        ruta: '/berdina/stock',      color: 'var(--card-stock)' },
 ]
 
-function Tarjeta({ titulo, icono, ruta }) {
+function Tarjeta({ titulo, icono, ruta, color }) {
   const navigate = useNavigate()
   const [hovered, setHovered] = useState(false)
 
@@ -20,23 +20,22 @@ function Tarjeta({ titulo, icono, ruta }) {
         width: 200,
         height: 200,
         cursor: 'pointer',
-        border: '1.5px solid #000',
-        borderRadius: 12,
-        backgroundColor: '#fff',
+        borderRadius: 14,
+        backgroundColor: color,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 12,
         transition: 'transform 0.18s ease, box-shadow 0.18s ease',
-        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
+        transform: hovered ? 'translateY(-6px) scale(1.03)' : 'translateY(0) scale(1)',
         boxShadow: hovered
-          ? '0 8px 24px rgba(0,0,0,0.18), 0 0 16px rgba(0,0,0,0.10)'
-          : '0 2px 6px rgba(0,0,0,0.08)',
+          ? `0 12px 32px rgba(0,0,0,0.22), 0 0 20px color-mix(in srgb, ${color} 60%, transparent)`
+          : '0 3px 10px rgba(0,0,0,0.12)',
       }}
     >
-      <i className={`bi ${icono}`} style={{ fontSize: 48, color: hovered ? '#000' : '#444', transition: 'color 0.18s' }} />
-      <span style={{ fontWeight: 600, fontSize: 17, color: '#000' }}>{titulo}</span>
+      <i className={`bi ${icono}`} style={{ fontSize: 52, color: '#fff' }} />
+      <span style={{ fontWeight: 700, fontSize: 17, color: '#fff', letterSpacing: 0.5 }}>{titulo}</span>
     </div>
   )
 }

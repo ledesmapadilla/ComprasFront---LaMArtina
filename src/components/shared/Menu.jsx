@@ -7,7 +7,7 @@ export default function Menu() {
         <img
           src="/logo LM.jpg"
           alt="Logo La Martina"
-          height="40"
+          height="54"
           style={{
             maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',

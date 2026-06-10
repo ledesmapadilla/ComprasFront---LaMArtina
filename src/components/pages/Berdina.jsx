@@ -35,8 +35,8 @@ function Tarjeta({ titulo, icono, ruta, color }) {
           : '0 2px 8px rgba(0,0,0,0.08)',
       }}
     >
-      <i className={`bi ${icono}`} style={{ fontSize: 52, color: 'var(--color-primary)' }} />
-      <span style={{ fontWeight: 700, fontSize: 17, color: 'var(--color-primary)', letterSpacing: 0.5 }}>{titulo}</span>
+      <i className={`bi ${icono}`} style={{ fontSize: 52, color: '#fff' }} />
+      <span style={{ fontWeight: 700, fontSize: 17, color: '#fff', letterSpacing: 0.5 }}>{titulo}</span>
     </div>
   )
 }

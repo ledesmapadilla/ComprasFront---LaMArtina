@@ -1,15 +1,15 @@
 :root {
-  --color-primary:       #2d3a4a;
-  --color-primary-hover: #3a4d61;
-  --color-accent:        #8fa3b8;
-  --color-bg:            #eef0f4;
+  --color-primary:       #2c4a1c;
+  --color-primary-hover: #3a5f25;
+  --color-accent:        #8a6c20;
+  --color-bg:            #f0ebe0;
   --color-surface:       #ffffff;
-  --color-text:          #2d3a4a;
-  --color-muted:         #7a8a9a;
+  --color-text:          #1e2e14;
+  --color-muted:         #6b7a5a;
 
-  --card-pedido:         #c8dff0;
-  --card-pendientes:     #f0dfc8;
-  --card-stock:          #c8f0e0;
+  --card-pedido:         #4d7a32;
+  --card-pendientes:     #8a6422;
+  --card-stock:          #2d6b52;
 }
 
 body {

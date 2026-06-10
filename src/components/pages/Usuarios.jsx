@@ -22,7 +22,7 @@ export default function Usuarios() {
   }
 
   const abrirEditar = (u) => {
-    setForm({ nombre: u.nombre, usuario: u.usuario, password: '', rol: u.rol })
+    setForm({ nombre: u.nombre, usuario: u.usuario, password: u.password, rol: u.rol })
     setEditId(u._id)
     setError('')
     setShowModal(true)

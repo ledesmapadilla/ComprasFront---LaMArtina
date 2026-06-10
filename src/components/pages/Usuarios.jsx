@@ -40,7 +40,9 @@ export default function Usuarios() {
     setError('')
     try {
       if (editId) {
-        await api.put(`/usuarios/${editId}`, form)
+        const data = { nombre: form.nombre, usuario: form.usuario, rol: form.rol }
+        if (form.password) data.password = form.password
+        await api.put(`/usuarios/${editId}`, data)
       } else {
         await api.post('/usuarios', form)
       }

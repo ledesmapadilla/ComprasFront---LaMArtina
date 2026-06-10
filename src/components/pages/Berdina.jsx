@@ -43,12 +43,13 @@ function Tarjeta({ titulo, icono, ruta, color }) {
 
 export default function Berdina() {
   const navigate = useNavigate()
-  return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-      {/* COMPRAS izq — Volver der */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '24px 32px 0' }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
+  return (
+    <div className="container-fluid flex-grow-1 d-flex flex-column py-4">
+
+      {/* Header */}
+      <div className="container d-flex justify-content-between align-items-center mb-5">
+        <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
           Compras
         </p>
         <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">
@@ -56,12 +57,12 @@ export default function Berdina() {
         </button>
       </div>
 
-      {/* BERDINA + tarjetas — centrado */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 48, paddingBottom: '6vh' }}>
-        <h2 style={{ margin: 0, fontWeight: 700, fontSize: 36, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: 3 }}>
+      {/* Título + tarjetas centradas */}
+      <div className="container flex-grow-1 d-flex flex-column align-items-center justify-content-center gap-4" style={{ paddingBottom: '6vh' }}>
+        <h2 className="mb-3" style={{ fontWeight: 700, fontSize: 36, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: 3 }}>
           Berdina
         </h2>
-        <div style={{ display: 'flex', gap: 36, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div className="d-flex flex-wrap justify-content-center gap-4">
           {tarjetas.map((t) => <Tarjeta key={t.titulo} {...t} />)}
         </div>
       </div>

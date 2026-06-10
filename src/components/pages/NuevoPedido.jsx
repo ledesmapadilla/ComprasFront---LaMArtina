@@ -65,7 +65,7 @@ export default function NuevoPedido() {
         </div>
 
         {/* Formulario ítem */}
-        <div className="card mb-3">
+        <div className="card mb-3" style={{ maxWidth: 720 }}>
           <div className="card-header fw-semibold" style={{ backgroundColor: '#4a6b8a', color: '#fff' }}>
             Agregar ítem
           </div>

@@ -3,6 +3,7 @@ import Menu from './components/shared/Menu'
 import Footer from './components/shared/Footer'
 import Inicio from './components/pages/Inicio'
 import Usuarios from './components/pages/Usuarios'
+import Proveedores from './components/pages/Proveedores'
 import Error404 from './components/pages/Error404'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Inicio />} />
           <Route path="/altas/usuarios" element={<Usuarios />} />
+          <Route path="/altas/proveedores" element={<Proveedores />} />
           <Route path="*" element={<Error404 />} />
         </Routes>
       </main>

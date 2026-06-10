@@ -41,6 +41,11 @@ export default function Menu() {
                   Usuarios
                 </Link>
               </li>
+              <li>
+                <Link className="dropdown-item" to="/altas/proveedores">
+                  Proveedores
+                </Link>
+              </li>
             </ul>
           </li>
         </ul>

@@ -4,10 +4,9 @@ import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
-const ESTADOS   = ['Pendiente', 'En proceso', 'Completado', 'Cancelado']
 const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Hervicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
 
-const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
+const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pedido' }
 
 export default function NuevoPedido() {
   const navigate = useNavigate()
@@ -109,13 +108,6 @@ export default function NuevoPedido() {
                     {URGENCIAS.map(u => <option key={u}>{u}</option>)}
                   </select>
                 </div>
-                <div className="col">
-                  <label className="form-label">Estado*</label>
-                  <select className="form-select" value={itemForm.estado}
-                    onChange={e => setItemForm({ ...itemForm, estado: e.target.value })}>
-                    {ESTADOS.map(s => <option key={s}>{s}</option>)}
-                  </select>
-                </div>
               </div>
               <button type="submit" className="btn btn-outline-dark">+ Agregar fila</button>
             </form>
@@ -148,7 +140,7 @@ export default function NuevoPedido() {
                       <td>{badgeUrgencia(item.urgencia)}</td>
                       <td>{item.grupo}</td>
                       <td>{item.cc}</td>
-                      <td><span className="badge bg-secondary">{item.estado}</span></td>
+                      <td><span className="badge bg-primary">Pedido</span></td>
                       <td>
                         <button className="btn btn-sm btn-outline-danger" onClick={() => quitarFila(item._tmpId)}>✕</button>
                       </td>

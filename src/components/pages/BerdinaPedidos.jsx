@@ -4,7 +4,7 @@ import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
-const ESTADOS   = ['Pendiente', 'En proceso', 'Completado', 'Cancelado']
+const ESTADOS   = ['Pedido', 'Pendiente', 'En proceso', 'Completado', 'Cancelado']
 const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Hervicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
 
 const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
@@ -87,7 +87,7 @@ export default function BerdinaPedidos() {
   }
 
   const badgeEstado = (e) => {
-    const map = { Pendiente: 'secondary', 'En proceso': 'primary', Completado: 'success', Cancelado: 'danger' }
+    const map = { Pedido: 'primary', Pendiente: 'secondary', 'En proceso': 'warning', Completado: 'success', Cancelado: 'danger' }
     return <span className={`badge bg-${map[e] || 'secondary'}`}>{e}</span>
   }
 

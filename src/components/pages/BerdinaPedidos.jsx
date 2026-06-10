@@ -136,7 +136,7 @@ export default function BerdinaPedidos() {
               <tbody>
                 {lista.map(p => (
                   <tr key={p._id}>
-                    <td>{p.fecha?.slice(0, 10)}</td>
+                    <td>{p.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                     <td>{p.nombre_repuesto}</td>
                     <td>{p.cant}</td>
                     <td>{p.descripcion}</td>

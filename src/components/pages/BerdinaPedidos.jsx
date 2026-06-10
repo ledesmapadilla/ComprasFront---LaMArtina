@@ -50,7 +50,9 @@ export default function BerdinaPedidos() {
   const guardar = async (e) => {
     e.preventDefault()
     try {
-      await api.put(`/berdina/pedidos/${editPedidoId}/items/${editItemId}`, form)
+      const { cant, ...rest } = form
+      const payload = { ...rest, ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}) }
+      await api.put(`/berdina/pedidos/${editPedidoId}/items/${editItemId}`, payload)
       cargar()
       cerrar()
       Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500, showConfirmButton: false })

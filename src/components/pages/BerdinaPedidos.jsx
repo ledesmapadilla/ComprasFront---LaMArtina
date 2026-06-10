@@ -170,51 +170,65 @@ export default function BerdinaPedidos() {
               </div>
               <form onSubmit={guardar}>
                 <div className="modal-body">
+
+                  {/* Fecha */}
                   <div className="mb-3">
                     <label className="form-label">Fecha*</label>
                     <input type="date" className="form-control" value={form.fecha}
                       onChange={e => setForm({ ...form, fecha: e.target.value })} required />
                   </div>
+
+                  {/* Nombre repuesto */}
                   <div className="mb-3">
                     <label className="form-label">Nombre repuesto*</label>
                     <input className="form-control" value={form.nombre_repuesto}
                       onChange={e => setForm({ ...form, nombre_repuesto: e.target.value })} required />
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label">Cant.</label>
-                    <input type="number" min="1" className="form-control" value={form.cant}
-                      onChange={e => setForm({ ...form, cant: e.target.value })} />
+
+                  {/* Cant. y C.C. en la misma fila */}
+                  <div className="row mb-3">
+                    <div className="col">
+                      <label className="form-label">Cant.</label>
+                      <input type="number" min="1" className="form-control" value={form.cant}
+                        onChange={e => setForm({ ...form, cant: e.target.value })} />
+                    </div>
+                    <div className="col">
+                      <label className="form-label">C.C.</label>
+                      <input className="form-control" value={form.cc}
+                        onChange={e => setForm({ ...form, cc: e.target.value })} />
+                    </div>
                   </div>
+
+                  {/* Descripción */}
                   <div className="mb-3">
                     <label className="form-label">Descripción</label>
                     <textarea className="form-control" rows={2} value={form.descripcion}
                       onChange={e => setForm({ ...form, descripcion: e.target.value })} />
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label">Urgencia*</label>
-                    <select className="form-select" value={form.urgencia}
-                      onChange={e => setForm({ ...form, urgencia: e.target.value })}>
-                      {URGENCIAS.map(u => <option key={u}>{u}</option>)}
-                    </select>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Grupo*</label>
-                    <select className="form-select" value={form.grupo}
-                      onChange={e => setForm({ ...form, grupo: e.target.value })}>
-                      {GRUPOS.map(g => <option key={g}>{g}</option>)}
-                    </select>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">C.C.</label>
-                    <input className="form-control" value={form.cc}
-                      onChange={e => setForm({ ...form, cc: e.target.value })} />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Estado*</label>
-                    <select className="form-select" value={form.estado}
-                      onChange={e => setForm({ ...form, estado: e.target.value })}>
-                      {ESTADOS.map(s => <option key={s}>{s}</option>)}
-                    </select>
+
+                  {/* Grupo, Urgencia y Estado en la misma fila */}
+                  <div className="row mb-3">
+                    <div className="col">
+                      <label className="form-label">Grupo*</label>
+                      <select className="form-select" value={form.grupo}
+                        onChange={e => setForm({ ...form, grupo: e.target.value })}>
+                        {GRUPOS.map(g => <option key={g}>{g}</option>)}
+                      </select>
+                    </div>
+                    <div className="col">
+                      <label className="form-label">Urgencia*</label>
+                      <select className="form-select" value={form.urgencia}
+                        onChange={e => setForm({ ...form, urgencia: e.target.value })}>
+                        {URGENCIAS.map(u => <option key={u}>{u}</option>)}
+                      </select>
+                    </div>
+                    <div className="col">
+                      <label className="form-label">Estado*</label>
+                      <select className="form-select" value={form.estado}
+                        onChange={e => setForm({ ...form, estado: e.target.value })}>
+                        {ESTADOS.map(s => <option key={s}>{s}</option>)}
+                      </select>
+                    </div>
                   </div>
                 </div>
                 <div className="modal-footer">

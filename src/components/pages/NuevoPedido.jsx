@@ -29,7 +29,11 @@ export default function NuevoPedido() {
       return
     }
     try {
-      await api.post('/berdina/pedidos', { fecha, items })
+      const itemsLimpios = items.map(({ _tmpId, cant, ...rest }) => ({
+        ...rest,
+        ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}),
+      }))
+      await api.post('/berdina/pedidos', { fecha, items: itemsLimpios })
       Swal.fire({ icon: 'success', title: 'Pedido guardado', timer: 1500, showConfirmButton: false })
       navigate('/berdina/pedidos')
     } catch (err) {

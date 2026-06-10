@@ -48,6 +48,30 @@ export default function Menu() {
               </li>
             </ul>
           </li>
+          <li className="nav-item dropdown">
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+            >
+              Berdina
+            </a>
+            <ul className="dropdown-menu dropdown-menu-dark">
+            </ul>
+          </li>
+          <li className="nav-item dropdown">
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+            >
+              San Pablo
+            </a>
+            <ul className="dropdown-menu dropdown-menu-dark">
+            </ul>
+          </li>
         </ul>
       </div>
     </nav>

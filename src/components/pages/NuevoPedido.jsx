@@ -98,7 +98,8 @@ export default function NuevoPedido() {
                 <div className="col-2">
                   <label className="form-label form-label-sm w-100 text-center">Cant.</label>
                   <input type="number" min="1" className="form-control form-control-sm" value={itemForm.cant}
-                    onChange={e => setItemForm({ ...itemForm, cant: e.target.value })} />
+                    onChange={e => setItemForm({ ...itemForm, cant: e.target.value })}
+                    onKeyDown={e => ['e','E','+','-','.'].includes(e.key) && e.preventDefault()} />
                 </div>
                 <div className="col-2">
                   <label className="form-label form-label-sm w-100 text-center">C.C.*</label>

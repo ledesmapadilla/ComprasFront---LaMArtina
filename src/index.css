@@ -22,16 +22,22 @@ body {
   background-color: var(--color-primary) !important;
   border-bottom: 3px solid var(--color-accent);
 }
+.navbar .nav-link {
+  color: #ffffff !important;
+}
 .navbar .nav-link:hover,
 .navbar .nav-link:focus {
-  color: var(--color-accent) !important;
+  color: #c9a0a8 !important;
 }
 .navbar .dropdown-menu {
   border: 1px solid var(--color-primary);
 }
+.navbar .dropdown-item {
+  color: #ffffff !important;
+}
 .navbar .dropdown-item:hover {
-  background-color: var(--color-primary);
-  color: var(--color-accent) !important;
+  background-color: #2e2e2e;
+  color: #c9a0a8 !important;
 }
 
 /* Modales */

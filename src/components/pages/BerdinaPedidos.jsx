@@ -119,29 +119,29 @@ export default function BerdinaPedidos() {
             <table className="table table-hover table-striped mb-0">
               <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'var(--color-primary)', color: '#fff' }}>
                 <tr>
-                  <th>N° Pedido</th>
-                  <th>Fecha</th>
-                  <th>Repuesto</th>
-                  <th>Cant.</th>
-                  <th>Descripción</th>
-                  <th>Urgencia</th>
-                  <th>Grupo</th>
-                  <th>C.C.</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>N° Pedido</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Fecha</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>C.C.</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Repuesto</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Cant.</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Descripción</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Urgencia</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Grupo</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Estado</th>
+                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {lista.map(item => (
-                  <tr key={item._id}>
+                  <tr key={item._id} style={item.urgencia === 'Crítica' ? { color: '#c0000c', fontWeight: 700 } : {}}>
                     <td>{item.nro_pedido}</td>
                     <td>{item.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
+                    <td>{item.cc}</td>
                     <td>{item.nombre_repuesto}</td>
                     <td>{item.cant}</td>
                     <td>{item.descripcion}</td>
                     <td>{badgeUrgencia(item.urgencia)}</td>
                     <td>{item.grupo}</td>
-                    <td>{item.cc}</td>
                     <td>{badgeEstado(item.estado)}</td>
                     <td className="text-nowrap">
                       <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(item)}>Editar</button>

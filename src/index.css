@@ -51,14 +51,16 @@ body {
 .modal-header .btn-close {
   filter: invert(1);
 }
-.modal .form-control,
-.modal .form-select {
+
+/* Inputs y selects — borde negro global */
+.form-control,
+.form-select {
   border: 1px solid var(--color-primary) !important;
 }
-.modal .form-control:focus,
-.modal .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   border: 1px solid var(--color-accent) !important;
-  box-shadow: 0 0 0 0.2rem rgba(232, 150, 12, 0.3) !important;
+  box-shadow: 0 0 0 0.2rem rgba(74, 8, 18, 0.2) !important;
 }
 
 /* Botones outline-dark → colores del proyecto */

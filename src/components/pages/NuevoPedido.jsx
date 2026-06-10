@@ -72,18 +72,18 @@ export default function NuevoPedido() {
           </div>
           <div className="card-body">
             <form onSubmit={agregarFila}>
-              <div className="mb-2">
-                <label className="form-label">Nombre repuesto*</label>
-                <input className="form-control" value={itemForm.nombre_repuesto}
-                  onChange={e => setItemForm({ ...itemForm, nombre_repuesto: e.target.value })} required />
-              </div>
               <div className="row mb-2">
-                <div className="col">
+                <div className="col-7">
+                  <label className="form-label">Nombre repuesto*</label>
+                  <input className="form-control" value={itemForm.nombre_repuesto}
+                    onChange={e => setItemForm({ ...itemForm, nombre_repuesto: e.target.value })} required />
+                </div>
+                <div className="col-2">
                   <label className="form-label">Cant.</label>
                   <input type="number" min="1" className="form-control" value={itemForm.cant}
                     onChange={e => setItemForm({ ...itemForm, cant: e.target.value })} />
                 </div>
-                <div className="col">
+                <div className="col-3">
                   <label className="form-label">C.C.</label>
                   <input className="form-control" value={itemForm.cc}
                     onChange={e => setItemForm({ ...itemForm, cc: e.target.value })} />

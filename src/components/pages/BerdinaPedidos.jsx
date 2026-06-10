@@ -122,6 +122,7 @@ export default function BerdinaPedidos() {
             <table className="table table-hover table-striped mb-0">
               <thead>
                 <tr>
+                  <th>N° Pedido</th>
                   <th>Fecha</th>
                   <th>Repuesto</th>
                   <th>Cant.</th>
@@ -136,6 +137,7 @@ export default function BerdinaPedidos() {
               <tbody>
                 {lista.map(p => (
                   <tr key={p._id}>
+                    <td>{p.nro_pedido || ''}</td>
                     <td>{p.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                     <td>{p.nombre_repuesto}</td>
                     <td>{p.cant}</td>

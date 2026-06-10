@@ -79,6 +79,14 @@ body {
 .table-hover tbody tr:hover {
   background-color: rgba(27, 47, 85, 0.06);
 }
+.table th,
+.table td {
+  border-right: 1px solid #dee2e6;
+}
+.table th:last-child,
+.table td:last-child {
+  border-right: none;
+}
 
 /* Layout */
 #root {

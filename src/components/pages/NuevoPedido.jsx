@@ -148,7 +148,7 @@ export default function NuevoPedido() {
         {/* Tabla de ítems cargados */}
         {items.length > 0 && (
           <div className="card mb-3">
-            <div className="table-responsive">
+            <div className="table-responsive" style={{ maxHeight: 300, overflowY: 'auto' }}>
               <table className="table table-hover table-striped mb-0">
                 <thead>
                   <tr>

@@ -117,23 +117,23 @@ export default function BerdinaPedidos() {
         <div className="card">
           <div style={{ maxHeight: '65vh', overflowY: 'auto', overflowX: 'auto' }}>
             <table className="table table-hover table-striped mb-0">
-              <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'var(--color-primary)', color: '#fff' }}>
+              <thead>
                 <tr>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>N° Pedido</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Fecha</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>C.C.</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Repuesto</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Cant.</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Descripción</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Urgencia</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Grupo</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Estado</th>
-                  <th style={{ backgroundColor: 'var(--color-primary)' }}>Acciones</th>
+                  <th>N° Pedido</th>
+                  <th>Fecha</th>
+                  <th>C.C.</th>
+                  <th>Repuesto</th>
+                  <th>Cant.</th>
+                  <th>Descripción</th>
+                  <th>Urgencia</th>
+                  <th>Grupo</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {lista.map(item => (
-                  <tr key={item._id} style={item.urgencia === 'Crítica' ? { color: '#c0000c', fontWeight: 700 } : {}}>
+                  <tr key={item._id} style={item.urgencia === 'Crítica' ? { color: '#dc3545', fontWeight: 700 } : {}}>
                     <td>{item.nro_pedido}</td>
                     <td>{item.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                     <td>{item.cc}</td>

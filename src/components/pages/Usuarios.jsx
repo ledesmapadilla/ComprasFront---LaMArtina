@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const FORM_INIT = { nombre: '', usuario: '', password: '', rol: 'solicitante' }
@@ -9,7 +10,6 @@ export default function Usuarios() {
   const [editId, setEditId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [busqueda, setBusqueda] = useState('')
-  const [error, setError] = useState('')
 
   const cargar = () => api.get('/usuarios').then(setUsuarios).catch(() => {})
   useEffect(() => { cargar() }, [])
@@ -17,27 +17,28 @@ export default function Usuarios() {
   const abrirNuevo = () => {
     setForm(FORM_INIT)
     setEditId(null)
-    setError('')
     setShowModal(true)
   }
 
   const abrirEditar = (u) => {
     setForm({ nombre: u.nombre, usuario: u.usuario, password: u.password, rol: u.rol })
     setEditId(u._id)
-    setError('')
     setShowModal(true)
   }
 
   const cerrar = () => {
     setForm(FORM_INIT)
     setEditId(null)
-    setError('')
     setShowModal(false)
   }
 
   const guardar = async (e) => {
     e.preventDefault()
-    setError('')
+    const duplicado = usuarios.some(u => u.usuario === form.usuario && u._id !== editId)
+    if (duplicado) {
+      Swal.fire({ icon: 'warning', title: 'Usuario duplicado', text: 'Ya existe un usuario con ese nombre de usuario.' })
+      return
+    }
     try {
       if (editId) {
         const data = { nombre: form.nombre, usuario: form.usuario, rol: form.rol }
@@ -48,18 +49,29 @@ export default function Usuarios() {
       }
       cargar()
       cerrar()
+      Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500, showConfirmButton: false })
     } catch (err) {
-      setError(err.message)
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
     }
   }
 
   const borrar = async (id) => {
-    if (!window.confirm('¿Borrar usuario?')) return
+    const result = await Swal.fire({
+      title: '¿Borrar usuario?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, borrar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc3545',
+    })
+    if (!result.isConfirmed) return
     try {
       await api.delete(`/usuarios/${id}`)
       cargar()
+      Swal.fire({ icon: 'success', title: 'Borrado', timer: 1500, showConfirmButton: false })
     } catch (err) {
-      alert(err.message)
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
     }
   }
 
@@ -130,7 +142,6 @@ export default function Usuarios() {
               </div>
               <form onSubmit={guardar}>
                 <div className="modal-body">
-                  {error && <div className="alert alert-danger py-2">{error}</div>}
                   <div className="mb-3">
                     <label className="form-label">Nombre</label>
                     <input className="form-control" value={form.nombre}

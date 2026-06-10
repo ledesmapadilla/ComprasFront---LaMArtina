@@ -1,13 +1,13 @@
 :root {
   --color-primary:       #1a1a1a;
   --color-primary-hover: #2e2e2e;
-  --color-accent:        #7a1020;
+  --color-accent:        #4a0812;
   --color-bg:            #ebebeb;
   --color-surface:       #ffffff;
   --color-text:          #1a1a1a;
   --color-muted:         #666666;
 
-  --card-pedido:         #7a1020;
+  --card-pedido:         #4a0812;
   --card-pendientes:     #1a3326;
   --card-stock:          #3a3a3a;
 }

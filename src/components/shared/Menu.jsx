@@ -4,8 +4,15 @@ export default function Menu() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
       <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
-        <img src="/logo LM.jpg" alt="Logo La Martina" height="40" />
-        <span className="text-secondary fw-normal fs-6">Compras</span>
+        <img
+          src="/logo LM.jpg"
+          alt="Logo La Martina"
+          height="40"
+          style={{
+            maskImage: 'linear-gradient(to right, black 60%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, black 60%, transparent 100%)',
+          }}
+        />
       </Link>
       <button
         className="navbar-toggler"

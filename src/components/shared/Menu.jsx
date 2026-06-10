@@ -48,17 +48,8 @@ export default function Menu() {
               </li>
             </ul>
           </li>
-          <li className="nav-item dropdown">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              role="button"
-              data-bs-toggle="dropdown"
-            >
-              Berdina
-            </a>
-            <ul className="dropdown-menu dropdown-menu-dark">
-            </ul>
+          <li className="nav-item">
+            <Link className="nav-link" to="/berdina">Berdina</Link>
           </li>
           <li className="nav-item dropdown">
             <a

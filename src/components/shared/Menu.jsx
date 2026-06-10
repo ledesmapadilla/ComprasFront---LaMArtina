@@ -48,7 +48,7 @@ export default function Menu() {
               </li>
               <li>
                 <Link className="dropdown-item" to="/altas/centros-costo">
-                  Centros de Costo
+                  Centros de Costo (CC)
                 </Link>
               </li>
             </ul>

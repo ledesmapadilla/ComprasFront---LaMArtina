@@ -34,9 +34,14 @@ export default function Usuarios() {
 
   const guardar = async (e) => {
     e.preventDefault()
-    const duplicado = usuarios.some(u => u.usuario === form.usuario && u._id !== editId)
-    if (duplicado) {
+    const duplicadoUsuario = usuarios.some(u => u.usuario === form.usuario && u._id !== editId)
+    if (duplicadoUsuario) {
       Swal.fire({ icon: 'warning', title: 'Usuario duplicado', text: 'Ya existe un usuario con ese nombre de usuario.' })
+      return
+    }
+    const duplicadoNombre = usuarios.some(u => u.nombre.toLowerCase() === form.nombre.toLowerCase() && u._id !== editId)
+    if (duplicadoNombre) {
+      Swal.fire({ icon: 'warning', title: 'Nombre duplicado', text: 'Ya existe un usuario con ese nombre.' })
       return
     }
     try {

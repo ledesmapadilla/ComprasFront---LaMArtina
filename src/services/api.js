@@ -1,10 +1,13 @@
 const BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
-const headers = () => ({
+const authHeader = () =>
+  localStorage.getItem("token")
+    ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    : {};
+
+const jsonHeaders = () => ({
   "Content-Type": "application/json",
-  ...(localStorage.getItem("token") && {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  }),
+  ...authHeader(),
 });
 
 const handle = async (res) => {
@@ -14,8 +17,8 @@ const handle = async (res) => {
 };
 
 export const api = {
-  get: (path) => fetch(`${BASE}${path}`, { headers: headers() }).then(handle),
-  post: (path, body) => fetch(`${BASE}${path}`, { method: "POST", headers: headers(), body: JSON.stringify(body) }).then(handle),
-  put: (path, body) => fetch(`${BASE}${path}`, { method: "PUT", headers: headers(), body: JSON.stringify(body) }).then(handle),
-  delete: (path) => fetch(`${BASE}${path}`, { method: "DELETE", headers: headers() }).then(handle),
+  get:    (path)        => fetch(`${BASE}${path}`, { headers: authHeader() }).then(handle),
+  post:   (path, body)  => fetch(`${BASE}${path}`, { method: "POST",   headers: jsonHeaders(), body: JSON.stringify(body) }).then(handle),
+  put:    (path, body)  => fetch(`${BASE}${path}`, { method: "PUT",    headers: jsonHeaders(), body: JSON.stringify(body) }).then(handle),
+  delete: (path)        => fetch(`${BASE}${path}`, { method: "DELETE", headers: authHeader() }).then(handle),
 };

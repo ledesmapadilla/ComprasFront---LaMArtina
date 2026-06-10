@@ -13,14 +13,32 @@ export default function NuevoPedido() {
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10))
   const [itemForm, setItemForm] = useState(ITEM_INIT)
   const [items, setItems] = useState([])
+  const [editingId, setEditingId] = useState(null)
 
   const agregarFila = (e) => {
     e.preventDefault()
-    setItems([...items, { ...itemForm, _tmpId: Date.now() }])
+    if (editingId) {
+      setItems(items.map(i => i._tmpId === editingId ? { ...itemForm, _tmpId: editingId } : i))
+      setEditingId(null)
+    } else {
+      setItems([...items, { ...itemForm, _tmpId: Date.now() }])
+    }
     setItemForm(ITEM_INIT)
   }
 
-  const quitarFila = (tmpId) => setItems(items.filter(i => i._tmpId !== tmpId))
+  const editarFila = (item) => {
+    const { _tmpId, ...rest } = item
+    setItemForm(rest)
+    setEditingId(_tmpId)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const cancelarEdicion = () => { setItemForm(ITEM_INIT); setEditingId(null) }
+
+  const quitarFila = (tmpId) => {
+    setItems(items.filter(i => i._tmpId !== tmpId))
+    if (editingId === tmpId) cancelarEdicion()
+  }
 
   const guardar = async () => {
     if (items.length === 0) {
@@ -60,8 +78,8 @@ export default function NuevoPedido() {
 
         {/* Formulario ítem */}
         <div className="card mb-3 mx-auto" style={{ maxWidth: 680 }}>
-          <div className="card-header fw-semibold d-flex justify-content-between align-items-center" style={{ backgroundColor: '#4a6b8a', color: '#fff' }}>
-            <span>Agregar ítem</span>
+          <div className="card-header fw-semibold d-flex justify-content-between align-items-center" style={{ backgroundColor: editingId ? '#6a4a8a' : '#4a6b8a', color: '#fff' }}>
+            <span>{editingId ? 'Editando ítem' : 'Agregar ítem'}</span>
             <div className="d-flex align-items-center gap-2">
               <label className="mb-0" style={{ fontSize: 13 }}>Fecha</label>
               <input type="date" className="form-control form-control-sm" style={{ width: 150 }}
@@ -83,9 +101,9 @@ export default function NuevoPedido() {
                     onChange={e => setItemForm({ ...itemForm, cant: e.target.value })} />
                 </div>
                 <div className="col-2">
-                  <label className="form-label form-label-sm w-100 text-center">C.C.</label>
+                  <label className="form-label form-label-sm w-100 text-center">C.C.*</label>
                   <input className="form-control form-control-sm" value={itemForm.cc}
-                    onChange={e => setItemForm({ ...itemForm, cc: e.target.value })} />
+                    onChange={e => setItemForm({ ...itemForm, cc: e.target.value })} required />
                 </div>
                 <div className="col-3">
                   <label className="form-label form-label-sm w-100 text-center">Urgencia*</label>
@@ -111,7 +129,17 @@ export default function NuevoPedido() {
                   </select>
                 </div>
               </div>
-              <button type="submit" className="btn btn-outline-dark btn-sm">+ Agregar fila</button>
+
+              <div className="d-flex gap-2">
+                <button type="submit" className="btn btn-outline-dark btn-sm">
+                  {editingId ? '✓ Actualizar' : '+ Agregar fila'}
+                </button>
+                {editingId && (
+                  <button type="button" className="btn btn-outline-secondary btn-sm" onClick={cancelarEdicion}>
+                    Cancelar
+                  </button>
+                )}
+              </div>
             </form>
           </div>
         </div>
@@ -135,7 +163,7 @@ export default function NuevoPedido() {
                 </thead>
                 <tbody>
                   {items.map(item => (
-                    <tr key={item._tmpId}>
+                    <tr key={item._tmpId} style={editingId === item._tmpId ? { backgroundColor: 'rgba(106,74,138,0.08)' } : {}}>
                       <td>{item.nombre_repuesto}</td>
                       <td>{item.cant}</td>
                       <td>{item.descripcion}</td>
@@ -143,7 +171,8 @@ export default function NuevoPedido() {
                       <td>{item.grupo}</td>
                       <td>{item.cc}</td>
                       <td><span className="badge bg-primary">Pedido</span></td>
-                      <td>
+                      <td className="text-nowrap">
+                        <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => editarFila(item)}>Editar</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={() => quitarFila(item._tmpId)}>✕</button>
                       </td>
                     </tr>

@@ -9,8 +9,8 @@ export default function Menu() {
           alt="Logo La Martina"
           height="40"
           style={{
-            maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
-            WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
+            maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 60%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black 20%, transparent 60%)',
           }}
         />
       </Link>

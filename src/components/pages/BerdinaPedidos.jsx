@@ -115,7 +115,7 @@ export default function BerdinaPedidos() {
         </div>
 
         <div className="card">
-          <div style={{ maxHeight: 500, overflowY: 'auto', overflowX: 'auto' }}>
+          <div style={{ height: 'calc(100vh - 280px)', overflowY: 'auto', overflowX: 'auto' }}>
             <table className="table table-hover table-striped mb-0">
               <thead style={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'var(--color-primary)', color: '#fff' }}>
                 <tr>

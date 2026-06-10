@@ -115,7 +115,7 @@ export default function BerdinaPedidos() {
         </div>
 
         <div className="card">
-          <div style={{ maxHeight: '65vh', overflowY: 'auto', overflowX: 'auto' }}>
+          <div className="table-responsive" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
             <table className="table table-hover table-striped mb-0">
               <thead>
                 <tr>
@@ -133,7 +133,7 @@ export default function BerdinaPedidos() {
               </thead>
               <tbody>
                 {lista.map(item => (
-                  <tr key={item._id} style={item.urgencia === 'Crítica' ? { color: '#dc3545', fontWeight: 700 } : {}}>
+                  <tr key={item._id} className={item.urgencia === 'Crítica' ? 'row-critica' : ''}>
                     <td>{item.nro_pedido}</td>
                     <td>{item.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                     <td>{item.cc}</td>

@@ -78,6 +78,10 @@ body {
   background-color: var(--color-primary);
   color: #fff;
 }
+.table .row-critica td {
+  color: #dc3545 !important;
+  font-weight: 700 !important;
+}
 .table-hover tbody tr:hover {
   background-color: rgba(27, 47, 85, 0.06);
 }

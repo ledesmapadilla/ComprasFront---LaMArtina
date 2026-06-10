@@ -46,17 +46,14 @@ export default function Berdina() {
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-      {/* COMPRAS + volver — arriba izquierda */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '24px 0 0 32px' }}>
-        <button
-          onClick={() => navigate(-1)}
-          className="btn btn-outline-dark btn-sm"
-        >
-          ← Volver
-        </button>
+      {/* COMPRAS izq — Volver der */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '24px 32px 0' }}>
         <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
           Compras
         </p>
+        <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">
+          ← Volver
+        </button>
       </div>
 
       {/* BERDINA + tarjetas — centrado */}

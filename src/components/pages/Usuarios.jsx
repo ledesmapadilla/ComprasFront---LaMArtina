@@ -101,7 +101,7 @@ export default function Usuarios() {
                   <tr key={u._id}>
                     <td>{u.nombre}</td>
                     <td>{u.usuario}</td>
-                    <td>••••••</td>
+                    <td>{u.password}</td>
                     <td><span className="badge bg-secondary">{u.rol}</span></td>
                     <td className="text-nowrap">
                       <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(u)}>Editar</button>

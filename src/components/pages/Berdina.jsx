@@ -42,13 +42,22 @@ function Tarjeta({ titulo, icono, ruta, color }) {
 }
 
 export default function Berdina() {
+  const navigate = useNavigate()
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-      {/* COMPRAS — arriba izquierda */}
-      <p style={{ margin: '24px 0 0 32px', fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
-        Compras
-      </p>
+      {/* COMPRAS + volver — arriba izquierda */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '24px 0 0 32px' }}>
+        <button
+          onClick={() => navigate(-1)}
+          className="btn btn-outline-dark btn-sm"
+        >
+          ← Volver
+        </button>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
+          Compras
+        </p>
+      </div>
 
       {/* BERDINA + tarjetas — centrado */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 48, paddingBottom: '6vh' }}>

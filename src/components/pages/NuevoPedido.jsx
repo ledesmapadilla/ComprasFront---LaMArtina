@@ -65,7 +65,7 @@ export default function NuevoPedido() {
         </div>
 
         {/* Formulario ítem */}
-        <div className="card mb-3" style={{ maxWidth: 720 }}>
+        <div className="card mb-3 mx-auto" style={{ maxWidth: 680 }}>
           <div className="card-header fw-semibold" style={{ backgroundColor: '#4a6b8a', color: '#fff' }}>
             Agregar ítem
           </div>
@@ -74,22 +74,22 @@ export default function NuevoPedido() {
               {/* Fila 1: Nombre · Cant. · C.C. · Urgencia */}
               <div className="row mb-2 g-2">
                 <div className="col-5">
-                  <label className="form-label form-label-sm">Nombre repuesto*</label>
+                  <label className="form-label form-label-sm w-100 text-center">Nombre repuesto*</label>
                   <input className="form-control form-control-sm" value={itemForm.nombre_repuesto}
                     onChange={e => setItemForm({ ...itemForm, nombre_repuesto: e.target.value })} required />
                 </div>
                 <div className="col-2">
-                  <label className="form-label form-label-sm">Cant.</label>
+                  <label className="form-label form-label-sm w-100 text-center">Cant.</label>
                   <input type="number" min="1" className="form-control form-control-sm" value={itemForm.cant}
                     onChange={e => setItemForm({ ...itemForm, cant: e.target.value })} />
                 </div>
                 <div className="col-2">
-                  <label className="form-label form-label-sm">C.C.</label>
+                  <label className="form-label form-label-sm w-100 text-center">C.C.</label>
                   <input className="form-control form-control-sm" value={itemForm.cc}
                     onChange={e => setItemForm({ ...itemForm, cc: e.target.value })} />
                 </div>
                 <div className="col-3">
-                  <label className="form-label form-label-sm">Urgencia*</label>
+                  <label className="form-label form-label-sm w-100 text-center">Urgencia*</label>
                   <select className="form-select form-select-sm" value={itemForm.urgencia}
                     onChange={e => setItemForm({ ...itemForm, urgencia: e.target.value })}>
                     {URGENCIAS.map(u => <option key={u}>{u}</option>)}
@@ -99,20 +99,20 @@ export default function NuevoPedido() {
 
               {/* Fila 2: Descripción · Grupo */}
               <div className="row mb-3 g-2">
-                <div className="col-7">
-                  <label className="form-label form-label-sm">Descripción</label>
+                <div className="col-8">
+                  <label className="form-label form-label-sm w-100 text-center">Descripción</label>
                   <textarea className="form-control form-control-sm" rows={2} value={itemForm.descripcion}
                     onChange={e => setItemForm({ ...itemForm, descripcion: e.target.value })} />
                 </div>
-                <div className="col-5">
-                  <label className="form-label form-label-sm">Grupo*</label>
+                <div className="col-4">
+                  <label className="form-label form-label-sm w-100 text-center">Grupo*</label>
                   <select className="form-select form-select-sm" value={itemForm.grupo}
                     onChange={e => setItemForm({ ...itemForm, grupo: e.target.value })}>
                     {GRUPOS.map(g => <option key={g}>{g}</option>)}
                   </select>
                 </div>
               </div>
-              <button type="submit" className="btn btn-outline-dark">+ Agregar fila</button>
+              <button type="submit" className="btn btn-outline-dark btn-sm">+ Agregar fila</button>
             </form>
           </div>
         </div>

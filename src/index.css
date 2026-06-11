@@ -82,6 +82,9 @@ body {
   background-color: #4a6b8a !important;
   color: #fff !important;
 }
+.table .thead-light th {
+  font-weight: normal !important;
+}
 .table .row-critica td {
   color: #dc3545 !important;
   font-weight: 700 !important;

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
+
+const fmtNro = (n) => `B-${String(n).padStart(3, '0')}`
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
 const ESTADOS   = ['Pedido', 'Pendiente', 'En proceso', 'Completado', 'Cancelado']
-const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Hervicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
+const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herbicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
 
 const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
 
@@ -36,7 +38,7 @@ export default function BerdinaPedidos() {
   )
 
   const lista = items.filter(item => {
-    if (filtros.nro && !String(item.nro_pedido).includes(filtros.nro)) return false
+    if (filtros.nro && !fmtNro(item.nro_pedido).includes(filtros.nro.toUpperCase())) return false
     if (filtros.fecha && item.fecha?.slice(0, 10) !== filtros.fecha) return false
     if (filtros.cc && !item.cc?.toLowerCase().includes(filtros.cc.toLowerCase())) return false
     if (filtros.repuesto && !item.nombre_repuesto?.toLowerCase().includes(filtros.repuesto.toLowerCase())) return false
@@ -196,7 +198,7 @@ export default function BerdinaPedidos() {
         <div className="card">
           <div className="table-responsive" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
             <table className="table table-hover table-striped mb-0">
-              <thead className="thead-blue" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+              <thead className="thead-blue thead-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                 <tr>
                   <th>N° Pedido</th>
                   <th>Fecha</th>
@@ -213,7 +215,7 @@ export default function BerdinaPedidos() {
               <tbody>
                 {lista.map(item => (
                   <tr key={item._id} className={item.urgencia === 'Crítica' ? 'row-critica' : ''}>
-                    <td>{item.nro_pedido}</td>
+                    <td>{fmtNro(item.nro_pedido)}</td>
                     <td>{item.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                     <td>{item.cc}</td>
                     <td>{item.nombre_repuesto}</td>

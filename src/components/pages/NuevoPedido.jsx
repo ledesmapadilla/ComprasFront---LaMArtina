@@ -6,7 +6,7 @@ import { api } from '../../services/api'
 const URGENCIAS     = ['Baja', 'Media', 'Alta', 'Crítica']
 const GRUPOS_SIN_CC = ['Herreria', 'Gomeria', 'Stock', 'Otros']
 
-const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: '', cc: '', estado: 'Pedido' }
+const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: '', cc: '', estado: 'En analisis' }
 
 export default function NuevoPedido() {
   const navigate = useNavigate()
@@ -259,7 +259,7 @@ export default function NuevoPedido() {
                       <td>{badgeUrgencia(item.urgencia)}</td>
                       <td>{item.grupo}</td>
                       <td>{item.cc}</td>
-                      <td><span className="badge bg-primary">Pedido</span></td>
+                      <td><span className="badge bg-primary">En analisis</span></td>
                       <td className="text-nowrap">
                         <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => editarFila(item)}>Editar</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={() => quitarFila(item._tmpId)}>✕</button>

@@ -122,7 +122,7 @@ export default function AnalistaPedidos() {
     e.preventDefault()
     try {
       const { cant, ...rest } = form
-      const payload = { ...rest, ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}) }
+      const payload = { ...rest, usuario: 'Analista', ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}) }
       const base = editSrc === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
       await api.put(`${base}/${editPedidoId}/items/${editItemId}`, payload)
       cargar()
@@ -214,6 +214,31 @@ export default function AnalistaPedidos() {
     })
   }
 
+  const verHistorial = (item) => {
+    const entradaCreacion = {
+      fecha:   item.fecha,
+      estado:  'Para analisis',
+      usuario: item.solicita || 'Sin especificar',
+      nota:    'Pedido creado',
+    }
+    const histGuardado = (item.historial || []).filter(h => h.nota !== 'Pedido creado')
+    const hist = [entradaCreacion, ...histGuardado]
+    const filas = hist.map(h => {
+      const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+      return `<tr><td>${fecha}</td><td>${h.estado || '—'}</td><td>${h.usuario || '—'}${h.nota ? ` <span class="text-muted" style="font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
+    }).join('')
+    Swal.fire({
+      title: `Historial - ${item.nombre_repuesto}`,
+      html: `<div style="overflow-x:auto">
+        <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
+          <thead><tr><th>Fecha</th><th>Estado</th><th>Usuario</th></tr></thead>
+          <tbody>${filas}</tbody>
+        </table></div>`,
+      width: 560,
+      confirmButtonText: 'Cerrar',
+    })
+  }
+
   const varios = () => <span className="text-muted fst-italic" style={{ fontSize: 12 }}>Varios</span>
 
   const badgeUrgencia = (u) => {
@@ -231,9 +256,7 @@ export default function AnalistaPedidos() {
 
   const badgeEstablecimiento = (src) => {
     if (src === 'Varios') return varios()
-    return <span className={`badge ${src === 'berdina' ? 'bg-dark' : 'bg-secondary'}`}>
-      {src === 'berdina' ? 'Berdina' : 'San Pablo'}
-    </span>
+    return <span style={{ fontWeight: 500 }}>{src === 'berdina' ? 'Berdina' : 'San Pablo'}</span>
   }
 
   return (
@@ -362,20 +385,13 @@ export default function AnalistaPedidos() {
         <div className="card">
           <div className="table-responsive" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
             <table className="table table-hover table-striped mb-0">
-              <thead className="thead-blue thead-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+              <style>{`.analista-thead th { font-weight: ${agrupado ? '700' : '400'} !important; }`}</style>
+              <thead className="thead-blue thead-light analista-thead" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                 <tr>
-                  <th>Establecimiento</th>
-                  <th>N° Pedido</th>
-                  <th>Fecha</th>
-                  <th>C.C.</th>
-                  <th>Repuesto</th>
-                  <th>Cant.</th>
-                  <th>Descripción</th>
-                  <th>Urgencia</th>
-                  <th>Grupo</th>
-                  <th>Solicita</th>
-                  <th>Estado</th>
-                  <th style={{ width: 130 }}>Acciones</th>
+                  {['Establecimiento','N° Pedido','Fecha','C.C.','Repuesto','Cant.','Descripción','Urgencia','Grupo','Solicita','Estado'].map(col => (
+                    <th key={col} className="text-center">{col}</th>
+                  ))}
+                  <th className="text-center" style={{ width: 130 }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -417,7 +433,7 @@ export default function AnalistaPedidos() {
                       {badgeEstado(item.estado)}
                     </td>
                     <td className="text-nowrap" onClick={e => e.stopPropagation()}>
-                      <button className="btn btn-sm btn-outline-info me-1" onClick={() => {}}>Historial</button>
+                      <button className="btn btn-sm btn-outline-secondary me-1" onClick={e => { e.stopPropagation(); verHistorial(item) }}>Historial</button>
                       {!agrupado && <>
                         <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(item)}>Editar</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={() => borrar(item)}>Borrar</button>

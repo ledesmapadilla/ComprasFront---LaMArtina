@@ -82,9 +82,6 @@ body {
   background-color: #4a6b8a !important;
   color: #fff !important;
 }
-.table .thead-light th {
-  font-weight: normal !important;
-}
 .table .row-critica td {
   color: #dc3545 !important;
   font-weight: 700 !important;
@@ -103,8 +100,8 @@ body {
 
 /* Select con valor seleccionado */
 .form-select.select-activo {
-  color: var(--color-accent) !important;
-  font-weight: 600;
+  color: #0d6efd !important;
+  font-weight: 700;
 }
 
 /* Layout */

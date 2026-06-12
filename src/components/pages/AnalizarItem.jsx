@@ -157,6 +157,7 @@ export default function AnalizarItem() {
         const toNum = (v) => { const n = parseFloat(v); return isNaN(n) ? undefined : n }
         return api.put(`${base}/${pedidoSeleccionado._id}/items/${item._id}`, {
           estado:     nuevoEstado,
+          usuario:    'Analista',
           stock:      toNum(form.stock),
           proveedor1: form.proveedor1 || undefined,
           precio1:    toNum(form.precio1),

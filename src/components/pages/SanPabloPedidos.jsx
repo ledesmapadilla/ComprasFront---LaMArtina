@@ -101,7 +101,7 @@ export default function SanPabloPedidos() {
     e.preventDefault()
     try {
       const { cant, ...rest } = form
-      const payload = { ...rest, ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}) }
+      const payload = { ...rest, usuario: 'San Pablo', ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}) }
       await api.put(`/sanpablo/pedidos/${editPedidoId}/items/${editItemId}`, payload)
       cargar()
       cerrar()
@@ -187,6 +187,31 @@ export default function SanPabloPedidos() {
           <tbody>${filas}</tbody>
         </table></div>`,
       width: 750,
+      confirmButtonText: 'Cerrar',
+    })
+  }
+
+  const verHistorial = (item) => {
+    const entradaCreacion = {
+      fecha:   item.fecha,
+      estado:  'Para analisis',
+      usuario: item.solicita || 'Sin especificar',
+      nota:    'Pedido creado',
+    }
+    const histGuardado = (item.historial || []).filter(h => h.nota !== 'Pedido creado')
+    const hist = [entradaCreacion, ...histGuardado]
+    const filas = hist.map(h => {
+      const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+      return `<tr><td>${fecha}</td><td>${h.estado || '—'}</td><td>${h.usuario || '—'}${h.nota ? ` <span class="text-muted" style="font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
+    }).join('')
+    Swal.fire({
+      title: `Historial - ${item.nombre_repuesto}`,
+      html: `<div style="overflow-x:auto">
+        <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
+          <thead><tr><th>Fecha</th><th>Estado</th><th>Usuario</th></tr></thead>
+          <tbody>${filas}</tbody>
+        </table></div>`,
+      width: 560,
       confirmButtonText: 'Cerrar',
     })
   }
@@ -354,7 +379,7 @@ export default function SanPabloPedidos() {
                     <td>{item.solicita === 'Varios' ? varios() : (item.solicita || '')}</td>
                     <td>{badgeEstado(item.estado)}</td>
                     <td className="text-nowrap">
-                      <button className="btn btn-sm btn-outline-info me-1" onClick={() => {}}>Historial</button>
+                      <button className="btn btn-sm btn-outline-secondary me-1" onClick={e => { e.stopPropagation(); verHistorial(item) }}>Historial</button>
                       {!agrupado && <>
                         <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(item)}>Editar</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={() => borrar(item)}>Borrar</button>

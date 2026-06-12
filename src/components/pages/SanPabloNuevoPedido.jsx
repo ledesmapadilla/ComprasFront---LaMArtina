@@ -16,7 +16,7 @@ const getNombreUsuario = () => {
 
 const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: '', cc: '', estado: 'Para analisis' }
 
-export default function NuevoPedido() {
+export default function SanPabloNuevoPedido() {
   const navigate = useNavigate()
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10))
   const [itemForm, setItemForm] = useState(ITEM_INIT)
@@ -116,9 +116,9 @@ export default function NuevoPedido() {
         ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}),
         ...(solicita ? { solicita } : {}),
       }))
-      await api.post('/berdina/pedidos', { fecha, items: itemsLimpios })
+      await api.post('/sanpablo/pedidos', { fecha, items: itemsLimpios })
       Swal.fire({ icon: 'success', title: 'Pedido guardado', timer: 1500, showConfirmButton: false })
-      navigate('/berdina/pedidos')
+      navigate('/sanpablo/pedidos')
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error', text: err.message })
     }
@@ -134,7 +134,7 @@ export default function NuevoPedido() {
 
       <div className="container d-flex justify-content-between align-items-center mb-1">
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
-          Compras · Berdina · Pedidos
+          Compras · San Pablo · Pedidos
         </p>
         <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">← Volver</button>
       </div>
@@ -142,7 +142,6 @@ export default function NuevoPedido() {
       <div className="container">
         <h4 className="text-center mb-5" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, marginBottom: '3rem' }}>Nuevo Pedido</h4>
 
-        {/* Formulario ítem */}
         <div className="card mb-3 mx-auto" style={{ maxWidth: 680 }}>
           <div className="card-header fw-semibold d-flex justify-content-between align-items-center" style={{ backgroundColor: editingId ? '#6a4a8a' : '#4a6b8a', color: '#fff' }}>
             <span>{editingId ? 'Editando ítem' : 'Agregar ítem'}</span>
@@ -154,7 +153,6 @@ export default function NuevoPedido() {
           </div>
           <div className="card-body">
             <form onSubmit={agregarFila}>
-              {/* Fila 1: Nombre · Cant. · C.C. · Urgencia */}
               <div className="row mb-2 g-2">
                 <div className="col-5">
                   <label className="form-label form-label-sm w-100 text-center">Nombre repuesto*</label>
@@ -212,7 +210,6 @@ export default function NuevoPedido() {
                 </div>
               </div>
 
-              {/* Fila 2: Descripción · Grupo */}
               <div className="row mb-3 g-2">
                 <div className="col-8">
                   <label className="form-label form-label-sm w-100 text-center">Descripción</label>
@@ -243,7 +240,6 @@ export default function NuevoPedido() {
           </div>
         </div>
 
-        {/* Tabla de ítems cargados */}
         {items.length > 0 && (
           <div className="card mb-3">
             <div className="table-responsive">
@@ -282,7 +278,6 @@ export default function NuevoPedido() {
           </div>
         )}
 
-        {/* Acciones */}
         <div className="d-flex justify-content-end gap-2 mb-4">
           <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Cancelar</button>
           <button className="btn btn-outline-dark" onClick={guardar} disabled={items.length === 0}>

@@ -101,6 +101,12 @@ body {
   border-right: none;
 }
 
+/* Select con valor seleccionado */
+.form-select.select-activo {
+  color: var(--color-accent) !important;
+  font-weight: 600;
+}
+
 /* Layout */
 #root {
   min-height: 100vh;

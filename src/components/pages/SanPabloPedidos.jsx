@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import XLSX from 'xlsx-js-style'
 
-const fmtNro = (n) => `B-${String(n).padStart(3, '0')}`
+const fmtNro = (n) => `SP-${String(n).padStart(3, '0')}`
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { api } from '../../services/api'
@@ -18,7 +18,7 @@ const estiloX = {
   zIndex: 5, userSelect: 'none', lineHeight: 1,
 }
 
-export default function BerdinaPedidos() {
+export default function SanPabloPedidos() {
   const navigate = useNavigate()
   const [pedidos, setPedidos] = useState([])
   const [form, setForm] = useState(ITEM_INIT)
@@ -32,7 +32,7 @@ export default function BerdinaPedidos() {
   const limpiar = () => setFiltros(FILTROS_INIT)
   const hayFiltros = Object.values(filtros).some(v => v !== '')
 
-  const cargar = () => api.get('/berdina/pedidos').then(setPedidos).catch(() => {})
+  const cargar = () => api.get('/sanpablo/pedidos').then(setPedidos).catch(() => {})
   useEffect(() => { cargar() }, [])
 
   const items = pedidos.flatMap(p =>
@@ -102,7 +102,7 @@ export default function BerdinaPedidos() {
     try {
       const { cant, ...rest } = form
       const payload = { ...rest, ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}) }
-      await api.put(`/berdina/pedidos/${editPedidoId}/items/${editItemId}`, payload)
+      await api.put(`/sanpablo/pedidos/${editPedidoId}/items/${editItemId}`, payload)
       cargar()
       cerrar()
       Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500, showConfirmButton: false })
@@ -123,7 +123,7 @@ export default function BerdinaPedidos() {
     })
     if (!result.isConfirmed) return
     try {
-      await api.delete(`/berdina/pedidos/${item.pedidoId}/items/${item._id}`)
+      await api.delete(`/sanpablo/pedidos/${item.pedidoId}/items/${item._id}`)
       cargar()
       Swal.fire({ icon: 'success', title: 'Borrado', timer: 1500, showConfirmButton: false })
     } catch (err) {
@@ -132,7 +132,7 @@ export default function BerdinaPedidos() {
   }
 
   const exportarExcel = () => {
-    const titulo = 'Pedidos Berdina - La Martina'
+    const titulo = 'Pedidos San Pablo - La Martina'
     const fecha  = new Date().toLocaleDateString('es-AR')
 
     const boldCell = (v) => ({ v, s: { font: { bold: true } } })
@@ -163,7 +163,7 @@ export default function BerdinaPedidos() {
 
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Pedidos')
-    XLSX.writeFile(wb, `Pedidos_Berdina_${fecha.replace(/\//g, '-')}.xlsx`)
+    XLSX.writeFile(wb, `Pedidos_SanPablo_${fecha.replace(/\//g, '-')}.xlsx`)
   }
 
   const verDetalle = (item) => {
@@ -191,7 +191,7 @@ export default function BerdinaPedidos() {
     })
   }
 
-  const varios = (v) => <span className="text-muted fst-italic" style={{ fontSize: 12 }}>Varios</span>
+  const varios = () => <span className="text-muted fst-italic" style={{ fontSize: 12 }}>Varios</span>
 
   const badgeUrgencia = (u) => {
     if (u === 'Varios') return varios()
@@ -211,7 +211,7 @@ export default function BerdinaPedidos() {
 
       <div className="container d-flex justify-content-between align-items-center mb-2">
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
-          Compras · Berdina
+          Compras · San Pablo
         </p>
         <div className="d-flex gap-2">
           <button className="btn btn-outline-success btn-sm" onClick={exportarExcel}>Excel</button>
@@ -223,7 +223,6 @@ export default function BerdinaPedidos() {
         <h4 className="text-center mb-2" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Pedidos</h4>
 
         <div className="d-flex flex-wrap gap-2 align-items-end mb-3">
-          {/* N° Pedido */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>N° Pedido</label>
             <div style={{ position: 'relative' }}>
@@ -231,7 +230,6 @@ export default function BerdinaPedidos() {
               {filtros.nro && <span onClick={() => setF('nro', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Fecha */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Fecha</label>
             <div style={{ position: 'relative' }}>
@@ -239,7 +237,6 @@ export default function BerdinaPedidos() {
               {filtros.fecha && <span onClick={() => setF('fecha', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* C.C. */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>C.C.</label>
             <div style={{ position: 'relative' }}>
@@ -247,7 +244,6 @@ export default function BerdinaPedidos() {
               {filtros.cc && <span onClick={() => setF('cc', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Repuesto */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Repuesto</label>
             <div style={{ position: 'relative' }}>
@@ -255,7 +251,6 @@ export default function BerdinaPedidos() {
               {filtros.repuesto && <span onClick={() => setF('repuesto', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Urgencia */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Urgencia</label>
             <div style={{ position: 'relative' }}>
@@ -266,7 +261,6 @@ export default function BerdinaPedidos() {
               {filtros.urgencia && <span onClick={() => setF('urgencia', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Grupo */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Grupo</label>
             <div style={{ position: 'relative' }}>
@@ -277,7 +271,6 @@ export default function BerdinaPedidos() {
               {filtros.grupo && <span onClick={() => setF('grupo', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Solicita */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Solicita</label>
             <div style={{ position: 'relative' }}>
@@ -285,7 +278,6 @@ export default function BerdinaPedidos() {
               {filtros.solicita && <span onClick={() => setF('solicita', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Estado */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Estado</label>
             <div style={{ position: 'relative' }}>
@@ -299,7 +291,7 @@ export default function BerdinaPedidos() {
 
           <div className="ms-auto d-flex gap-2 align-items-end">
             {hayFiltros && <button className="btn btn-sm btn-outline-secondary" onClick={limpiar}>Limpiar</button>}
-            <button className="btn btn-outline-dark btn-sm" onClick={() => navigate('/berdina/pedidos/nuevo')}>+ Nuevo pedido</button>
+            <button className="btn btn-outline-dark btn-sm" onClick={() => navigate('/sanpablo/pedidos/nuevo')}>+ Nuevo pedido</button>
           </div>
         </div>
 
@@ -309,12 +301,12 @@ export default function BerdinaPedidos() {
               className="form-check-input"
               type="checkbox"
               role="switch"
-              id="switchAgrupar"
+              id="switchAgruparSP"
               checked={agrupado}
               onChange={e => setAgrupado(e.target.checked)}
               style={{ width: 40, height: 22, cursor: 'pointer' }}
             />
-            <label className="form-check-label ms-1" htmlFor="switchAgrupar" style={{ fontSize: 13, cursor: 'pointer', userSelect: 'none' }}>
+            <label className="form-check-label ms-1" htmlFor="switchAgruparSP" style={{ fontSize: 13, cursor: 'pointer', userSelect: 'none' }}>
               Agrupar pedidos múltiples
             </label>
           </div>
@@ -374,7 +366,7 @@ export default function BerdinaPedidos() {
                   </tr>
                 ))}
                 {listaAMostrar.length === 0 && (
-                  <tr><td colSpan={10} className="text-center text-muted py-3">Sin resultados</td></tr>
+                  <tr><td colSpan={11} className="text-center text-muted py-3">Sin resultados</td></tr>
                 )}
               </tbody>
             </table>

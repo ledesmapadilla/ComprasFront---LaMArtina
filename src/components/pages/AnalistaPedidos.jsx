@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import XLSX from 'xlsx-js-style'
 
-const fmtNro = (n) => `B-${String(n).padStart(3, '0')}`
+const fmtNro = (n, src) => src === 'berdina' ? `B-${String(n).padStart(3, '0')}` : `SP-${String(n).padStart(3, '0')}`
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
-const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
-const ESTADOS   = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Pendiente', 'En proceso', 'Completado', 'Cancelado']
-const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herbicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
+const URGENCIAS      = ['Baja', 'Media', 'Alta', 'Crítica']
+const ESTADOS        = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Pendiente', 'En proceso', 'Completado', 'Cancelado']
+const GRUPOS         = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herbicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
+const ESTABLECIMIENTOS = ['Berdina', 'San Pablo']
 
 const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
 
@@ -18,29 +19,46 @@ const estiloX = {
   zIndex: 5, userSelect: 'none', lineHeight: 1,
 }
 
-export default function BerdinaPedidos() {
+export default function AnalistaPedidos() {
   const navigate = useNavigate()
   const [pedidos, setPedidos] = useState([])
   const [form, setForm] = useState(ITEM_INIT)
   const [editPedidoId, setEditPedidoId] = useState(null)
   const [editItemId, setEditItemId] = useState(null)
+  const [editSrc, setEditSrc] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [agrupado, setAgrupado] = useState(false)
-  const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', solicita: '', estado: '' }
+  const [selectedId, setSelectedId] = useState(null)
+  const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', solicita: '', estado: 'Para analisis', establecimiento: '' }
   const [filtros, setFiltros] = useState(FILTROS_INIT)
   const setF = (k, v) => setFiltros(f => ({ ...f, [k]: v }))
   const limpiar = () => setFiltros(FILTROS_INIT)
   const hayFiltros = Object.values(filtros).some(v => v !== '')
 
-  const cargar = () => api.get('/berdina/pedidos').then(setPedidos).catch(() => {})
+  const cargar = async () => {
+    const [berdina, sanpablo] = await Promise.all([
+      api.get('/berdina/pedidos').catch(() => []),
+      api.get('/sanpablo/pedidos').catch(() => []),
+    ])
+    setPedidos([
+      ...berdina.map(p => ({ ...p, _src: 'berdina' })),
+      ...sanpablo.map(p => ({ ...p, _src: 'sanpablo' })),
+    ])
+  }
   useEffect(() => { cargar() }, [])
 
   const items = pedidos.flatMap(p =>
-    (p.items || []).map(item => ({ ...item, nro_pedido: p.nro_pedido, fecha: p.fecha, pedidoId: p._id }))
+    (p.items || []).map(item => ({
+      ...item,
+      nro_pedido: p.nro_pedido,
+      fecha: p.fecha,
+      pedidoId: p._id,
+      _src: p._src,
+    }))
   )
 
   const lista = items.filter(item => {
-    if (filtros.nro && !fmtNro(item.nro_pedido).includes(filtros.nro.toUpperCase())) return false
+    if (filtros.nro && !fmtNro(item.nro_pedido, item._src).includes(filtros.nro.toUpperCase())) return false
     if (filtros.fecha && item.fecha?.slice(0, 10) !== filtros.fecha) return false
     if (filtros.cc && !item.cc?.toLowerCase().includes(filtros.cc.toLowerCase())) return false
     if (filtros.repuesto && !item.nombre_repuesto?.toLowerCase().includes(filtros.repuesto.toLowerCase())) return false
@@ -48,6 +66,7 @@ export default function BerdinaPedidos() {
     if (filtros.grupo && item.grupo !== filtros.grupo) return false
     if (filtros.solicita && !item.solicita?.toLowerCase().includes(filtros.solicita.toLowerCase())) return false
     if (filtros.estado) { const ne = (item.estado === 'Pedido' || item.estado === 'En analisis') ? 'Para analisis' : item.estado; if (ne !== filtros.estado) return false }
+    if (filtros.establecimiento && item._src !== filtros.establecimiento.toLowerCase().replace(' ', '')) return false
     return true
   })
 
@@ -56,7 +75,7 @@ export default function BerdinaPedidos() {
 
   const listaAgrupada = Object.values(
     lista.reduce((acc, item) => {
-      const k = item.nro_pedido
+      const k = `${item._src}-${item.nro_pedido}`
       if (!acc[k]) acc[k] = []
       acc[k].push(item)
       return acc
@@ -65,7 +84,8 @@ export default function BerdinaPedidos() {
     _agrupado: true,
     _count: items.length,
     _items: items,
-    _key: items[0].nro_pedido,
+    _key: `${items[0]._src}-${items[0].nro_pedido}`,
+    _src: items[0]._src,
     nro_pedido: items[0].nro_pedido,
     fecha: items[0].fecha,
     cc:              colapsar(uniq(items.map(i => i.cc))),
@@ -92,17 +112,19 @@ export default function BerdinaPedidos() {
     })
     setEditPedidoId(item.pedidoId)
     setEditItemId(item._id)
+    setEditSrc(item._src)
     setShowModal(true)
   }
 
-  const cerrar = () => { setForm(ITEM_INIT); setEditPedidoId(null); setEditItemId(null); setShowModal(false) }
+  const cerrar = () => { setForm(ITEM_INIT); setEditPedidoId(null); setEditItemId(null); setEditSrc(null); setShowModal(false) }
 
   const guardar = async (e) => {
     e.preventDefault()
     try {
       const { cant, ...rest } = form
       const payload = { ...rest, ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}) }
-      await api.put(`/berdina/pedidos/${editPedidoId}/items/${editItemId}`, payload)
+      const base = editSrc === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      await api.put(`${base}/${editPedidoId}/items/${editItemId}`, payload)
       cargar()
       cerrar()
       Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500, showConfirmButton: false })
@@ -123,7 +145,8 @@ export default function BerdinaPedidos() {
     })
     if (!result.isConfirmed) return
     try {
-      await api.delete(`/berdina/pedidos/${item.pedidoId}/items/${item._id}`)
+      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      await api.delete(`${base}/${item.pedidoId}/items/${item._id}`)
       cargar()
       Swal.fire({ icon: 'success', title: 'Borrado', timer: 1500, showConfirmButton: false })
     } catch (err) {
@@ -132,11 +155,10 @@ export default function BerdinaPedidos() {
   }
 
   const exportarExcel = () => {
-    const titulo = 'Pedidos Berdina - La Martina'
+    const titulo = 'Pedidos - La Martina (Berdina + San Pablo)'
     const fecha  = new Date().toLocaleDateString('es-AR')
-
     const boldCell = (v) => ({ v, s: { font: { bold: true } } })
-    const headers  = ['N° Pedido', 'Fecha', 'C.C.', 'Repuesto', 'Cant.', 'Descripción', 'Urgencia', 'Grupo', 'Solicita', 'Estado']
+    const headers  = ['Establecimiento', 'N° Pedido', 'Fecha', 'C.C.', 'Repuesto', 'Cant.', 'Descripción', 'Urgencia', 'Grupo', 'Solicita', 'Estado']
 
     const aoa = [
       [boldCell(titulo)],
@@ -144,7 +166,8 @@ export default function BerdinaPedidos() {
       [],
       headers.map(boldCell),
       ...lista.map(item => [
-        fmtNro(item.nro_pedido),
+        item._src === 'berdina' ? 'Berdina' : 'San Pablo',
+        fmtNro(item.nro_pedido, item._src),
         item.fecha?.slice(0, 10).split('-').reverse().join('/'),
         item.cc || '',
         item.nombre_repuesto,
@@ -159,11 +182,11 @@ export default function BerdinaPedidos() {
 
     const ws = XLSX.utils.aoa_to_sheet(aoa)
     ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }]
-    ws['!cols'] = [8, 10, 8, 22, 6, 30, 10, 14, 16, 12].map(w => ({ wch: w }))
+    ws['!cols'] = [12, 10, 10, 8, 22, 6, 30, 10, 14, 16, 12].map(w => ({ wch: w }))
 
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Pedidos')
-    XLSX.writeFile(wb, `Pedidos_Berdina_${fecha.replace(/\//g, '-')}.xlsx`)
+    XLSX.writeFile(wb, `Pedidos_Analista_${fecha.replace(/\//g, '-')}.xlsx`)
   }
 
   const verDetalle = (item) => {
@@ -180,7 +203,7 @@ export default function BerdinaPedidos() {
       </tr>`
     ).join('')
     Swal.fire({
-      title: `Pedido ${fmtNro(item.nro_pedido)}`,
+      title: `Pedido ${fmtNro(item.nro_pedido, item._src)}`,
       html: `<div style="overflow-x:auto">
         <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
           <thead><tr><th style="font-weight:normal">Repuesto</th><th style="font-weight:normal">Cant.</th><th style="font-weight:normal">C.C.</th><th style="font-weight:normal">Urgencia</th><th style="font-weight:normal">Grupo</th><th style="font-weight:normal">Descripción</th><th style="font-weight:normal">Solicita</th><th style="font-weight:normal">Estado</th></tr></thead>
@@ -191,7 +214,7 @@ export default function BerdinaPedidos() {
     })
   }
 
-  const varios = (v) => <span className="text-muted fst-italic" style={{ fontSize: 12 }}>Varios</span>
+  const varios = () => <span className="text-muted fst-italic" style={{ fontSize: 12 }}>Varios</span>
 
   const badgeUrgencia = (u) => {
     if (u === 'Varios') return varios()
@@ -206,12 +229,19 @@ export default function BerdinaPedidos() {
     return <span className={`badge bg-${color[norm] || 'secondary'}`}>{norm}</span>
   }
 
+  const badgeEstablecimiento = (src) => {
+    if (src === 'Varios') return varios()
+    return <span className={`badge ${src === 'berdina' ? 'bg-dark' : 'bg-secondary'}`}>
+      {src === 'berdina' ? 'Berdina' : 'San Pablo'}
+    </span>
+  }
+
   return (
     <div className="container-fluid flex-grow-1 d-flex flex-column pt-2">
 
       <div className="container d-flex justify-content-between align-items-center mb-2">
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
-          Compras · Berdina
+          Analista
         </p>
         <div className="d-flex gap-2">
           <button className="btn btn-outline-success btn-sm" onClick={exportarExcel}>Excel</button>
@@ -223,7 +253,6 @@ export default function BerdinaPedidos() {
         <h4 className="text-center mb-2" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Pedidos</h4>
 
         <div className="d-flex flex-wrap gap-2 align-items-end mb-3">
-          {/* N° Pedido */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>N° Pedido</label>
             <div style={{ position: 'relative' }}>
@@ -231,7 +260,6 @@ export default function BerdinaPedidos() {
               {filtros.nro && <span onClick={() => setF('nro', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Fecha */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Fecha</label>
             <div style={{ position: 'relative' }}>
@@ -239,7 +267,6 @@ export default function BerdinaPedidos() {
               {filtros.fecha && <span onClick={() => setF('fecha', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* C.C. */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>C.C.</label>
             <div style={{ position: 'relative' }}>
@@ -247,7 +274,6 @@ export default function BerdinaPedidos() {
               {filtros.cc && <span onClick={() => setF('cc', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Repuesto */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Repuesto</label>
             <div style={{ position: 'relative' }}>
@@ -255,7 +281,6 @@ export default function BerdinaPedidos() {
               {filtros.repuesto && <span onClick={() => setF('repuesto', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Urgencia */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Urgencia</label>
             <div style={{ position: 'relative' }}>
@@ -266,7 +291,6 @@ export default function BerdinaPedidos() {
               {filtros.urgencia && <span onClick={() => setF('urgencia', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Grupo */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Grupo</label>
             <div style={{ position: 'relative' }}>
@@ -277,7 +301,6 @@ export default function BerdinaPedidos() {
               {filtros.grupo && <span onClick={() => setF('grupo', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Solicita */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Solicita</label>
             <div style={{ position: 'relative' }}>
@@ -285,7 +308,6 @@ export default function BerdinaPedidos() {
               {filtros.solicita && <span onClick={() => setF('solicita', '')} style={estiloX}>✕</span>}
             </div>
           </div>
-          {/* Estado */}
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Estado</label>
             <div style={{ position: 'relative' }}>
@@ -296,27 +318,44 @@ export default function BerdinaPedidos() {
               {filtros.estado && <span onClick={() => setF('estado', '')} style={estiloX}>✕</span>}
             </div>
           </div>
+          <div>
+            <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Establecimiento</label>
+            <div style={{ position: 'relative' }}>
+              <select className={`form-select form-select-sm${filtros.establecimiento ? ' select-activo' : ''}`} style={{ width: 130, ...(filtros.establecimiento ? { backgroundImage: 'none' } : {}) }} value={filtros.establecimiento} onChange={e => setF('establecimiento', e.target.value)}>
+                <option value="">Todos</option>
+                {ESTABLECIMIENTOS.map(s => <option key={s}>{s}</option>)}
+              </select>
+              {filtros.establecimiento && <span onClick={() => setF('establecimiento', '')} style={estiloX}>✕</span>}
+            </div>
+          </div>
 
           <div className="ms-auto d-flex gap-2 align-items-end">
-            {hayFiltros && <button className="btn btn-sm btn-outline-secondary" onClick={limpiar}>Limpiar</button>}
-            <button className="btn btn-outline-dark btn-sm" onClick={() => navigate('/berdina/pedidos/nuevo')}>+ Nuevo pedido</button>
           </div>
         </div>
 
-        <div className="d-flex align-items-center mb-2">
+        <div className="d-flex align-items-center justify-content-between mb-2">
           <div className="form-check form-switch mb-0">
             <input
               className="form-check-input"
               type="checkbox"
               role="switch"
-              id="switchAgrupar"
+              id="switchAgruparA"
               checked={agrupado}
               onChange={e => setAgrupado(e.target.checked)}
               style={{ width: 40, height: 22, cursor: 'pointer' }}
             />
-            <label className="form-check-label ms-1" htmlFor="switchAgrupar" style={{ fontSize: 13, cursor: 'pointer', userSelect: 'none' }}>
+            <label className="form-check-label ms-1" htmlFor="switchAgruparA" style={{ fontSize: 13, cursor: 'pointer', userSelect: 'none' }}>
               Agrupar pedidos múltiples
             </label>
+          </div>
+          <div style={{ width: 130, textAlign: 'center' }}>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => {
+                const item = selectedId ? listaAMostrar.find(i => i._id === selectedId) : null
+                navigate('/analista/analizar', { state: item ? { item } : undefined })
+              }}
+            >Analizar</button>
           </div>
         </div>
 
@@ -325,6 +364,7 @@ export default function BerdinaPedidos() {
             <table className="table table-hover table-striped mb-0">
               <thead className="thead-blue thead-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                 <tr>
+                  <th>Establecimiento</th>
                   <th>N° Pedido</th>
                   <th>Fecha</th>
                   <th>C.C.</th>
@@ -335,17 +375,26 @@ export default function BerdinaPedidos() {
                   <th>Grupo</th>
                   <th>Solicita</th>
                   <th>Estado</th>
-                  <th>Acciones</th>
+                  <th style={{ width: 130 }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {listaAMostrar.map(item => (
+                {listaAMostrar.map(item => {
+                  const id = item._agrupado ? item._key : item._id
+                  const isSelected = selectedId === item._id
+                  return (
                   <tr
-                    key={item._agrupado ? item._key : item._id}
+                    key={id}
                     className={item.urgencia === 'Crítica' ? 'row-critica' : ''}
-                    style={item._agrupado && item._count > 1 ? { borderLeft: '3px solid #0d6efd', backgroundColor: 'rgba(13,110,253,0.06)' } : {}}
+                    style={{
+                      cursor: !agrupado ? 'pointer' : 'default',
+                      ...(isSelected ? { outline: '2px solid #0d6efd', backgroundColor: 'rgba(13,110,253,0.08)' } : {}),
+                      ...(item._agrupado && item._count > 1 ? { borderLeft: '3px solid #0d6efd', backgroundColor: 'rgba(13,110,253,0.06)' } : {}),
+                    }}
+                    onClick={() => { if (!agrupado) setSelectedId(isSelected ? null : item._id) }}
                   >
-                    <td style={item._agrupado && item._count > 1 ? { fontWeight: 700 } : {}}>{fmtNro(item.nro_pedido)}</td>
+                    <td>{badgeEstablecimiento(item._src)}</td>
+                    <td style={item._agrupado && item._count > 1 ? { fontWeight: 700 } : {}}>{fmtNro(item.nro_pedido, item._src)}</td>
                     <td>{item.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                     <td>{item.cc === 'Varios' ? varios() : item.cc}</td>
                     <td>{item.nombre_repuesto === 'Varios' ? varios() : item.nombre_repuesto}</td>
@@ -354,14 +403,20 @@ export default function BerdinaPedidos() {
                       {item.descripcion === 'Varios'
                         ? varios()
                         : item.descripcion
-                          ? <button className="btn btn-sm btn-outline-secondary" onClick={() => Swal.fire({ title: 'Descripción', text: item.descripcion, confirmButtonText: 'Cerrar' })}>Ver</button>
+                          ? <button className="btn btn-sm btn-outline-secondary" onClick={e => { e.stopPropagation(); Swal.fire({ title: 'Descripción', text: item.descripcion, confirmButtonText: 'Cerrar' }) }}>Ver</button>
                           : <span className="text-muted">—</span>}
                     </td>
                     <td>{badgeUrgencia(item.urgencia)}</td>
                     <td>{item.grupo === 'Varios' ? varios() : item.grupo}</td>
                     <td>{item.solicita === 'Varios' ? varios() : (item.solicita || '')}</td>
-                    <td>{badgeEstado(item.estado)}</td>
-                    <td className="text-nowrap">
+                    <td onClick={e => {
+                      e.stopPropagation()
+                      if (!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC'))
+                        navigate('/analista/analizar', { state: { item } })
+                    }} style={!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC') ? { cursor: 'pointer' } : {}}>
+                      {badgeEstado(item.estado)}
+                    </td>
+                    <td className="text-nowrap" onClick={e => e.stopPropagation()}>
                       <button className="btn btn-sm btn-outline-info me-1" onClick={() => {}}>Historial</button>
                       {!agrupado && <>
                         <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(item)}>Editar</button>
@@ -372,9 +427,10 @@ export default function BerdinaPedidos() {
                       }
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
                 {listaAMostrar.length === 0 && (
-                  <tr><td colSpan={10} className="text-center text-muted py-3">Sin resultados</td></tr>
+                  <tr><td colSpan={12} className="text-center text-muted py-3">Sin resultados</td></tr>
                 )}
               </tbody>
             </table>

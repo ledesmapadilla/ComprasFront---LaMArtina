@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 export default function Menu() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <Link className="navbar-brand d-flex align-items-center gap-2" to="/" style={{ marginLeft: '80px' }}>
+      <div className="container">
+      <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
         <img
           src="/logo LM.jpg"
           alt="Logo La Martina"
@@ -26,6 +27,17 @@ export default function Menu() {
       </button>
       <div className="collapse navbar-collapse" id="navMenu">
         <ul className="navbar-nav ms-3">
+          <li className="nav-item">
+            <Link className="nav-link" to="/berdina">Berdina</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/sanpablo">San Pablo</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/analista">Analista</Link>
+          </li>
+        </ul>
+        <ul className="navbar-nav ms-auto">
           <li className="nav-item dropdown">
             <a
               className="nav-link dropdown-toggle"
@@ -35,7 +47,7 @@ export default function Menu() {
             >
               Altas
             </a>
-            <ul className="dropdown-menu dropdown-menu-dark">
+            <ul className="dropdown-menu dropdown-menu-dark dropdown-menu-end">
               <li>
                 <Link className="dropdown-item" to="/altas/usuarios">
                   Usuarios
@@ -53,22 +65,8 @@ export default function Menu() {
               </li>
             </ul>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/berdina">Berdina</Link>
-          </li>
-          <li className="nav-item dropdown">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              role="button"
-              data-bs-toggle="dropdown"
-            >
-              San Pablo
-            </a>
-            <ul className="dropdown-menu dropdown-menu-dark">
-            </ul>
-          </li>
         </ul>
+      </div>
       </div>
     </nav>
   )

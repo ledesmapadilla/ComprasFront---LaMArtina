@@ -16,6 +16,7 @@ const FORM_ITEM_INIT = { stock: '', proveedor1: '', precio1: '', proveedor2: '',
 export default function AnalizarItem() {
   const navigate = useNavigate()
   const { state } = useLocation()
+  const esComprador = !!state?.esComprador
   const dropdownRef = useRef(null)
 
   const [pedidos, setPedidos] = useState([])
@@ -25,6 +26,9 @@ export default function AnalizarItem() {
   const [focusMap, setFocusMap] = useState({})
   const [busqueda, setBusqueda] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
+  const [oc, setOc] = useState({ fecha: '', proveedor: '', costo_total: '', observaciones: '' })
+  const setOcF = (k, v) => setOc(o => ({ ...o, [k]: v }))
+  const [ocCostoFoco, setOcCostoFoco] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -61,12 +65,6 @@ export default function AnalizarItem() {
         setBusqueda(fmtNro(state.item.nro_pedido, state.item._src))
         const pedido = todos.find(p => `${p._src}-${p.nro_pedido}` === key)
         if (pedido) initForms(pedido)
-      } else if (todos.length > 0) {
-        const p = todos[0]
-        const key = `${p._src}-${p.nro_pedido}`
-        setSelectedKey(key)
-        setBusqueda(fmtNro(p.nro_pedido, p._src))
-        initForms(p)
       }
     })
   }, [])
@@ -189,6 +187,7 @@ export default function AnalizarItem() {
         onBlur={() => setFoco(item._id, campo, false)}
         onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
         placeholder="$"
+        disabled={esComprador}
       />
     )
   }
@@ -201,6 +200,7 @@ export default function AnalizarItem() {
         style={form[campo] ? { backgroundImage: 'none' } : {}}
         value={form[campo]}
         onChange={e => setF(item._id, campo, e.target.value)}
+        disabled={esComprador}
       >
         <option value="">—</option>
         {proveedores.map(p => <option key={p._id} value={p._id}>{p.razonsocial}</option>)}
@@ -267,15 +267,18 @@ export default function AnalizarItem() {
               </div>
             )}
           </div>
-          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 0 }}>
-            <button
-              className="btn btn-sm btn-outline-success"
-              disabled={itemsAMostrar.length === 0}
-              onClick={procesar}
-            >Procesar</button>
-          </div>
+          {!esComprador && (
+            <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 0 }}>
+              <button
+                className="btn btn-sm btn-outline-success"
+                disabled={itemsAMostrar.length === 0}
+                onClick={procesar}
+              >Procesar</button>
+            </div>
+          )}
         </div>
 
+        <div style={esComprador ? { border: '1px solid #000', borderRadius: 6, padding: '0.75rem' } : {}}>
         <div className="card">
           <div>
             <table className="table table-hover table-striped mb-0" style={{ tableLayout: 'fixed', width: '100%', fontSize: 13 }}>
@@ -318,6 +321,7 @@ export default function AnalizarItem() {
                         value={(formsMap[item._id] || FORM_ITEM_INIT).stock}
                         onChange={e => setF(item._id, 'stock', e.target.value)}
                         placeholder="0"
+                        disabled={esComprador}
                       />
                     </td>
                     <td>{provSelect(item, 'proveedor1')}</td>
@@ -385,9 +389,54 @@ export default function AnalizarItem() {
                 Precio de mínima pedido {pedidoSeleccionado ? fmtNro(pedidoSeleccionado.nro_pedido, pedidoSeleccionado._src) : ''}:{' '}
                 <span style={{ color: 'var(--color-accent)' }}>{fmtPrecio(sumaTotal)}</span>
               </div>
+
             </div>
           )
         })()}
+        </div>
+
+        {esComprador && itemsAMostrar.length > 0 && (
+          <div className="mt-3">
+            <h6 className="mb-2 text-center" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>Orden de Compra</h6>
+            <div className="card">
+              <table className="table mb-0" style={{ fontSize: 13 }}>
+                <thead className="thead-blue thead-light">
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Proveedor</th>
+                    <th>Costo Total (sin IVA)</th>
+                    <th>Observaciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ width: 130 }}><input type="date" className="form-control form-control-sm" value={oc.fecha} onChange={e => setOcF('fecha', e.target.value)} /></td>
+                    <td style={{ width: 180 }}>
+                      <select className={`form-select form-select-sm${oc.proveedor ? ' select-activo' : ''}`} style={oc.proveedor ? { backgroundImage: 'none' } : {}} value={oc.proveedor} onChange={e => setOcF('proveedor', e.target.value)}>
+                        <option value="">—</option>
+                        {proveedores.map(p => <option key={p._id} value={p._id}>{p.razonsocial}</option>)}
+                      </select>
+                    </td>
+                    <td style={{ width: 150 }}>
+                      <input
+                        type={ocCostoFoco ? 'number' : 'text'}
+                        min="0"
+                        className="form-control form-control-sm"
+                        value={ocCostoFoco ? oc.costo_total : fmtPrecio(oc.costo_total)}
+                        onChange={e => setOcF('costo_total', e.target.value)}
+                        onFocus={() => setOcCostoFoco(true)}
+                        onBlur={() => setOcCostoFoco(false)}
+                        onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
+                        placeholder="$"
+                      />
+                    </td>
+                    <td><input className="form-control form-control-sm" value={oc.observaciones} onChange={e => setOcF('observaciones', e.target.value)} placeholder="Observaciones..." /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

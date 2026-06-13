@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 
 export default function Menu() {
   return (
@@ -28,13 +28,16 @@ export default function Menu() {
       <div className="collapse navbar-collapse" id="navMenu">
         <ul className="navbar-nav ms-3">
           <li className="nav-item">
-            <Link className="nav-link" to="/berdina">Berdina</Link>
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/berdina">Berdina</NavLink>
           </li>
           <li className="nav-item">
-            <Link className="nav-link" to="/sanpablo">San Pablo</Link>
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/sanpablo">San Pablo</NavLink>
           </li>
           <li className="nav-item">
-            <Link className="nav-link" to="/analista">Analista</Link>
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/analista">Analista</NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/comprador">Comprador</NavLink>
           </li>
         </ul>
         <ul className="navbar-nav ms-auto">

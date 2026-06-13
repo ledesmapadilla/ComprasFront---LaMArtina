@@ -41,7 +41,7 @@ export default function Analista() {
     <div className="container-fluid flex-grow-1 d-flex flex-column py-4">
       <div className="container d-flex justify-content-between align-items-center mb-5">
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
-          Compras
+          Analista
         </p>
         <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">← Volver</button>
       </div>

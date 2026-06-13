@@ -29,8 +29,9 @@ function App() {
           <Route path="/berdina" element={<Berdina />} />
           <Route path="/sanpablo" element={<SanPablo />} />
           <Route path="/analista" element={<Analista />} />
-          <Route path="/analista/pedidos" element={<AnalistaPedidos />} />
+          <Route path="/analista/pedidos" element={<AnalistaPedidos key="analista" />} />
           <Route path="/analista/analizar" element={<AnalizarItem />} />
+          <Route path="/comprador" element={<AnalistaPedidos key="comprador" />} />
           <Route path="/sanpablo/pedidos" element={<SanPabloPedidos />} />
           <Route path="/sanpablo/pedidos/nuevo" element={<SanPabloNuevoPedido />} />
           <Route path="/berdina/pedidos" element={<BerdinaPedidos />} />

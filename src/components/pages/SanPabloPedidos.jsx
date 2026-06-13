@@ -10,7 +10,7 @@ const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
 const ESTADOS   = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Pendiente', 'En proceso', 'Completado', 'Cancelado']
 const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herbicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
 
-const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
+const ITEM_INIT = { nombre_repuesto: '', cant: '', unidad: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
 
 const estiloX = {
   position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
@@ -71,6 +71,7 @@ export default function SanPabloPedidos() {
     cc:              colapsar(uniq(items.map(i => i.cc))),
     nombre_repuesto: colapsar(uniq(items.map(i => i.nombre_repuesto))),
     cant:            colapsar(uniq(items.map(i => i.cant?.toString()))),
+    unidad:          colapsar(uniq(items.map(i => i.unidad))),
     descripcion:     colapsar(uniq(items.map(i => i.descripcion))),
     urgencia:        colapsar(uniq(items.map(i => i.urgencia))),
     grupo:           colapsar(uniq(items.map(i => i.grupo))),
@@ -78,12 +79,18 @@ export default function SanPabloPedidos() {
     estado:          colapsar(uniq(items.map(i => i.estado))),
   }))
 
+  const conteosPedido = lista.reduce((acc, i) => {
+    acc[i.nro_pedido] = (acc[i.nro_pedido] || 0) + 1
+    return acc
+  }, {})
+
   const listaAMostrar = agrupado ? listaAgrupada : lista
 
   const abrirEditar = (item) => {
     setForm({
       nombre_repuesto: item.nombre_repuesto,
       cant: item.cant || '',
+      unidad: item.unidad || '',
       descripcion: item.descripcion || '',
       urgencia: item.urgencia,
       grupo: item.grupo,
@@ -100,7 +107,7 @@ export default function SanPabloPedidos() {
   const guardar = async (e) => {
     e.preventDefault()
     try {
-      const { cant, ...rest } = form
+      const { cant, estado, ...rest } = form
       const payload = { ...rest, usuario: 'San Pablo', ...(cant !== '' && cant != null ? { cant: Number(cant) } : {}) }
       await api.put(`/sanpablo/pedidos/${editPedidoId}/items/${editItemId}`, payload)
       cargar()
@@ -136,7 +143,7 @@ export default function SanPabloPedidos() {
     const fecha  = new Date().toLocaleDateString('es-AR')
 
     const boldCell = (v) => ({ v, s: { font: { bold: true } } })
-    const headers  = ['N° Pedido', 'Fecha', 'C.C.', 'Repuesto', 'Cant.', 'Descripción', 'Urgencia', 'Grupo', 'Solicita', 'Estado']
+    const headers  = ['N° Pedido', 'Fecha', 'C.C.', 'Repuesto', 'Cant.', 'Un.', 'Descripción', 'Urgencia', 'Grupo', 'Solicita', 'Estado', 'O.C.']
 
     const aoa = [
       [boldCell(titulo)],
@@ -149,17 +156,19 @@ export default function SanPabloPedidos() {
         item.cc || '',
         item.nombre_repuesto,
         item.cant ?? '',
+        item.unidad || '',
         item.descripcion || '',
         item.urgencia,
         item.grupo,
         item.solicita || '',
         item.estado === 'Pedido' ? 'Para analisis' : (item.estado || ''),
+        item.oc || '',
       ]),
     ]
 
     const ws = XLSX.utils.aoa_to_sheet(aoa)
     ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }]
-    ws['!cols'] = [8, 10, 8, 22, 6, 30, 10, 14, 16, 12].map(w => ({ wch: w }))
+    ws['!cols'] = [8, 10, 8, 22, 6, 8, 30, 10, 14, 16, 12, 10].map(w => ({ wch: w }))
 
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Pedidos')
@@ -171,6 +180,7 @@ export default function SanPabloPedidos() {
       `<tr>
         <td>${i.nombre_repuesto}</td>
         <td>${i.cant ?? '—'}</td>
+        <td>${i.unidad || '—'}</td>
         <td>${i.cc || '—'}</td>
         <td>${i.urgencia}</td>
         <td>${i.grupo}</td>
@@ -183,7 +193,7 @@ export default function SanPabloPedidos() {
       title: `Pedido ${fmtNro(item.nro_pedido)}`,
       html: `<div style="overflow-x:auto">
         <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
-          <thead><tr><th style="font-weight:normal">Repuesto</th><th style="font-weight:normal">Cant.</th><th style="font-weight:normal">C.C.</th><th style="font-weight:normal">Urgencia</th><th style="font-weight:normal">Grupo</th><th style="font-weight:normal">Descripción</th><th style="font-weight:normal">Solicita</th><th style="font-weight:normal">Estado</th></tr></thead>
+          <thead><tr><th style="font-weight:normal">Repuesto</th><th style="font-weight:normal">Cant.</th><th style="font-weight:normal">Un.</th><th style="font-weight:normal">C.C.</th><th style="font-weight:normal">Urgencia</th><th style="font-weight:normal">Grupo</th><th style="font-weight:normal">Descripción</th><th style="font-weight:normal">Solicita</th><th style="font-weight:normal">Estado</th></tr></thead>
           <tbody>${filas}</tbody>
         </table></div>`,
       width: 750,
@@ -202,17 +212,20 @@ export default function SanPabloPedidos() {
     const hist = [entradaCreacion, ...histGuardado]
     const filas = hist.map(h => {
       const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
-      return `<tr><td>${fecha}</td><td>${h.estado || '—'}</td><td>${h.usuario || '—'}${h.nota ? ` <span class="text-muted" style="font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
+      const estadoLabel = (h.estado === 'Cancelado' || h.estado === 'Rechazado') ? `<span style="color:#dc3545;font-weight:600">Rechazado</span>` : (h.estado || '—')
+      return `<tr><td>${fecha}</td><td>${estadoLabel}</td><td>${h.usuario || '—'}${h.nota ? ` <span class="text-muted" style="font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
     }).join('')
     Swal.fire({
       title: `Historial - ${item.nombre_repuesto}`,
       html: `<div style="overflow-x:auto">
         <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
-          <thead><tr><th>Fecha</th><th>Estado</th><th>Usuario</th></tr></thead>
+          <thead><tr><th style="font-weight:400;text-align:center">Fecha</th><th style="font-weight:400;text-align:center">Estado</th><th style="font-weight:400;text-align:center">Usuario</th></tr></thead>
           <tbody>${filas}</tbody>
         </table></div>`,
       width: 560,
       confirmButtonText: 'Cerrar',
+      buttonsStyling: false,
+      customClass: { confirmButton: 'btn btn-outline-secondary' },
     })
   }
 
@@ -220,14 +233,15 @@ export default function SanPabloPedidos() {
 
   const badgeUrgencia = (u) => {
     if (u === 'Varios') return varios()
-    const map = { Baja: 'secondary', Media: 'warning', Alta: 'danger', Crítica: 'dark' }
-    return <span className={`badge bg-${map[u] || 'secondary'}`}>{u}</span>
+    const color = { Baja: '#6c757d', Media: '#c87800', Alta: '#dc3545', Crítica: '#dc3545' }
+    return <span style={{ fontWeight: 600, color: color[u] || '#6c757d' }}>{u}</span>
   }
 
   const badgeEstado = (e) => {
     if (e === 'Varios') return varios()
     const norm = e === 'Pedido' || e === 'En analisis' ? 'Para analisis' : e
-    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Autorizar: 'warning', Pendiente: 'secondary', 'En proceso': 'warning', Completado: 'success', Cancelado: 'danger' }
+    if (norm === 'Autorizar') return <span className="badge" style={{ backgroundColor: '#8b2035' }}>Para autorizar</span>
+    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
     return <span className={`badge bg-${color[norm] || 'secondary'}`}>{norm}</span>
   }
 
@@ -347,11 +361,13 @@ export default function SanPabloPedidos() {
                   <th>C.C.</th>
                   <th>Repuesto</th>
                   <th>Cant.</th>
+                  <th>Un.</th>
                   <th>Descripción</th>
                   <th>Urgencia</th>
                   <th>Grupo</th>
                   <th>Solicita</th>
                   <th>Estado</th>
+                  <th>O.C.</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -362,11 +378,12 @@ export default function SanPabloPedidos() {
                     className={item.urgencia === 'Crítica' ? 'row-critica' : ''}
                     style={item._agrupado && item._count > 1 ? { borderLeft: '3px solid #0d6efd', backgroundColor: 'rgba(13,110,253,0.06)' } : {}}
                   >
-                    <td style={item._agrupado && item._count > 1 ? { fontWeight: 700 } : {}}>{fmtNro(item.nro_pedido)}</td>
+                    <td style={(item._agrupado ? item._count > 1 : conteosPedido[item.nro_pedido] > 1) ? { fontWeight: 700 } : {}}>{fmtNro(item.nro_pedido)}</td>
                     <td>{item.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                     <td>{item.cc === 'Varios' ? varios() : item.cc}</td>
                     <td>{item.nombre_repuesto === 'Varios' ? varios() : item.nombre_repuesto}</td>
                     <td>{item.cant === 'Varios' ? varios() : item.cant}</td>
+                    <td>{item.unidad === 'Varios' ? varios() : (item.unidad || '—')}</td>
                     <td>
                       {item.descripcion === 'Varios'
                         ? varios()
@@ -377,7 +394,16 @@ export default function SanPabloPedidos() {
                     <td>{badgeUrgencia(item.urgencia)}</td>
                     <td>{item.grupo === 'Varios' ? varios() : item.grupo}</td>
                     <td>{item.solicita === 'Varios' ? varios() : (item.solicita || '')}</td>
-                    <td>{badgeEstado(item.estado)}</td>
+                    <td
+                      onClick={() => {
+                        if (!agrupado && (item.estado === 'Rechazado' || item.estado === 'Cancelado')) {
+                          const entrada = [...(item.historial || [])].reverse().find(h => h.estado === 'Rechazado' || h.estado === 'Cancelado')
+                          Swal.fire({ title: 'Motivo del rechazo', text: entrada?.nota || 'Sin explicación registrada.', confirmButtonText: 'Cerrar', buttonsStyling: false, customClass: { confirmButton: 'btn btn-outline-secondary' } })
+                        }
+                      }}
+                      style={!agrupado && (item.estado === 'Rechazado' || item.estado === 'Cancelado') ? { cursor: 'pointer' } : {}}
+                    >{badgeEstado(item.estado)}</td>
+                    <td>{item.oc || '—'}</td>
                     <td className="text-nowrap">
                       <button className="btn btn-sm btn-outline-secondary me-1" onClick={e => { e.stopPropagation(); verHistorial(item) }}>Historial</button>
                       {!agrupado && <>
@@ -391,7 +417,7 @@ export default function SanPabloPedidos() {
                   </tr>
                 ))}
                 {listaAMostrar.length === 0 && (
-                  <tr><td colSpan={11} className="text-center text-muted py-3">Sin resultados</td></tr>
+                  <tr><td colSpan={13} className="text-center text-muted py-3">Sin resultados</td></tr>
                 )}
               </tbody>
             </table>
@@ -419,6 +445,11 @@ export default function SanPabloPedidos() {
                       <label className="form-label">Cant.</label>
                       <input type="number" min="1" className="form-control" value={form.cant}
                         onChange={e => setForm({ ...form, cant: e.target.value })} />
+                    </div>
+                    <div className="col">
+                      <label className="form-label">Unidad*</label>
+                      <input className="form-control" placeholder="Ej: un, kg, mts" style={{ fontSize: 12 }} value={form.unidad}
+                        onChange={e => setForm({ ...form, unidad: e.target.value })} required />
                     </div>
                     <div className="col">
                       <label className="form-label">C.C.</label>

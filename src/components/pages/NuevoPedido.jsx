@@ -14,7 +14,7 @@ const getNombreUsuario = () => {
   } catch { return '' }
 }
 
-const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: '', cc: '', estado: 'Para analisis' }
+const ITEM_INIT = { nombre_repuesto: '', cant: '', unidad: '', descripcion: '', urgencia: 'Media', grupo: '', cc: '', estado: 'Para analisis' }
 
 export default function NuevoPedido() {
   const navigate = useNavigate()
@@ -125,8 +125,8 @@ export default function NuevoPedido() {
   }
 
   const badgeUrgencia = (u) => {
-    const map = { Baja: 'secondary', Media: 'warning', Alta: 'danger', Crítica: 'dark' }
-    return <span className={`badge bg-${map[u] || 'secondary'}`}>{u}</span>
+    const color = { Baja: '#6c757d', Media: '#c87800', Alta: '#dc3545', Crítica: '#dc3545' }
+    return <span style={{ fontWeight: 600, color: color[u] || '#6c757d' }}>{u}</span>
   }
 
   return (
@@ -156,7 +156,7 @@ export default function NuevoPedido() {
             <form onSubmit={agregarFila}>
               {/* Fila 1: Nombre · Cant. · C.C. · Urgencia */}
               <div className="row mb-2 g-2">
-                <div className="col-5">
+                <div className="col-4">
                   <label className="form-label form-label-sm w-100 text-center">Nombre repuesto*</label>
                   <input className="form-control form-control-sm" value={itemForm.nombre_repuesto}
                     onChange={e => setItemForm({ ...itemForm, nombre_repuesto: e.target.value })} required />
@@ -167,6 +167,11 @@ export default function NuevoPedido() {
                     onChange={e => setItemForm({ ...itemForm, cant: e.target.value })}
                     onKeyDown={e => ['e','E','+','-','.'].includes(e.key) && e.preventDefault()}
                     required />
+                </div>
+                <div className="col-1">
+                  <label className="form-label form-label-sm w-100 text-center">Un.*</label>
+                  <input className="form-control form-control-sm" placeholder="Ej: un, kg, mts" style={{ fontSize: 12 }} value={itemForm.unidad}
+                    onChange={e => setItemForm({ ...itemForm, unidad: e.target.value })} required />
                 </div>
                 <div className="col-2" style={{ position: 'relative' }}>
                   <label className="form-label form-label-sm w-100 text-center">C.C.*</label>
@@ -252,6 +257,7 @@ export default function NuevoPedido() {
                   <tr>
                     <th>Repuesto</th>
                     <th>Cant.</th>
+                    <th>Un.</th>
                     <th>Descripción</th>
                     <th>Urgencia</th>
                     <th>Grupo</th>
@@ -265,6 +271,7 @@ export default function NuevoPedido() {
                     <tr key={item._tmpId} style={editingId === item._tmpId ? { backgroundColor: 'rgba(106,74,138,0.08)' } : {}}>
                       <td>{item.nombre_repuesto}</td>
                       <td>{item.cant}</td>
+                      <td>{item.unidad}</td>
                       <td>{item.descripcion}</td>
                       <td>{badgeUrgencia(item.urgencia)}</td>
                       <td>{item.grupo}</td>

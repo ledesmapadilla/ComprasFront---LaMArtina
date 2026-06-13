@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import XLSX from 'xlsx-js-style'
 
 const fmtNro = (n, src) => src === 'berdina' ? `B-${String(n).padStart(3, '0')}` : `SP-${String(n).padStart(3, '0')}`
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
@@ -11,7 +11,7 @@ const ESTADOS        = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Pendient
 const GRUPOS         = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herbicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
 const ESTABLECIMIENTOS = ['Berdina', 'San Pablo']
 
-const ITEM_INIT = { nombre_repuesto: '', cant: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
+const ITEM_INIT = { nombre_repuesto: '', cant: '', unidad: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
 
 const estiloX = {
   position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
@@ -21,6 +21,7 @@ const estiloX = {
 
 export default function AnalistaPedidos() {
   const navigate = useNavigate()
+  const esComprador = useLocation().pathname === '/comprador'
   const [pedidos, setPedidos] = useState([])
   const [form, setForm] = useState(ITEM_INIT)
   const [editPedidoId, setEditPedidoId] = useState(null)
@@ -29,11 +30,11 @@ export default function AnalistaPedidos() {
   const [showModal, setShowModal] = useState(false)
   const [agrupado, setAgrupado] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
-  const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', solicita: '', estado: 'Para analisis', establecimiento: '' }
+  const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', solicita: '', estado: esComprador ? 'Para hacer OC' : 'Para analisis', establecimiento: '' }
   const [filtros, setFiltros] = useState(FILTROS_INIT)
   const setF = (k, v) => setFiltros(f => ({ ...f, [k]: v }))
   const limpiar = () => setFiltros(FILTROS_INIT)
-  const hayFiltros = Object.values(filtros).some(v => v !== '')
+  const hayFiltros = Object.keys(filtros).some(k => filtros[k] !== FILTROS_INIT[k])
 
   const cargar = async () => {
     const [berdina, sanpablo] = await Promise.all([
@@ -58,6 +59,8 @@ export default function AnalistaPedidos() {
   )
 
   const lista = items.filter(item => {
+    const normEstado = (item.estado === 'Pedido' || item.estado === 'En analisis') ? 'Para analisis' : item.estado
+    if (esComprador && normEstado === 'Para analisis') return false
     if (filtros.nro && !fmtNro(item.nro_pedido, item._src).includes(filtros.nro.toUpperCase())) return false
     if (filtros.fecha && item.fecha?.slice(0, 10) !== filtros.fecha) return false
     if (filtros.cc && !item.cc?.toLowerCase().includes(filtros.cc.toLowerCase())) return false
@@ -65,7 +68,9 @@ export default function AnalistaPedidos() {
     if (filtros.urgencia && item.urgencia !== filtros.urgencia) return false
     if (filtros.grupo && item.grupo !== filtros.grupo) return false
     if (filtros.solicita && !item.solicita?.toLowerCase().includes(filtros.solicita.toLowerCase())) return false
-    if (filtros.estado) { const ne = (item.estado === 'Pedido' || item.estado === 'En analisis') ? 'Para analisis' : item.estado; if (ne !== filtros.estado) return false }
+    if (filtros.estado === '__combo__') {
+      if (normEstado !== 'Autorizar' && normEstado !== 'Para hacer OC') return false
+    } else if (filtros.estado) { if (normEstado !== filtros.estado) return false }
     if (filtros.establecimiento && item._src !== filtros.establecimiento.toLowerCase().replace(' ', '')) return false
     return true
   })
@@ -91,6 +96,7 @@ export default function AnalistaPedidos() {
     cc:              colapsar(uniq(items.map(i => i.cc))),
     nombre_repuesto: colapsar(uniq(items.map(i => i.nombre_repuesto))),
     cant:            colapsar(uniq(items.map(i => i.cant?.toString()))),
+    unidad:          colapsar(uniq(items.map(i => i.unidad))),
     descripcion:     colapsar(uniq(items.map(i => i.descripcion))),
     urgencia:        colapsar(uniq(items.map(i => i.urgencia))),
     grupo:           colapsar(uniq(items.map(i => i.grupo))),
@@ -98,12 +104,19 @@ export default function AnalistaPedidos() {
     estado:          colapsar(uniq(items.map(i => i.estado))),
   }))
 
+  const conteosPedido = lista.reduce((acc, i) => {
+    const k = `${i._src}-${i.nro_pedido}`
+    acc[k] = (acc[k] || 0) + 1
+    return acc
+  }, {})
+
   const listaAMostrar = agrupado ? listaAgrupada : lista
 
   const abrirEditar = (item) => {
     setForm({
       nombre_repuesto: item.nombre_repuesto,
       cant: item.cant || '',
+      unidad: item.unidad || '',
       descripcion: item.descripcion || '',
       urgencia: item.urgencia,
       grupo: item.grupo,
@@ -154,11 +167,43 @@ export default function AnalistaPedidos() {
     }
   }
 
+  const rechazar = async (item) => {
+    const { value: motivo, isConfirmed } = await Swal.fire({
+      title: '¿Rechazar repuesto?',
+      html: `<div style="font-weight:600;margin-bottom:8px">${item.nombre_repuesto}</div>`,
+      input: 'textarea',
+      inputLabel: 'Motivo del rechazo',
+      inputPlaceholder: 'Explicá el motivo...',
+      showCancelButton: true,
+      confirmButtonText: 'Rechazar',
+      cancelButtonText: 'Cancelar',
+      buttonsStyling: false,
+      customClass: { confirmButton: 'btn btn-outline-danger me-2', cancelButton: 'btn btn-outline-secondary' },
+      preConfirm: (val) => {
+        if (!val?.trim()) { Swal.showValidationMessage('El motivo es obligatorio'); return false }
+        return val.trim()
+      },
+    })
+    if (!isConfirmed) return
+    try {
+      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      await api.put(`${base}/${item.pedidoId}/items/${item._id}`, {
+        estado: 'Rechazado',
+        usuario: esComprador ? 'Comprador' : 'Analista',
+        nota: motivo,
+      })
+      cargar()
+      Swal.fire({ icon: 'success', title: 'Rechazado', timer: 1500, showConfirmButton: false })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
+
   const exportarExcel = () => {
     const titulo = 'Pedidos - La Martina (Berdina + San Pablo)'
     const fecha  = new Date().toLocaleDateString('es-AR')
     const boldCell = (v) => ({ v, s: { font: { bold: true } } })
-    const headers  = ['Establecimiento', 'N° Pedido', 'Fecha', 'C.C.', 'Repuesto', 'Cant.', 'Descripción', 'Urgencia', 'Grupo', 'Solicita', 'Estado']
+    const headers  = ['Taller', 'N° Pedido', 'Fecha', 'C.C.', 'Repuesto', 'Cant.', 'Un.', 'Descripción', 'Urgencia', 'Grupo', 'Solicita', 'Estado', 'O.C.']
 
     const aoa = [
       [boldCell(titulo)],
@@ -172,17 +217,19 @@ export default function AnalistaPedidos() {
         item.cc || '',
         item.nombre_repuesto,
         item.cant ?? '',
+        item.unidad || '',
         item.descripcion || '',
         item.urgencia,
         item.grupo,
         item.solicita || '',
         item.estado === 'Pedido' ? 'Para analisis' : (item.estado || ''),
+        item.oc || '',
       ]),
     ]
 
     const ws = XLSX.utils.aoa_to_sheet(aoa)
     ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }]
-    ws['!cols'] = [12, 10, 10, 8, 22, 6, 30, 10, 14, 16, 12].map(w => ({ wch: w }))
+    ws['!cols'] = [12, 10, 10, 8, 22, 6, 8, 30, 10, 14, 16, 12, 10].map(w => ({ wch: w }))
 
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Pedidos')
@@ -194,6 +241,7 @@ export default function AnalistaPedidos() {
       `<tr>
         <td>${i.nombre_repuesto}</td>
         <td>${i.cant ?? '—'}</td>
+        <td>${i.unidad || '—'}</td>
         <td>${i.cc || '—'}</td>
         <td>${i.urgencia}</td>
         <td>${i.grupo}</td>
@@ -206,7 +254,7 @@ export default function AnalistaPedidos() {
       title: `Pedido ${fmtNro(item.nro_pedido, item._src)}`,
       html: `<div style="overflow-x:auto">
         <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
-          <thead><tr><th style="font-weight:normal">Repuesto</th><th style="font-weight:normal">Cant.</th><th style="font-weight:normal">C.C.</th><th style="font-weight:normal">Urgencia</th><th style="font-weight:normal">Grupo</th><th style="font-weight:normal">Descripción</th><th style="font-weight:normal">Solicita</th><th style="font-weight:normal">Estado</th></tr></thead>
+          <thead><tr><th style="font-weight:normal">Repuesto</th><th style="font-weight:normal">Cant.</th><th style="font-weight:normal">Un.</th><th style="font-weight:normal">C.C.</th><th style="font-weight:normal">Urgencia</th><th style="font-weight:normal">Grupo</th><th style="font-weight:normal">Descripción</th><th style="font-weight:normal">Solicita</th><th style="font-weight:normal">Estado</th></tr></thead>
           <tbody>${filas}</tbody>
         </table></div>`,
       width: 750,
@@ -225,17 +273,20 @@ export default function AnalistaPedidos() {
     const hist = [entradaCreacion, ...histGuardado]
     const filas = hist.map(h => {
       const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
-      return `<tr><td>${fecha}</td><td>${h.estado || '—'}</td><td>${h.usuario || '—'}${h.nota ? ` <span class="text-muted" style="font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
+      const estadoLabel = (h.estado === 'Cancelado' || h.estado === 'Rechazado') ? `<span style="color:#dc3545;font-weight:600">Rechazado</span>` : (h.estado || '—')
+      return `<tr><td>${fecha}</td><td>${estadoLabel}</td><td>${h.usuario || '—'}${h.nota ? ` <span class="text-muted" style="font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
     }).join('')
     Swal.fire({
       title: `Historial - ${item.nombre_repuesto}`,
       html: `<div style="overflow-x:auto">
         <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
-          <thead><tr><th>Fecha</th><th>Estado</th><th>Usuario</th></tr></thead>
+          <thead><tr><th style="font-weight:400;text-align:center">Fecha</th><th style="font-weight:400;text-align:center">Estado</th><th style="font-weight:400;text-align:center">Usuario</th></tr></thead>
           <tbody>${filas}</tbody>
         </table></div>`,
       width: 560,
       confirmButtonText: 'Cerrar',
+      buttonsStyling: false,
+      customClass: { confirmButton: 'btn btn-outline-secondary' },
     })
   }
 
@@ -243,14 +294,15 @@ export default function AnalistaPedidos() {
 
   const badgeUrgencia = (u) => {
     if (u === 'Varios') return varios()
-    const map = { Baja: 'secondary', Media: 'warning', Alta: 'danger', Crítica: 'dark' }
-    return <span className={`badge bg-${map[u] || 'secondary'}`}>{u}</span>
+    const color = { Baja: '#6c757d', Media: '#c87800', Alta: '#dc3545', Crítica: '#dc3545' }
+    return <span style={{ fontWeight: 600, color: color[u] || '#6c757d' }}>{u}</span>
   }
 
   const badgeEstado = (e) => {
     if (e === 'Varios') return varios()
     const norm = e === 'Pedido' || e === 'En analisis' ? 'Para analisis' : e
-    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Autorizar: 'warning', Pendiente: 'secondary', 'En proceso': 'warning', Completado: 'success', Cancelado: 'danger' }
+    if (norm === 'Autorizar') return <span className="badge" style={{ backgroundColor: '#8b2035' }}>Para autorizar</span>
+    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
     return <span className={`badge bg-${color[norm] || 'secondary'}`}>{norm}</span>
   }
 
@@ -264,7 +316,7 @@ export default function AnalistaPedidos() {
 
       <div className="container d-flex justify-content-between align-items-center mb-2">
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
-          Analista
+          {esComprador ? 'Comprador' : 'Analista'}
         </p>
         <div className="d-flex gap-2">
           <button className="btn btn-outline-success btn-sm" onClick={exportarExcel}>Excel</button>
@@ -273,7 +325,9 @@ export default function AnalistaPedidos() {
       </div>
 
       <div className="container">
-        <h4 className="text-center mb-2" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>Pedidos</h4>
+        <h4 className="text-center mb-2" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>
+          Pedidos <span style={{ fontWeight: 400, fontSize: '0.75em', letterSpacing: 1, textTransform: 'none' }}>{esComprador ? '(Para autorizar y Para hacer OC)' : '(Para analisis)'}</span>
+        </h4>
 
         <div className="d-flex flex-wrap gap-2 align-items-end mb-3">
           <div>
@@ -334,8 +388,9 @@ export default function AnalistaPedidos() {
           <div>
             <label className="form-label form-label-sm mb-1 d-block" style={{ fontSize: 11 }}>Estado</label>
             <div style={{ position: 'relative' }}>
-              <select className={`form-select form-select-sm${filtros.estado ? ' select-activo' : ''}`} style={{ width: 130, ...(filtros.estado ? { backgroundImage: 'none' } : {}) }} value={filtros.estado} onChange={e => setF('estado', e.target.value)}>
+              <select className={`form-select form-select-sm${filtros.estado ? ' select-activo' : ''}`} style={{ width: 180, ...(filtros.estado ? { backgroundImage: 'none' } : {}) }} value={filtros.estado} onChange={e => setF('estado', e.target.value)}>
                 <option value="">Todos</option>
+                {esComprador && <option value="__combo__">P/autorizar + P/hacer OC</option>}
                 {ESTADOS.map(s => <option key={s}>{s}</option>)}
               </select>
               {filtros.estado && <span onClick={() => setF('estado', '')} style={estiloX}>✕</span>}
@@ -371,15 +426,20 @@ export default function AnalistaPedidos() {
               Agrupar pedidos múltiples
             </label>
           </div>
-          <div style={{ width: 130, textAlign: 'center' }}>
-            <button
-              className="btn btn-sm btn-outline-primary"
-              onClick={() => {
-                const item = selectedId ? listaAMostrar.find(i => i._id === selectedId) : null
-                navigate('/analista/analizar', { state: item ? { item } : undefined })
-              }}
-            >Analizar</button>
-          </div>
+          {esComprador
+            ? <span style={{ fontSize: 14 }}>Mayor de $200.000 → <span style={{ color: '#dc3545', fontWeight: 600 }}>Autorizar</span></span>
+            : (
+              <div style={{ width: 130, textAlign: 'center' }}>
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={() => {
+                    const item = selectedId ? listaAMostrar.find(i => i._id === selectedId) : null
+                    navigate('/analista/analizar', { state: item ? { item } : undefined })
+                  }}
+                >Analizar</button>
+              </div>
+            )
+          }
         </div>
 
         <div className="card">
@@ -388,7 +448,7 @@ export default function AnalistaPedidos() {
               <style>{`.analista-thead th { font-weight: ${agrupado ? '700' : '400'} !important; }`}</style>
               <thead className="thead-blue thead-light analista-thead" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                 <tr>
-                  {['Establecimiento','N° Pedido','Fecha','C.C.','Repuesto','Cant.','Descripción','Urgencia','Grupo','Solicita','Estado'].map(col => (
+                  {['Taller','N° Pedido','Fecha','C.C.','Repuesto','Cant.','Un.','Descripción','Urgencia','Grupo','Solicita','Estado','O.C.'].map(col => (
                     <th key={col} className="text-center">{col}</th>
                   ))}
                   <th className="text-center" style={{ width: 130 }}>Acciones</th>
@@ -410,11 +470,12 @@ export default function AnalistaPedidos() {
                     onClick={() => { if (!agrupado) setSelectedId(isSelected ? null : item._id) }}
                   >
                     <td>{badgeEstablecimiento(item._src)}</td>
-                    <td style={item._agrupado && item._count > 1 ? { fontWeight: 700 } : {}}>{fmtNro(item.nro_pedido, item._src)}</td>
+                    <td style={(item._agrupado ? item._count > 1 : conteosPedido[`${item._src}-${item.nro_pedido}`] > 1) ? { fontWeight: 700 } : {}}>{fmtNro(item.nro_pedido, item._src)}</td>
                     <td>{item.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                     <td>{item.cc === 'Varios' ? varios() : item.cc}</td>
                     <td>{item.nombre_repuesto === 'Varios' ? varios() : item.nombre_repuesto}</td>
                     <td>{item.cant === 'Varios' ? varios() : item.cant}</td>
+                    <td>{item.unidad === 'Varios' ? varios() : (item.unidad || '—')}</td>
                     <td>
                       {item.descripcion === 'Varios'
                         ? varios()
@@ -428,25 +489,36 @@ export default function AnalistaPedidos() {
                     <td onClick={e => {
                       e.stopPropagation()
                       if (!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC'))
-                        navigate('/analista/analizar', { state: { item } })
-                    }} style={!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC') ? { cursor: 'pointer' } : {}}>
+                        navigate('/analista/analizar', { state: { item, esComprador } })
+                      else if (!agrupado && (item.estado === 'Rechazado' || item.estado === 'Cancelado')) {
+                        const entrada = [...(item.historial || [])].reverse().find(h => h.estado === 'Rechazado' || h.estado === 'Cancelado')
+                        Swal.fire({
+                          title: 'Motivo del rechazo',
+                          text: entrada?.nota || 'Sin explicación registrada.',
+                          confirmButtonText: 'Cerrar',
+                          buttonsStyling: false,
+                          customClass: { confirmButton: 'btn btn-outline-secondary' },
+                        })
+                      }
+                    }} style={!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC' || item.estado === 'Rechazado' || item.estado === 'Cancelado') ? { cursor: 'pointer' } : {}}>
                       {badgeEstado(item.estado)}
                     </td>
+                    <td>{item.oc || '—'}</td>
                     <td className="text-nowrap" onClick={e => e.stopPropagation()}>
-                      <button className="btn btn-sm btn-outline-secondary me-1" onClick={e => { e.stopPropagation(); verHistorial(item) }}>Historial</button>
+                      <button className="btn btn-sm btn-outline-secondary me-1" style={{ padding: '1px 5px', fontSize: 11 }} onClick={e => { e.stopPropagation(); verHistorial(item) }}>Historial</button>
                       {!agrupado && <>
-                        <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(item)}>Editar</button>
-                        <button className="btn btn-sm btn-outline-danger" onClick={() => borrar(item)}>Borrar</button>
+                        <button className="btn btn-sm btn-outline-secondary me-1" style={{ padding: '1px 5px', fontSize: 11 }} onClick={() => abrirEditar(item)}>Editar</button>
+                        <button className="btn btn-sm btn-outline-danger" style={{ padding: '1px 5px', fontSize: 11 }} onClick={() => rechazar(item)}>Rechazar</button>
                       </>}
                       {agrupado && item._count > 1 &&
-                        <button className="btn btn-sm btn-outline-secondary" onClick={() => verDetalle(item)}>Ver</button>
+                        <button className="btn btn-sm btn-outline-secondary" style={{ padding: '1px 5px', fontSize: 11 }} onClick={() => verDetalle(item)}>Ver</button>
                       }
                     </td>
                   </tr>
                   )
                 })}
                 {listaAMostrar.length === 0 && (
-                  <tr><td colSpan={12} className="text-center text-muted py-3">Sin resultados</td></tr>
+                  <tr><td colSpan={14} className="text-center text-muted py-3">Sin resultados</td></tr>
                 )}
               </tbody>
             </table>
@@ -474,6 +546,11 @@ export default function AnalistaPedidos() {
                       <label className="form-label">Cant.</label>
                       <input type="number" min="1" className="form-control" value={form.cant}
                         onChange={e => setForm({ ...form, cant: e.target.value })} />
+                    </div>
+                    <div className="col">
+                      <label className="form-label">Unidad*</label>
+                      <input className="form-control" placeholder="Ej: un, kg, mts" style={{ fontSize: 12 }} value={form.unidad}
+                        onChange={e => setForm({ ...form, unidad: e.target.value })} required />
                     </div>
                     <div className="col">
                       <label className="form-label">C.C.</label>

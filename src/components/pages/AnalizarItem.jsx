@@ -275,12 +275,6 @@ export default function AnalizarItem() {
           )}
         </div>
 
-        {esComprador && (
-          <div className="text-center mb-2">
-            <button className="btn btn-dark btn-sm" disabled={itemsAMostrar.length === 0}>Orden de Compra</button>
-          </div>
-        )}
-
         <div style={esComprador ? { border: '1px solid #000', borderRadius: 6, padding: '0.75rem' } : {}}>
         <div className="card">
           <div>

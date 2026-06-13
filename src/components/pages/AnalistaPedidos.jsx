@@ -442,6 +442,18 @@ export default function AnalistaPedidos() {
           }
         </div>
 
+        {esComprador && (
+          <div className="text-center mb-2">
+            <button
+              className="btn btn-dark btn-sm"
+              onClick={() => {
+                const item = selectedId ? listaAMostrar.find(i => i._id === selectedId) : null
+                navigate('/analista/analizar', { state: item ? { item, esComprador } : { esComprador } })
+              }}
+            >Orden de Compra</button>
+          </div>
+        )}
+
         <div className="card">
           <div className="table-responsive" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
             <table className="table table-hover table-striped mb-0">

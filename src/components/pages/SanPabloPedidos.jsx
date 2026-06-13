@@ -202,27 +202,32 @@ export default function SanPabloPedidos() {
     })
   }
 
-  const verHistorial = (item) => {
-    const hist = (item.historial || []).length > 0
-      ? item.historial
-      : [{ fecha: item.fecha, estado: 'Para analisis', usuario: item.solicita || 'Sin especificar', nota: 'Pedido creado' }]
-    const filas = hist.map(h => {
-      const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
-      const estadoLabel = (h.estado === 'Cancelado' || h.estado === 'Rechazado') ? `<span style="color:#dc3545;font-weight:600">Rechazado</span>` : (h.estado || '—')
-      return `<tr><td>${fecha}</td><td>${estadoLabel}</td><td>${h.usuario || '—'}${h.nota ? ` <span class="text-muted" style="font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
-    }).join('')
-    Swal.fire({
-      title: `Historial - ${item.nombre_repuesto}`,
-      html: `<div style="overflow-x:auto;overflow-y:auto;max-height:400px">
-        <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
-          <thead><tr><th style="font-weight:400;text-align:center">Fecha</th><th style="font-weight:400;text-align:center">Estado</th><th style="font-weight:400;text-align:center">Usuario</th></tr></thead>
-          <tbody>${filas}</tbody>
-        </table></div>`,
-      width: 560,
-      confirmButtonText: 'Cerrar',
-      buttonsStyling: false,
-      customClass: { confirmButton: 'btn btn-outline-secondary' },
-    })
+  const verHistorial = async (item) => {
+    try {
+      const hist = await api.get(`/sanpablo/pedidos/${item.pedidoId}/items/${item._id}/historial`)
+      const histToShow = hist.length > 0
+        ? hist
+        : [{ fecha: item.fecha, estado: 'Para analisis', usuario: item.solicita || 'Sin especificar', nota: 'Pedido creado' }]
+      const filas = histToShow.map(h => {
+        const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+        const estadoLabel = (h.estado === 'Cancelado' || h.estado === 'Rechazado') ? `<span style="color:#dc3545;font-weight:600">Rechazado</span>` : (h.estado || '—')
+        return `<tr><td>${fecha}</td><td>${estadoLabel}</td><td>${h.usuario || '—'}${h.nota ? ` <span class="text-muted" style="font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
+      }).join('')
+      Swal.fire({
+        title: `Historial - ${item.nombre_repuesto}`,
+        html: `<div style="overflow-x:auto;overflow-y:auto;max-height:400px">
+          <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
+            <thead><tr><th style="font-weight:400;text-align:center">Fecha</th><th style="font-weight:400;text-align:center">Estado</th><th style="font-weight:400;text-align:center">Usuario</th></tr></thead>
+            <tbody>${filas}</tbody>
+          </table></div>`,
+        width: 560,
+        confirmButtonText: 'Cerrar',
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn btn-outline-secondary' },
+      })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
   }
 
   const varios = () => <span className="text-muted fst-italic" style={{ fontSize: 12 }}>Varios</span>
@@ -393,8 +398,7 @@ export default function SanPabloPedidos() {
                     <td
                       onClick={() => {
                         if (!agrupado && (item.estado === 'Rechazado' || item.estado === 'Cancelado')) {
-                          const entrada = [...(item.historial || [])].reverse().find(h => h.estado === 'Rechazado' || h.estado === 'Cancelado')
-                          Swal.fire({ title: 'Motivo del rechazo', text: entrada?.nota || 'Sin explicación registrada.', confirmButtonText: 'Cerrar', buttonsStyling: false, customClass: { confirmButton: 'btn btn-outline-secondary' } })
+                          verHistorial(item)
                         }
                       }}
                       style={!agrupado && (item.estado === 'Rechazado' || item.estado === 'Cancelado') ? { cursor: 'pointer' } : {}}

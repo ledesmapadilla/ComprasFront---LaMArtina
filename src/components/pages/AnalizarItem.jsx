@@ -26,9 +26,6 @@ export default function AnalizarItem() {
   const [focusMap, setFocusMap] = useState({})
   const [busqueda, setBusqueda] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
-  const [oc, setOc] = useState({ fecha: '', proveedor: '', costo_total: '', observaciones: '' })
-  const setOcF = (k, v) => setOc(o => ({ ...o, [k]: v }))
-  const [ocCostoFoco, setOcCostoFoco] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -395,48 +392,6 @@ export default function AnalizarItem() {
         })()}
         </div>
 
-        {esComprador && itemsAMostrar.length > 0 && (
-          <div className="mt-3">
-            <h6 className="mb-2 text-center" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>Orden de Compra</h6>
-            <div className="card">
-              <table className="table mb-0" style={{ fontSize: 13 }}>
-                <thead className="thead-blue thead-light">
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Proveedor</th>
-                    <th>Costo Total (sin IVA)</th>
-                    <th>Observaciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ width: 130 }}><input type="date" className="form-control form-control-sm" value={oc.fecha} onChange={e => setOcF('fecha', e.target.value)} /></td>
-                    <td style={{ width: 180 }}>
-                      <select className={`form-select form-select-sm${oc.proveedor ? ' select-activo' : ''}`} style={oc.proveedor ? { backgroundImage: 'none' } : {}} value={oc.proveedor} onChange={e => setOcF('proveedor', e.target.value)}>
-                        <option value="">—</option>
-                        {proveedores.map(p => <option key={p._id} value={p._id}>{p.razonsocial}</option>)}
-                      </select>
-                    </td>
-                    <td style={{ width: 150 }}>
-                      <input
-                        type={ocCostoFoco ? 'number' : 'text'}
-                        min="0"
-                        className="form-control form-control-sm"
-                        value={ocCostoFoco ? oc.costo_total : fmtPrecio(oc.costo_total)}
-                        onChange={e => setOcF('costo_total', e.target.value)}
-                        onFocus={() => setOcCostoFoco(true)}
-                        onBlur={() => setOcCostoFoco(false)}
-                        onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
-                        placeholder="$"
-                      />
-                    </td>
-                    <td><input className="form-control form-control-sm" value={oc.observaciones} onChange={e => setOcF('observaciones', e.target.value)} placeholder="Observaciones..." /></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

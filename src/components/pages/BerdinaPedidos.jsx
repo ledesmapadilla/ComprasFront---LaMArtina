@@ -405,11 +405,11 @@ export default function BerdinaPedidos() {
                     <td>{item.solicita === 'Varios' ? varios() : (item.solicita || '')}</td>
                     <td
                       onClick={() => {
-                        if (!agrupado && (item.estado === 'Rechazado' || item.estado === 'Cancelado')) {
-                          verHistorial(item)
+                        if (item.estado === 'Rechazado' || item.estado === 'Cancelado') {
+                          verHistorial(item._agrupado ? item._items[0] : item)
                         }
                       }}
-                      style={!agrupado && (item.estado === 'Rechazado' || item.estado === 'Cancelado') ? { cursor: 'pointer' } : {}}
+                      style={(item.estado === 'Rechazado' || item.estado === 'Cancelado') ? { cursor: 'pointer' } : {}}
                     >{badgeEstado(item.estado)}</td>
                     <td>{item.oc || '—'}</td>
                     <td className="text-nowrap">

@@ -501,10 +501,10 @@ export default function AnalistaPedidos() {
                       e.stopPropagation()
                       if (!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC'))
                         navigate('/analista/analizar', { state: { item, esComprador } })
-                      else if (!agrupado && (item.estado === 'Rechazado' || item.estado === 'Cancelado')) {
-                        verHistorial(item)
+                      else if (item.estado === 'Rechazado' || item.estado === 'Cancelado') {
+                        verHistorial(item._agrupado ? item._items[0] : item)
                       }
-                    }} style={!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC' || item.estado === 'Rechazado' || item.estado === 'Cancelado') ? { cursor: 'pointer' } : {}}>
+                    }} style={(!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC')) || (item.estado === 'Rechazado' || item.estado === 'Cancelado') ? { cursor: 'pointer' } : {}}>
                       {badgeEstado(item.estado)}
                     </td>
                     <td>{item.oc || '—'}</td>

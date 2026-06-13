@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
-const ESTADOS   = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Pendiente', 'En proceso', 'Completado', 'Cancelado']
+const ESTADOS   = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Pendiente', 'En proceso', 'Para retirar', 'Completado', 'Cancelado']
 const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herbicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
 
 const ITEM_INIT = { nombre_repuesto: '', cant: '', unidad: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
@@ -25,7 +25,7 @@ export default function BerdinaPedidos() {
   const [editPedidoId, setEditPedidoId] = useState(null)
   const [editItemId, setEditItemId] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [agrupado, setAgrupado] = useState(false)
+  const [agrupado, setAgrupado] = useState(true)
   const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', solicita: '', estado: '' }
   const [filtros, setFiltros] = useState(FILTROS_INIT)
   const setF = (k, v) => setFiltros(f => ({ ...f, [k]: v }))
@@ -84,7 +84,8 @@ export default function BerdinaPedidos() {
     return acc
   }, {})
 
-  const listaAMostrar = agrupado ? listaAgrupada : lista
+  const listaAMostrar = (agrupado ? listaAgrupada : lista)
+    .slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
 
   const abrirEditar = (item) => {
     setForm({
@@ -202,14 +203,9 @@ export default function BerdinaPedidos() {
   }
 
   const verHistorial = (item) => {
-    const entradaCreacion = {
-      fecha:   item.fecha,
-      estado:  'Para analisis',
-      usuario: item.solicita || 'Sin especificar',
-      nota:    'Pedido creado',
-    }
-    const histGuardado = (item.historial || []).filter(h => h.nota !== 'Pedido creado')
-    const hist = [entradaCreacion, ...histGuardado]
+    const hist = (item.historial || []).length > 0
+      ? item.historial
+      : [{ fecha: item.fecha, estado: 'Para analisis', usuario: item.solicita || 'Sin especificar', nota: 'Pedido creado' }]
     const filas = hist.map(h => {
       const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
       const estadoLabel = (h.estado === 'Cancelado' || h.estado === 'Rechazado') ? `<span style="color:#dc3545;font-weight:600">Rechazado</span>` : (h.estado || '—')
@@ -217,7 +213,7 @@ export default function BerdinaPedidos() {
     }).join('')
     Swal.fire({
       title: `Historial - ${item.nombre_repuesto}`,
-      html: `<div style="overflow-x:auto">
+      html: `<div style="overflow-x:auto;overflow-y:auto;max-height:400px">
         <table class="table table-sm table-bordered" style="font-size:13px;text-align:left">
           <thead><tr><th style="font-weight:400;text-align:center">Fecha</th><th style="font-weight:400;text-align:center">Estado</th><th style="font-weight:400;text-align:center">Usuario</th></tr></thead>
           <tbody>${filas}</tbody>
@@ -241,7 +237,7 @@ export default function BerdinaPedidos() {
     if (e === 'Varios') return varios()
     const norm = e === 'Pedido' || e === 'En analisis' ? 'Para analisis' : e
     if (norm === 'Autorizar') return <span className="badge" style={{ backgroundColor: '#8b2035' }}>Para autorizar</span>
-    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
+    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', 'Para retirar': 'warning', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
     return <span className={`badge bg-${color[norm] || 'secondary'}`}>{norm}</span>
   }
 
@@ -413,7 +409,7 @@ export default function BerdinaPedidos() {
                     >{badgeEstado(item.estado)}</td>
                     <td>{item.oc || '—'}</td>
                     <td className="text-nowrap">
-                      <button className="btn btn-sm btn-outline-secondary me-1" onClick={e => { e.stopPropagation(); verHistorial(item) }}>Historial</button>
+                      <button className="btn btn-sm btn-outline-secondary me-1" disabled={item._agrupado && item._count > 1} onClick={e => { e.stopPropagation(); verHistorial(item._agrupado ? item._items[0] : item) }}>Historial</button>
                       {!agrupado && <>
                         <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => abrirEditar(item)}>Editar</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={() => borrar(item)}>Borrar</button>

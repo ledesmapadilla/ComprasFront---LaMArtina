@@ -14,6 +14,7 @@ import SanPabloPedidos from './components/pages/SanPabloPedidos'
 import SanPabloNuevoPedido from './components/pages/SanPabloNuevoPedido'
 import BerdinaPedidos from './components/pages/BerdinaPedidos'
 import NuevoPedido from './components/pages/NuevoPedido'
+import OrdenCompra from './components/pages/OrdenCompra'
 import Error404 from './components/pages/Error404'
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
           <Route path="/analista/pedidos" element={<AnalistaPedidos key="analista" />} />
           <Route path="/analista/analizar" element={<AnalizarItem />} />
           <Route path="/comprador" element={<AnalistaPedidos key="comprador" />} />
+          <Route path="/comprador/oc" element={<OrdenCompra />} />
           <Route path="/sanpablo/pedidos" element={<SanPabloPedidos />} />
           <Route path="/sanpablo/pedidos/nuevo" element={<SanPabloNuevoPedido />} />
           <Route path="/berdina/pedidos" element={<BerdinaPedidos />} />

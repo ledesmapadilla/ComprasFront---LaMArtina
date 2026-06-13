@@ -445,7 +445,7 @@ export default function AnalistaPedidos() {
         {esComprador && (
           <div className="text-center mb-2">
             <button
-              className="btn btn-dark btn-sm"
+              className="btn btn-outline-danger btn-sm"
               onClick={() => {
                 const item = selectedId ? listaAMostrar.find(i => i._id === selectedId) : null
                 navigate('/analista/analizar', { state: item ? { item, esComprador } : { esComprador } })

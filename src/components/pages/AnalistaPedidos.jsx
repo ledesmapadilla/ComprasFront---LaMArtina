@@ -102,6 +102,7 @@ export default function AnalistaPedidos() {
     grupo:           colapsar(uniq(items.map(i => i.grupo))),
     solicita:        colapsar(uniq(items.map(i => i.solicita))),
     estado:          colapsar(uniq(items.map(i => i.estado))),
+    oc:              colapsar(uniq(items.map(i => i.oc))),
   }))
 
   const conteosPedido = lista.reduce((acc, i) => {

@@ -21,30 +21,17 @@ export default function Gerencia() {
   const cargar = async () => {
     setCargando(true)
     const [berdina, sanpablo] = await Promise.all([
-      api.get('/berdina/pedidos').catch(() => []),
-      api.get('/sanpablo/pedidos').catch(() => []),
+      api.get('/berdina/pedidos/por-estado/Autorizar').catch(() => []),
+      api.get('/sanpablo/pedidos/por-estado/Autorizar').catch(() => []),
     ])
-    const todos = [
-      ...berdina.map(p => ({ ...p, _src: 'berdina' })),
-      ...sanpablo.map(p => ({ ...p, _src: 'sanpablo' })),
-    ]
-    const autorizar = todos
-      .flatMap(p =>
-        (p.items || [])
-          .filter(i => i.estado === 'Autorizar')
-          .map(i => ({
-            ...i,
-            nro_pedido: p.nro_pedido,
-            fecha: p.fecha,
-            pedidoId: p._id,
-            _src: p._src,
-          }))
-      )
-      .sort((a, b) => {
-        const ua = URG_ORDER[a.urgencia] ?? 4
-        const ub = URG_ORDER[b.urgencia] ?? 4
-        return ua !== ub ? ua - ub : new Date(b.fecha) - new Date(a.fecha)
-      })
+    const autorizar = [
+      ...berdina.map(i => ({ ...i, _src: 'berdina' })),
+      ...sanpablo.map(i => ({ ...i, _src: 'sanpablo' })),
+    ].sort((a, b) => {
+      const ua = URG_ORDER[a.urgencia] ?? 4
+      const ub = URG_ORDER[b.urgencia] ?? 4
+      return ua !== ub ? ua - ub : new Date(b.fecha) - new Date(a.fecha)
+    })
     setItems(autorizar)
     setCargando(false)
   }

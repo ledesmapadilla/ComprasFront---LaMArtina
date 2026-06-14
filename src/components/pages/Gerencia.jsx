@@ -222,28 +222,25 @@ export default function Gerencia() {
                         {badgeUrgencia(item.urgencia)}
                       </td>
                       <td>
-                        <div className="d-flex flex-column gap-1 align-items-stretch">
+                        <div className="d-flex gap-1 justify-content-center">
                           <button
                             className="btn btn-sm btn-outline-danger"
-                            style={{ fontSize: 12, padding: '3px 6px' }}
+                            title="Rechazar"
+                            style={{ fontSize: 15, fontWeight: 700, lineHeight: 1, padding: '3px 8px' }}
                             onClick={() => rechazar(item)}
-                          >
-                            Rechazar
-                          </button>
+                          >✕</button>
                           <button
-                            className="btn btn-sm btn-outline-warning"
-                            style={{ fontSize: 12, padding: '3px 6px' }}
+                            className="btn btn-sm btn-outline-secondary"
+                            title="Revisar"
+                            style={{ fontSize: 15, fontWeight: 700, lineHeight: 1, padding: '3px 8px' }}
                             onClick={() => revisar(item)}
-                          >
-                            Revisar
-                          </button>
+                          >?</button>
                           <button
                             className="btn btn-sm btn-outline-success"
-                            style={{ fontSize: 12, padding: '3px 6px' }}
+                            title="Aprobar"
+                            style={{ fontSize: 15, fontWeight: 700, lineHeight: 1, padding: '3px 8px' }}
                             onClick={() => aprobar(item)}
-                          >
-                            Aprobar
-                          </button>
+                          >✓</button>
                         </div>
                       </td>
                     </tr>

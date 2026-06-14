@@ -16,7 +16,6 @@ const URG_ORDER = { 'Crítica': 0, 'Alta': 1, 'Media': 2, 'Baja': 3 }
 export default function Gerencia() {
   const navigate = useNavigate()
   const [items, setItems] = useState([])
-  const [modalItem, setModalItem] = useState(null)
   const [cargando, setCargando] = useState(true)
 
   const cargar = async () => {
@@ -52,8 +51,7 @@ export default function Gerencia() {
 
   useEffect(() => { cargar() }, [])
 
-  const abrirModal = (item) => setModalItem(item)
-  const cerrarModal = () => setModalItem(null)
+  const verAnalisis = (item) => navigate('/ver-analisis', { state: { item } })
 
   const aprobar = async (item) => {
     const { isConfirmed } = await Swal.fire({
@@ -228,7 +226,7 @@ export default function Gerencia() {
                         <button
                           className="btn btn-sm btn-outline-secondary mt-1"
                           style={{ fontSize: 11, padding: '1px 8px', lineHeight: 1.6 }}
-                          onClick={() => abrirModal(item)}
+                          onClick={() => verAnalisis(item)}
                         >
                           Ver
                         </button>
@@ -269,113 +267,6 @@ export default function Gerencia() {
           </div>
         )}
       </div>
-
-      {modalItem && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={cerrarModal}>
-          <div
-            className="modal-dialog modal-dialog-scrollable modal-fullscreen-sm-down"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="modal-content">
-              <div className="modal-header">
-                <div>
-                  <h5 className="modal-title mb-0">{modalItem.nombre_repuesto}</h5>
-                  <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>
-                    {fmtNro(modalItem.nro_pedido, modalItem._src)}
-                    {modalItem.fecha ? ` · ${modalItem.fecha.slice(0, 10).split('-').reverse().join('/')}` : ''}
-                  </div>
-                </div>
-                <button type="button" className="btn-close" onClick={cerrarModal} />
-              </div>
-
-              <div className="modal-body" style={{ fontSize: 14 }}>
-
-                {/* Info general */}
-                <div className="d-flex flex-wrap gap-3 mb-3">
-                  {modalItem.cant != null && modalItem.cant !== '' && (
-                    <div>
-                      <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Cant.</div>
-                      <div style={{ fontWeight: 600 }}>{modalItem.cant}{modalItem.unidad ? ` ${modalItem.unidad}` : ''}</div>
-                    </div>
-                  )}
-                  {modalItem.cc && (
-                    <div>
-                      <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>C.C.</div>
-                      <div style={{ fontWeight: 600 }}>{modalItem.cc}</div>
-                    </div>
-                  )}
-                  {modalItem.grupo && (
-                    <div>
-                      <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Grupo</div>
-                      <div style={{ fontWeight: 600 }}>{modalItem.grupo}</div>
-                    </div>
-                  )}
-                  {modalItem.solicita && (
-                    <div>
-                      <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Solicita</div>
-                      <div style={{ fontWeight: 600 }}>{modalItem.solicita}</div>
-                    </div>
-                  )}
-                  {modalItem.stock != null && modalItem.stock !== '' && (
-                    <div>
-                      <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Stock</div>
-                      <div style={{ fontWeight: 600 }}>{modalItem.stock}</div>
-                    </div>
-                  )}
-                  <div>
-                    <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Urgencia</div>
-                    <div>{badgeUrgencia(modalItem.urgencia)}</div>
-                  </div>
-                </div>
-
-                {modalItem.descripcion && (
-                  <div className="mb-3 p-2" style={{ backgroundColor: '#f8f9fa', borderRadius: 6, fontSize: 13 }}>
-                    <span style={{ color: 'var(--color-muted)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>Descripción</span>
-                    <div style={{ marginTop: 2 }}>{modalItem.descripcion}</div>
-                  </div>
-                )}
-
-                {/* Análisis de precios */}
-                <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6, fontWeight: 600 }}>
-                  Análisis de precios
-                </div>
-                {(modalItem.proveedor1 || modalItem.proveedor2 || modalItem.proveedor3) ? (
-                  <table className="table table-sm table-bordered mb-0">
-                    <thead>
-                      <tr>
-                        <th style={{ width: '60%' }}>Proveedor</th>
-                        <th>Precio</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[1, 2, 3].map(n =>
-                        modalItem[`proveedor${n}`] ? (
-                          <tr key={n}>
-                            <td>{modalItem[`proveedor${n}`]}</td>
-                            <td style={{ fontWeight: 600 }}>{fmtPrecio(modalItem[`precio${n}`])}</td>
-                          </tr>
-                        ) : null
-                      )}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="text-muted fst-italic" style={{ fontSize: 13 }}>Sin datos de análisis cargados.</p>
-                )}
-
-              </div>
-
-              <div className="modal-footer d-flex gap-2 justify-content-between">
-                <button className="btn btn-outline-secondary" onClick={cerrarModal}>Cerrar</button>
-                <div className="d-flex gap-2">
-                  <button className="btn btn-outline-danger" onClick={() => { cerrarModal(); rechazar(modalItem) }}>Rechazar</button>
-                  <button className="btn btn-outline-warning" onClick={() => { cerrarModal(); revisar(modalItem) }}>Revisar</button>
-                  <button className="btn btn-outline-success" onClick={() => { cerrarModal(); aprobar(modalItem) }}>Aprobar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   )

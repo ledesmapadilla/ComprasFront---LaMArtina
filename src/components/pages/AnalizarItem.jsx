@@ -4,7 +4,7 @@ import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const fmtNro = (n, src) => src === 'berdina' ? `B-${String(n).padStart(3, '0')}` : `SP-${String(n).padStart(3, '0')}`
-const esParaAnalisis = (e) => e === 'Para analisis' || e === 'En analisis' || e === 'Pedido' || e === 'Autorizar' || e === 'Para hacer OC'
+const esParaAnalisis = (e) => e === 'Para analisis' || e === 'En analisis' || e === 'Pedido'
 
 const fmtPrecio = (v) =>
   v === '' || v === null || v === undefined

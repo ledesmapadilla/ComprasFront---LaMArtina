@@ -66,6 +66,48 @@ export default function Gerencia() {
 
   const verAnalisis = (grupo) => navigate('/oc/ver', { state: { items: grupo.items } })
 
+  const verHistorial = async (grupo) => {
+    try {
+      const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      const historiales = await Promise.all(
+        grupo.items.map(item =>
+          api.get(`${base}/${item.pedidoId}/items/${item._id}/historial`)
+            .then(hist => ({ item, hist }))
+            .catch(() => ({ item, hist: [] }))
+        )
+      )
+      const seccionesHTML = historiales.map(({ item, hist }) => {
+        const tieneInicio = hist.some(h => h.estado === 'Para analisis' || h.estado === 'Pedido' || h.estado === 'En analisis')
+        const histToShow = tieneInicio
+          ? hist
+          : [{ fecha: grupo.fecha, estado: 'Para analisis', usuario: item.solicita || 'Sin especificar', nota: 'Pedido creado' }, ...hist]
+        const filas = histToShow.map(h => {
+          const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+          const label = (h.estado === 'Cancelado' || h.estado === 'Rechazado')
+            ? `<span style="color:#dc3545;font-weight:600">${h.estado}</span>`
+            : (h.estado || '—')
+          return `<tr><td>${fecha}</td><td>${label}</td><td>${h.usuario || '—'}${h.nota ? ` <span style="color:#888;font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
+        }).join('')
+        const header = grupo.items.length > 1
+          ? `<div style="font-weight:600;font-size:13px;margin:10px 0 4px">${item.nombre_repuesto}</div>`
+          : ''
+        return `${header}<table class="table table-sm table-bordered mb-2" style="font-size:12px;text-align:left">
+          <thead><tr><th style="font-weight:400">Fecha</th><th style="font-weight:400">Estado</th><th style="font-weight:400">Usuario</th></tr></thead>
+          <tbody>${filas}</tbody></table>`
+      }).join('')
+      Swal.fire({
+        title: `Historial · ${fmtNro(grupo.nro_pedido, grupo._src)}`,
+        html: `<div style="overflow-y:auto;max-height:400px;text-align:left">${seccionesHTML}</div>`,
+        width: 560,
+        confirmButtonText: 'Cerrar',
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn btn-outline-secondary' },
+      })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
+
   const aprobar = async (grupo) => {
     const nro = fmtNro(grupo.nro_pedido, grupo._src)
     const { isConfirmed } = await Swal.fire({
@@ -236,13 +278,22 @@ export default function Gerencia() {
                             : fmtPrecio(grupo.costo)
                           }
                         </div>
-                        <button
-                          className="btn btn-sm btn-outline-secondary mt-1"
-                          style={{ fontSize: 11, padding: '1px 8px', lineHeight: 1.6 }}
-                          onClick={() => verAnalisis(grupo)}
-                        >
-                          Ver
-                        </button>
+                        <div className="d-flex gap-1 mt-1">
+                          <button
+                            className="btn btn-sm btn-outline-secondary"
+                            style={{ fontSize: 11, padding: '1px 8px', lineHeight: 1.6 }}
+                            onClick={() => verAnalisis(grupo)}
+                          >
+                            Ver
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-secondary"
+                            style={{ fontSize: 11, padding: '1px 8px', lineHeight: 1.6 }}
+                            onClick={() => verHistorial(grupo)}
+                          >
+                            Historial
+                          </button>
+                        </div>
                       </td>
                       <td className="text-center">
                         {badgeUrgencia(grupo.urgencia)}

@@ -4,7 +4,7 @@ import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const fmtNro = (n, src) => src === 'berdina' ? `B-${String(n).padStart(3, '0')}` : `SP-${String(n).padStart(3, '0')}`
-const esParaAnalisis = (e) => e === 'Para analisis' || e === 'Para revision' || e === 'En analisis' || e === 'Pedido'
+const esParaAnalisis = (e) => e === 'Para analisis' || e === 'En analisis' || e === 'Pedido'
 
 const fmtPrecio = (v) =>
   v === '' || v === null || v === undefined
@@ -16,6 +16,7 @@ const FORM_ITEM_INIT = { stock: '', proveedor1: '', precio1: '', proveedor2: '',
 export default function AnalizarItem() {
   const navigate = useNavigate()
   const { state } = useLocation()
+  const esComprador = !!state?.esComprador
   const dropdownRef = useRef(null)
 
   const [pedidos, setPedidos] = useState([])
@@ -118,12 +119,25 @@ export default function AnalizarItem() {
 
   const getFoco = (itemId, campo) => !!focusMap[`${itemId}_${campo}`]
 
+  const recargar = async () => {
+    const [berdina, sanpablo] = await Promise.all([
+      api.get('/berdina/pedidos').catch(() => []),
+      api.get('/sanpablo/pedidos').catch(() => []),
+    ])
+    const todos = [
+      ...berdina.map(p => ({ ...p, _src: 'berdina' })),
+      ...sanpablo.map(p => ({ ...p, _src: 'sanpablo' })),
+    ].filter(p => (p.items || []).some(i => esParaAnalisis(i.estado)))
+    setPedidos(todos)
+  }
+
   const procesar = async () => {
     if (!pedidoSeleccionado || itemsAMostrar.length === 0) return
     const monto = calcularMontoTotal()
+    const nuevoEstado = monto >= 200000 ? 'Autorizar' : 'Para hacer OC'
     const result = await Swal.fire({
       title: '¿Procesar pedido?',
-      html: `Monto total: <b>${fmtPrecio(monto)}</b>`,
+      html: `Monto total: <b>${fmtPrecio(monto)}</b><br/>Estado → <b>${nuevoEstado}</b>`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Procesar',
@@ -137,7 +151,7 @@ export default function AnalizarItem() {
         const form = formsMap[item._id] || FORM_ITEM_INIT
         const toNum = (v) => { const n = parseFloat(v); return isNaN(n) ? undefined : n }
         return api.put(`${base}/${pedidoSeleccionado._id}/items/${item._id}`, {
-          estado:     'Para retirar',
+          estado:     nuevoEstado,
           usuario:    'Analista',
           stock:      toNum(form.stock),
           proveedor1: form.proveedor1 || undefined,
@@ -170,6 +184,7 @@ export default function AnalizarItem() {
         onBlur={() => setFoco(item._id, campo, false)}
         onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
         placeholder="$"
+        disabled={esComprador}
       />
     )
   }
@@ -182,6 +197,7 @@ export default function AnalizarItem() {
         style={form[campo] ? { backgroundImage: 'none' } : {}}
         value={form[campo]}
         onChange={e => setF(item._id, campo, e.target.value)}
+        disabled={esComprador}
       >
         <option value="">—</option>
         {proveedores.map(p => <option key={p._id} value={p._id}>{p.razonsocial}</option>)}
@@ -248,15 +264,18 @@ export default function AnalizarItem() {
               </div>
             )}
           </div>
-          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 0 }}>
-            <button
-              className="btn btn-sm btn-outline-success"
-              disabled={itemsAMostrar.length === 0}
-              onClick={procesar}
-            >Procesar</button>
-          </div>
+          {!esComprador && (
+            <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 0 }}>
+              <button
+                className="btn btn-sm btn-outline-success"
+                disabled={itemsAMostrar.length === 0}
+                onClick={procesar}
+              >Procesar</button>
+            </div>
+          )}
         </div>
 
+        <div style={esComprador ? { border: '1px solid #000', borderRadius: 6, padding: '0.75rem' } : {}}>
         <div className="card">
           <div>
             <table className="table table-hover table-striped mb-0" style={{ tableLayout: 'fixed', width: '100%', fontSize: 13 }}>
@@ -299,6 +318,7 @@ export default function AnalizarItem() {
                         value={(formsMap[item._id] || FORM_ITEM_INIT).stock}
                         onChange={e => setF(item._id, 'stock', e.target.value)}
                         placeholder="0"
+                        disabled={esComprador}
                       />
                     </td>
                     <td>{provSelect(item, 'proveedor1')}</td>
@@ -370,6 +390,7 @@ export default function AnalizarItem() {
             </div>
           )
         })()}
+        </div>
 
       </div>
     </div>

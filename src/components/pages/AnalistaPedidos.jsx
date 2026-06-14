@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const URGENCIAS      = ['Baja', 'Media', 'Alta', 'Crítica']
-const ESTADOS        = ['Para analisis', 'Para revision', 'Para retirar', 'Rechazado']
+const ESTADOS        = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Pendiente', 'En proceso', 'Para retirar', 'Completado', 'Cancelado']
 const GRUPOS         = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herbicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
 const ESTABLECIMIENTOS = ['Berdina', 'San Pablo']
 
@@ -30,9 +30,11 @@ export default function AnalistaPedidos() {
   const [showModal, setShowModal] = useState(false)
   const [agrupado, setAgrupado] = useState(true)
   const [selectedId, setSelectedId] = useState(null)
-  const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', solicita: '', estado: 'Para analisis', establecimiento: '' }
+  const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', solicita: '', estado: esComprador ? 'Para hacer OC' : 'Para analisis', establecimiento: '' }
   const [filtros, setFiltros] = useState(FILTROS_INIT)
   const setF = (k, v) => setFiltros(f => ({ ...f, [k]: v }))
+  const limpiar = () => setFiltros(FILTROS_INIT)
+  const hayFiltros = Object.keys(filtros).some(k => filtros[k] !== FILTROS_INIT[k])
 
   const cargar = async () => {
     const [berdina, sanpablo] = await Promise.all([
@@ -57,7 +59,8 @@ export default function AnalistaPedidos() {
   )
 
   const lista = items.filter(item => {
-    const normEstado = (item.estado === 'Pedido' || item.estado === 'En analisis' || item.estado === 'Para revision') ? 'Para analisis' : item.estado
+    const normEstado = (item.estado === 'Pedido' || item.estado === 'En analisis') ? 'Para analisis' : item.estado
+    if (esComprador && normEstado === 'Para analisis') return false
     if (filtros.nro && !fmtNro(item.nro_pedido, item._src).includes(filtros.nro.toUpperCase())) return false
     if (filtros.fecha && item.fecha?.slice(0, 10) !== filtros.fecha) return false
     if (filtros.cc && !item.cc?.toLowerCase().includes(filtros.cc.toLowerCase())) return false
@@ -65,8 +68,8 @@ export default function AnalistaPedidos() {
     if (filtros.urgencia && item.urgencia !== filtros.urgencia) return false
     if (filtros.grupo && item.grupo !== filtros.grupo) return false
     if (filtros.solicita && !item.solicita?.toLowerCase().includes(filtros.solicita.toLowerCase())) return false
-    if (filtros.estado === 'Para revision') {
-      if (item.estado !== 'Para revision') return false
+    if (filtros.estado === '__combo__') {
+      if (normEstado !== 'Autorizar' && normEstado !== 'Para hacer OC') return false
     } else if (filtros.estado) { if (normEstado !== filtros.estado) return false }
     if (filtros.establecimiento && item._src !== filtros.establecimiento.toLowerCase().replace(' ', '')) return false
     return true
@@ -140,6 +143,27 @@ export default function AnalistaPedidos() {
       cargar()
       cerrar()
       Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500, showConfirmButton: false })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
+
+  const borrar = async (item) => {
+    const result = await Swal.fire({
+      title: '¿Borrar ítem?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, borrar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4a0812',
+    })
+    if (!result.isConfirmed) return
+    try {
+      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      await api.delete(`${base}/${item.pedidoId}/items/${item._id}`)
+      cargar()
+      Swal.fire({ icon: 'success', title: 'Borrado', timer: 1500, showConfirmButton: false })
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error', text: err.message })
     }
@@ -240,30 +264,6 @@ export default function AnalistaPedidos() {
     })
   }
 
-  const verMotivo = async (item) => {
-    try {
-      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
-      const hist = await api.get(`${base}/${item.pedidoId}/items/${item._id}/historial`)
-      const rechazo = [...hist].reverse().find(h => h.estado === 'Rechazado' || h.estado === 'Cancelado')
-      const fecha = rechazo?.fecha ? new Date(rechazo.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
-      Swal.fire({
-        icon: 'error',
-        title: 'Pedido rechazado',
-        html: `<div style="text-align:left;font-size:14px">
-          <div><strong>Repuesto:</strong> ${item.nombre_repuesto}</div>
-          <div style="margin-top:6px"><strong>Rechazado por:</strong> ${rechazo?.usuario || '—'}</div>
-          <div><strong>Fecha:</strong> ${fecha}</div>
-          ${rechazo?.nota ? `<div style="margin-top:10px;padding:10px;background:#fff5f5;border-left:3px solid #dc3545;border-radius:2px"><strong>Motivo:</strong> ${rechazo.nota}</div>` : '<div style="margin-top:6px;color:#888">Sin motivo registrado</div>'}
-        </div>`,
-        confirmButtonText: 'Cerrar',
-        buttonsStyling: false,
-        customClass: { confirmButton: 'btn btn-outline-secondary' },
-      })
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
-    }
-  }
-
   const verHistorial = async (item) => {
     try {
       const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
@@ -305,7 +305,8 @@ export default function AnalistaPedidos() {
   const badgeEstado = (e) => {
     if (e === 'Varios') return varios()
     const norm = e === 'Pedido' || e === 'En analisis' ? 'Para analisis' : e
-    const color = { 'Para analisis': 'primary', 'Para revision': 'warning', 'Para retirar': 'success', Rechazado: 'danger' }
+    if (norm === 'Autorizar') return <span className="badge" style={{ backgroundColor: '#8b2035' }}>Para autorizar</span>
+    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', 'Para retirar': 'warning', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
     return <span className={`badge bg-${color[norm] || 'secondary'}`}>{norm}</span>
   }
 
@@ -393,6 +394,7 @@ export default function AnalistaPedidos() {
             <div style={{ position: 'relative' }}>
               <select className={`form-select form-select-sm${filtros.estado ? ' select-activo' : ''}`} style={{ width: 180, ...(filtros.estado ? { backgroundImage: 'none' } : {}) }} value={filtros.estado} onChange={e => setF('estado', e.target.value)}>
                 <option value="">Todos</option>
+                {esComprador && <option value="__combo__">P/autorizar + P/hacer OC</option>}
                 {ESTADOS.map(s => <option key={s}>{s}</option>)}
               </select>
               {filtros.estado && <span onClick={() => setF('estado', '')} style={estiloX}>✕</span>}
@@ -428,15 +430,20 @@ export default function AnalistaPedidos() {
               Agrupar pedidos múltiples
             </label>
           </div>
-          <div style={{ width: 130, textAlign: 'center' }}>
-            <button
-              className="btn btn-sm btn-outline-primary"
-              onClick={() => {
-                const item = selectedId ? listaAMostrar.find(i => i._id === selectedId) : null
-                navigate('/analista/analizar', { state: item ? { item } : undefined })
-              }}
-            >Analizar</button>
-          </div>
+          {esComprador
+            ? <span style={{ fontSize: 14 }}>Mayor de $200.000 → <span style={{ color: '#dc3545', fontWeight: 600 }}>Autorizar</span></span>
+            : (
+              <div style={{ width: 130, textAlign: 'center' }}>
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={() => {
+                    const item = selectedId ? listaAMostrar.find(i => i._id === selectedId) : null
+                    navigate('/analista/analizar', { state: item ? { item } : undefined })
+                  }}
+                >Analizar</button>
+              </div>
+            )
+          }
         </div>
 
         {esComprador && (
@@ -494,12 +501,14 @@ export default function AnalistaPedidos() {
                     <td>{item.solicita === 'Varios' ? varios() : (item.solicita || '')}</td>
                     <td onClick={e => {
                       e.stopPropagation()
-                      if (item.estado === 'Rechazado' || item.estado === 'Cancelado') {
-                        verMotivo(item._agrupado ? item._items[0] : item)
+                      if (!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC'))
+                        navigate('/analista/analizar', { state: { item, esComprador } })
+                      else if (item.estado === 'Rechazado' || item.estado === 'Cancelado') {
+                        verHistorial(item._agrupado ? item._items[0] : item)
                       } else if (item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios') {
                         navigate(`/oc/${encodeURIComponent(item.oc)}`)
                       }
-                    }} style={(item.estado === 'Rechazado' || item.estado === 'Cancelado') || item.estado === 'Para retirar' ? { cursor: 'pointer' } : {}}>
+                    }} style={(!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC')) || (item.estado === 'Rechazado' || item.estado === 'Cancelado') || item.estado === 'Para retirar' ? { cursor: 'pointer' } : {}}>
                       {badgeEstado(item.estado)}
                     </td>
                     <td>{item.oc || '—'}</td>

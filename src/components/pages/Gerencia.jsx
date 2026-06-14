@@ -32,8 +32,8 @@ export default function Gerencia() {
   const cargar = async () => {
     setCargando(true)
     const [berdina, sanpablo] = await Promise.all([
-      api.get('/berdina/pedidos/por-estado/Para analisis').catch(() => []),
-      api.get('/sanpablo/pedidos/por-estado/Para analisis').catch(() => []),
+      api.get('/berdina/pedidos/por-estado/Autorizar').catch(() => []),
+      api.get('/sanpablo/pedidos/por-estado/Autorizar').catch(() => []),
     ])
     const todos = [
       ...berdina.map(i => ({ ...i, _src: 'berdina' })),
@@ -66,12 +66,54 @@ export default function Gerencia() {
 
   const verAnalisis = (grupo) => navigate('/oc/ver', { state: { items: grupo.items } })
 
+  const verHistorial = async (grupo) => {
+    try {
+      const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      const historiales = await Promise.all(
+        grupo.items.map(item =>
+          api.get(`${base}/${item.pedidoId}/items/${item._id}/historial`)
+            .then(hist => ({ item, hist }))
+            .catch(() => ({ item, hist: [] }))
+        )
+      )
+      const seccionesHTML = historiales.map(({ item, hist }) => {
+        const tieneInicio = hist.some(h => h.estado === 'Para analisis' || h.estado === 'Pedido' || h.estado === 'En analisis')
+        const histToShow = tieneInicio
+          ? hist
+          : [{ fecha: grupo.fecha, estado: 'Para analisis', usuario: item.solicita || 'Sin especificar', nota: 'Pedido creado' }, ...hist]
+        const filas = histToShow.map(h => {
+          const fecha = h.fecha ? new Date(h.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+          const label = (h.estado === 'Cancelado' || h.estado === 'Rechazado')
+            ? `<span style="color:#dc3545;font-weight:600">${h.estado}</span>`
+            : (h.estado || '—')
+          return `<tr><td>${fecha}</td><td>${label}</td><td>${h.usuario || '—'}${h.nota ? ` <span style="color:#888;font-size:11px">(${h.nota})</span>` : ''}</td></tr>`
+        }).join('')
+        const header = grupo.items.length > 1
+          ? `<div style="font-weight:600;font-size:13px;margin:10px 0 4px">${item.nombre_repuesto}</div>`
+          : ''
+        return `${header}<table class="table table-sm table-bordered mb-2" style="font-size:12px;text-align:left">
+          <thead><tr><th style="font-weight:400">Fecha</th><th style="font-weight:400">Estado</th><th style="font-weight:400">Usuario</th></tr></thead>
+          <tbody>${filas}</tbody></table>`
+      }).join('')
+      Swal.fire({
+        title: `Historial · ${fmtNro(grupo.nro_pedido, grupo._src)}`,
+        html: `<div style="overflow-y:auto;max-height:400px;text-align:left">${seccionesHTML}</div>`,
+        width: 560,
+        confirmButtonText: 'Cerrar',
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn btn-outline-secondary' },
+      })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
+
   const aprobar = async (grupo) => {
     const nro = fmtNro(grupo.nro_pedido, grupo._src)
     const { isConfirmed } = await Swal.fire({
       title: '¿Aprobar pedido?',
       html: `<div style="font-weight:600;margin-bottom:6px">${nro}</div>
-             <div style="font-size:13px;color:#555">${grupo.items.length > 1 ? `${grupo.items.length} ítems` : grupo.items[0].nombre_repuesto} → <strong>Para retirar</strong></div>`,
+             <div style="font-size:13px;color:#555">${grupo.items.length > 1 ? `${grupo.items.length} ítems` : grupo.items[0].nombre_repuesto} → <strong>Para hacer OC</strong></div>`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Aprobar',
@@ -83,7 +125,7 @@ export default function Gerencia() {
     try {
       const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
       await Promise.all(grupo.items.map(item =>
-        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para retirar', usuario: 'Gerencia' })
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para hacer OC', usuario: 'Gerencia' })
       ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Aprobado', timer: 1500, showConfirmButton: false })
@@ -140,7 +182,7 @@ export default function Gerencia() {
     try {
       const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
       await Promise.all(grupo.items.map(item =>
-        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para revision', usuario: 'Gerencia', nota: 'Enviado a revisión por Gerencia' })
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para analisis', usuario: 'Gerencia', nota: 'Enviado a revisión por Gerencia' })
       ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Enviado a revisar', timer: 1500, showConfirmButton: false })
@@ -187,7 +229,7 @@ export default function Gerencia() {
 
       <div className="container">
         <h4 className="text-center mb-4" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>
-          Pedidos{' '}
+          Para Autorizar{' '}
           {!cargando && (
             <span style={{ fontWeight: 400, fontSize: '0.75em', letterSpacing: 1, textTransform: 'none' }}>
               ({grupos.length})
@@ -215,7 +257,7 @@ export default function Gerencia() {
                   {grupos.length === 0 && (
                     <tr>
                       <td colSpan={4} className="text-center text-muted py-4">
-                        Sin pedidos para revisar
+                        Sin pedidos para autorizar
                       </td>
                     </tr>
                   )}

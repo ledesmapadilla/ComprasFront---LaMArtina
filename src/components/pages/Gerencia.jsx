@@ -13,6 +13,12 @@ const fmtNro = (n, src) =>
 
 const URG_ORDER = { 'Crítica': 0, 'Alta': 1, 'Media': 2, 'Baja': 3 }
 
+const calcCosto = (item) => {
+  const precios = [item.precio1, item.precio2, item.precio3].filter(v => v != null && v > 0)
+  if (precios.length === 0) return null
+  return Math.min(...precios) * (item.cant || 0)
+}
+
 export default function Gerencia() {
   const navigate = useNavigate()
   const [items, setItems] = useState([])
@@ -179,7 +185,7 @@ export default function Gerencia() {
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                   <tr>
                     <th className="text-center" style={{ width: 48 }}>Taller</th>
-                    <th>Repuesto</th>
+                    <th>Costo</th>
                     <th className="text-center" style={{ width: 80 }}>Urgencia</th>
                     <th style={{ width: 140 }}></th>
                   </tr>
@@ -202,13 +208,11 @@ export default function Gerencia() {
                         {badgeTaller(item._src)}
                       </td>
                       <td>
-                        <div style={{ fontWeight: 600, fontSize: 14, lineHeight: 1.3 }}>
-                          {item.nombre_repuesto}
+                        <div style={{ fontWeight: 700, fontSize: 16, lineHeight: 1.2 }}>
+                          {calcCosto(item) != null ? fmtPrecio(calcCosto(item)) : <span style={{ color: 'var(--color-muted)', fontWeight: 400, fontSize: 13 }}>Sin precio</span>}
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--color-muted)', marginTop: 2 }}>
-                          {fmtNro(item.nro_pedido, item._src)}
-                          {item.fecha ? ` · ${item.fecha.slice(0, 10).split('-').reverse().join('/')}` : ''}
-                          {item.cc ? ` · CC: ${item.cc}` : ''}
+                        <div style={{ fontSize: 11, color: 'var(--color-muted)', marginTop: 2, lineHeight: 1.3 }}>
+                          {item.nombre_repuesto}
                         </div>
                         <button
                           className="btn btn-sm btn-outline-secondary mt-1"

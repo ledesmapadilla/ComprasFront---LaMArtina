@@ -133,6 +133,30 @@ export default function AnalistaPendientes() {
     })
   }
 
+  const verMotivoRevision = async (item) => {
+    try {
+      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      const hist = await api.get(`${base}/${item.pedidoId}/items/${item._id}/historial`)
+      const revision = [...hist].reverse().find(h => h.estado === 'Para revision')
+      const fecha = revision?.fecha ? new Date(revision.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+      Swal.fire({
+        icon: 'warning',
+        title: 'Enviado a revisión',
+        html: `<div style="text-align:left;font-size:14px">
+          <div><strong>Repuesto:</strong> ${item.nombre_repuesto}</div>
+          <div style="margin-top:6px"><strong>Enviado por:</strong> ${revision?.usuario || '—'}</div>
+          <div><strong>Fecha:</strong> ${fecha}</div>
+          ${revision?.nota ? `<div style="margin-top:10px;padding:10px;background:#fffbf0;border-left:3px solid #ffc107;border-radius:2px"><strong>Motivo:</strong> ${revision.nota}</div>` : '<div style="margin-top:6px;color:#888">Sin motivo registrado</div>'}
+        </div>`,
+        confirmButtonText: 'Cerrar',
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn btn-outline-secondary' },
+      })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
+
   const verHistorial = async (item) => {
     try {
       const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
@@ -304,10 +328,12 @@ export default function AnalistaPendientes() {
                     <td>{item.solicita === 'Varios' ? varios() : (item.solicita || '')}</td>
                     <td
                       onClick={() => {
-                        if (item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios')
+                        if (item.estado === 'Para revision')
+                          verMotivoRevision(item._agrupado ? item._items[0] : item)
+                        else if (item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios')
                           navigate(`/oc/${encodeURIComponent(item.oc)}`)
                       }}
-                      style={item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios' ? { cursor: 'pointer' } : {}}
+                      style={(item.estado === 'Para revision' || (item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios')) ? { cursor: 'pointer' } : {}}
                     >{badgeEstado(item.estado)}</td>
                     <td>{item.oc || '—'}</td>
                     <td className="text-nowrap">

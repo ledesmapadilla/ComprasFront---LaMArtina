@@ -221,7 +221,10 @@ export default function Gerencia() {
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
           Gerencia
         </p>
-        <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">← Volver</button>
+        <div className="d-flex gap-2">
+          <button onClick={() => navigate('/gerencia/historial')} className="btn btn-outline-dark btn-sm">Historial</button>
+          <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">← Volver</button>
+        </div>
       </div>
 
       <div className="container">
@@ -285,13 +288,6 @@ export default function Gerencia() {
                             onClick={() => verAnalisis(grupo)}
                           >
                             Ver
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-secondary"
-                            style={{ fontSize: 11, padding: '1px 8px', lineHeight: 1.6 }}
-                            onClick={() => verHistorial(grupo)}
-                          >
-                            Historial
                           </button>
                         </div>
                       </td>

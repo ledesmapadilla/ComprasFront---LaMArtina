@@ -408,9 +408,19 @@ export default function BerdinaPedidos() {
                       onClick={() => {
                         if (item.estado === 'Rechazado' || item.estado === 'Cancelado') {
                           verHistorial(item._agrupado ? item._items[0] : item)
+                        } else if (item.estado === 'Para retirar') {
+                          Swal.fire({
+                            title: 'Orden de Compra',
+                            html: item.oc && item.oc !== 'Varios'
+                              ? `<div style="font-size:22px;font-weight:700;letter-spacing:1px">${item.oc}</div>`
+                              : `<div style="color:#666;font-style:italic">Sin O.C. asignada</div>`,
+                            confirmButtonText: 'Cerrar',
+                            buttonsStyling: false,
+                            customClass: { confirmButton: 'btn btn-outline-secondary' },
+                          })
                         }
                       }}
-                      style={(item.estado === 'Rechazado' || item.estado === 'Cancelado') ? { cursor: 'pointer' } : {}}
+                      style={(item.estado === 'Rechazado' || item.estado === 'Cancelado' || item.estado === 'Para retirar') ? { cursor: 'pointer' } : {}}
                     >{badgeEstado(item.estado)}</td>
                     <td>{item.oc || '—'}</td>
                     <td className="text-nowrap">

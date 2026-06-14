@@ -156,7 +156,7 @@ export default function Gerencia() {
     try {
       const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
       await Promise.all(grupo.items.map(item =>
-        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Cancelado', usuario: 'Gerencia', nota: motivo })
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Rechazado', usuario: 'Gerencia', nota: motivo })
       ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Rechazado', timer: 1500, showConfirmButton: false })

@@ -22,6 +22,7 @@ const calcCostoItem = (item) => {
 const DECISION = {
   'Para hacer OC': 'Aprobado',
   'Cancelado':     'Rechazado',
+  'Rechazado':     'Rechazado',
   'Para analisis': 'A revisar',
 }
 

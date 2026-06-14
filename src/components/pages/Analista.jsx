@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 const tarjetas = [
-  { titulo: 'Pedidos', icono: 'bi-cart3',    ruta: '/analista/pedidos', color: 'var(--card-pedido)' },
-  { titulo: 'Stock',   icono: 'bi-box-seam', ruta: '/analista/stock',   color: 'var(--card-stock)' },
+  { titulo: 'Pedidos',    icono: 'bi-cart3',           ruta: '/analista/pedidos',    color: 'var(--card-pedido)' },
+  { titulo: 'Pendientes', icono: 'bi-hourglass-split', ruta: '/analista/pendientes', color: 'var(--card-pendientes)' },
+  { titulo: 'Stock',      icono: 'bi-box-seam',        ruta: '/analista/stock',      color: 'var(--card-stock)' },
 ]
 
 function Tarjeta({ titulo, icono, ruta, color }) {

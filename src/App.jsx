@@ -19,6 +19,7 @@ import Gerencia from './components/pages/Gerencia'
 import GerenciaHistorial from './components/pages/GerenciaHistorial'
 import VerOC from './components/pages/VerOC'
 import Pendientes from './components/pages/Pendientes'
+import AnalistaPendientes from './components/pages/AnalistaPendientes'
 import Error404 from './components/pages/Error404'
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
           <Route path="/sanpablo" element={<SanPablo />} />
           <Route path="/analista" element={<Analista />} />
           <Route path="/analista/pedidos" element={<AnalistaPedidos key="analista" />} />
+          <Route path="/analista/pendientes" element={<AnalistaPendientes />} />
           <Route path="/analista/analizar" element={<AnalizarItem />} />
           <Route path="/comprador" element={<AnalistaPedidos key="comprador" />} />
           <Route path="/comprador/oc" element={<OrdenCompra />} />

@@ -262,6 +262,30 @@ export default function AnalistaPedidos() {
     })
   }
 
+  const verMotivoRevision = async (item) => {
+    try {
+      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      const hist = await api.get(`${base}/${item.pedidoId}/items/${item._id}/historial`)
+      const revision = [...hist].reverse().find(h => h.estado === 'Para revision')
+      const fecha = revision?.fecha ? new Date(revision.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+      Swal.fire({
+        icon: 'warning',
+        title: 'Enviado a revisión',
+        html: `<div style="text-align:left;font-size:14px">
+          <div><strong>Repuesto:</strong> ${item.nombre_repuesto}</div>
+          <div style="margin-top:6px"><strong>Enviado por:</strong> ${revision?.usuario || '—'}</div>
+          <div><strong>Fecha:</strong> ${fecha}</div>
+          ${revision?.nota ? `<div style="margin-top:10px;padding:10px;background:#fffbf0;border-left:3px solid #ffc107;border-radius:2px"><strong>Motivo:</strong> ${revision.nota}</div>` : '<div style="margin-top:6px;color:#888">Sin motivo registrado</div>'}
+        </div>`,
+        confirmButtonText: 'Cerrar',
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn btn-outline-secondary' },
+      })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
+
   const verMotivoRechazo = async (item) => {
     try {
       const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
@@ -326,7 +350,7 @@ export default function AnalistaPedidos() {
 
   const badgeEstado = (e) => {
     if (e === 'Varios') return varios()
-    if (e === 'Para revision') return <span className="badge bg-warning text-dark">Para revision</span>
+    if (e === 'Para revision') return <span className="badge bg-warning">Para revision</span>
     const norm = e === 'Pedido' || e === 'En analisis' ? 'Para analisis' : e
     if (norm === 'Autorizar') return <span className="badge" style={{ backgroundColor: '#8b2035' }}>Para autorizar</span>
     const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', 'Para retirar': 'success', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
@@ -528,10 +552,12 @@ export default function AnalistaPedidos() {
                         navigate('/analista/analizar', { state: { item, esComprador } })
                       else if (item.estado === 'Rechazado' || item.estado === 'Cancelado') {
                         verMotivoRechazo(item._agrupado ? item._items[0] : item)
+                      } else if (item.estado === 'Para revision') {
+                        verMotivoRevision(item._agrupado ? item._items[0] : item)
                       } else if (item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios') {
                         navigate(`/oc/${encodeURIComponent(item.oc)}`)
                       }
-                    }} style={(!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC')) || (item.estado === 'Rechazado' || item.estado === 'Cancelado') || item.estado === 'Para retirar' ? { cursor: 'pointer' } : {}}>
+                    }} style={(!agrupado && (item.estado === 'Autorizar' || item.estado === 'Para hacer OC')) || (item.estado === 'Rechazado' || item.estado === 'Cancelado') || item.estado === 'Para revision' || item.estado === 'Para retirar' ? { cursor: 'pointer' } : {}}>
                       {badgeEstado(item.estado)}
                     </td>
                     <td>{item.oc || '—'}</td>

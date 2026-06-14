@@ -32,8 +32,8 @@ export default function Gerencia() {
   const cargar = async () => {
     setCargando(true)
     const [berdina, sanpablo] = await Promise.all([
-      api.get('/berdina/pedidos/por-estado/Autorizar').catch(() => []),
-      api.get('/sanpablo/pedidos/por-estado/Autorizar').catch(() => []),
+      api.get('/berdina/pedidos/por-estado/Para analisis').catch(() => []),
+      api.get('/sanpablo/pedidos/por-estado/Para analisis').catch(() => []),
     ])
     const todos = [
       ...berdina.map(i => ({ ...i, _src: 'berdina' })),
@@ -113,7 +113,7 @@ export default function Gerencia() {
     const { isConfirmed } = await Swal.fire({
       title: '¿Aprobar pedido?',
       html: `<div style="font-weight:600;margin-bottom:6px">${nro}</div>
-             <div style="font-size:13px;color:#555">${grupo.items.length > 1 ? `${grupo.items.length} ítems` : grupo.items[0].nombre_repuesto} → <strong>Para hacer OC</strong></div>`,
+             <div style="font-size:13px;color:#555">${grupo.items.length > 1 ? `${grupo.items.length} ítems` : grupo.items[0].nombre_repuesto} → <strong>Para retirar</strong></div>`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Aprobar',
@@ -125,7 +125,7 @@ export default function Gerencia() {
     try {
       const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
       await Promise.all(grupo.items.map(item =>
-        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para hacer OC', usuario: 'Gerencia' })
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para retirar', usuario: 'Gerencia' })
       ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Aprobado', timer: 1500, showConfirmButton: false })
@@ -182,7 +182,7 @@ export default function Gerencia() {
     try {
       const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
       await Promise.all(grupo.items.map(item =>
-        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para analisis', usuario: 'Gerencia', nota: 'Enviado a revisión por Gerencia' })
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para revision', usuario: 'Gerencia', nota: 'Enviado a revisión por Gerencia' })
       ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Enviado a revisar', timer: 1500, showConfirmButton: false })
@@ -229,7 +229,7 @@ export default function Gerencia() {
 
       <div className="container">
         <h4 className="text-center mb-4" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>
-          Para Autorizar{' '}
+          Pedidos{' '}
           {!cargando && (
             <span style={{ fontWeight: 400, fontSize: '0.75em', letterSpacing: 1, textTransform: 'none' }}>
               ({grupos.length})
@@ -257,7 +257,7 @@ export default function Gerencia() {
                   {grupos.length === 0 && (
                     <tr>
                       <td colSpan={4} className="text-center text-muted py-4">
-                        Sin pedidos para autorizar
+                        Sin pedidos para revisar
                       </td>
                     </tr>
                   )}

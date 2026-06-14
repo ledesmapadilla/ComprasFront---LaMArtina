@@ -4,7 +4,7 @@ import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const fmtNro = (n, src) => src === 'berdina' ? `B-${String(n).padStart(3, '0')}` : `SP-${String(n).padStart(3, '0')}`
-const esParaAnalisis = (e) => e === 'Para analisis' || e === 'En analisis' || e === 'Pedido'
+const esParaAnalisis = (e) => e === 'Para analisis' || e === 'Para revision' || e === 'En analisis' || e === 'Pedido'
 
 const fmtPrecio = (v) =>
   v === '' || v === null || v === undefined
@@ -134,10 +134,9 @@ export default function AnalizarItem() {
   const procesar = async () => {
     if (!pedidoSeleccionado || itemsAMostrar.length === 0) return
     const monto = calcularMontoTotal()
-    const nuevoEstado = monto >= 200000 ? 'Autorizar' : 'Para hacer OC'
     const result = await Swal.fire({
       title: '¿Procesar pedido?',
-      html: `Monto total: <b>${fmtPrecio(monto)}</b><br/>Estado → <b>${nuevoEstado}</b>`,
+      html: `Monto total: <b>${fmtPrecio(monto)}</b>`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Procesar',
@@ -151,7 +150,7 @@ export default function AnalizarItem() {
         const form = formsMap[item._id] || FORM_ITEM_INIT
         const toNum = (v) => { const n = parseFloat(v); return isNaN(n) ? undefined : n }
         return api.put(`${base}/${pedidoSeleccionado._id}/items/${item._id}`, {
-          estado:     nuevoEstado,
+          estado:     'Para retirar',
           usuario:    'Analista',
           stock:      toNum(form.stock),
           proveedor1: form.proveedor1 || undefined,

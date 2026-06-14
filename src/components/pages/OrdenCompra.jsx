@@ -44,7 +44,7 @@ export default function OrdenCompra() {
       const todos = [
         ...berdina.map(p => ({ ...p, _src: 'berdina' })),
         ...sanpablo.map(p => ({ ...p, _src: 'sanpablo' })),
-      ].filter(p => (p.items || []).some(i => i.estado === 'Para hacer OC'))
+      ].filter(p => (p.items || []).some(i => i.estado === 'Para analisis'))
       setPedidos(todos)
       setProveedores(provs)
     })
@@ -63,7 +63,7 @@ export default function OrdenCompra() {
     fmtNro(p.nro_pedido, p._src).toLowerCase().includes(busqueda.toLowerCase()) &&
     !pedidosAceptados.has(p._id)
   )
-  const ocItemCount = (p) => (p.items || []).filter(i => i.estado === 'Para hacer OC').length
+  const ocItemCount = (p) => (p.items || []).filter(i => i.estado === 'Para analisis').length
   const esMultiple = (p) => ocItemCount(p) > 1
 
   const pedidoSeleccionado = pedidos.find(p => `${p._src}-${p.nro_pedido}` === selectedKey)
@@ -74,7 +74,7 @@ export default function OrdenCompra() {
     setBusqueda(fmtNro(p.nro_pedido, p._src))
     setShowDropdown(false)
     const items = (p.items || [])
-      .filter(i => i.estado === 'Para hacer OC')
+      .filter(i => i.estado === 'Para analisis')
       .map(i => {
         const { precio, proveedor_id } = minPrecioProveedor(i)
         return {

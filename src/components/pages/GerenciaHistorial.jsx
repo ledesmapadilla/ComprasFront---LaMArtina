@@ -20,9 +20,10 @@ const calcCostoItem = (item) => {
 }
 
 const DECISION = {
-  'Para hacer OC': 'Aprobado',
+  'Para retirar':  'Aprobado',
   'Cancelado':     'Rechazado',
   'Rechazado':     'Rechazado',
+  'Para revision': 'A revisar',
   'Para analisis': 'A revisar',
 }
 
@@ -95,7 +96,11 @@ export default function GerenciaHistorial() {
   const abrirFiltro = (col, btnEl, opciones) => {
     if (filtroAbierto === col) { setFiltroAbierto(null); return }
     const rect = btnEl.getBoundingClientRect()
-    setDropdownPos({ top: rect.bottom + 4, left: rect.left })
+    const minWidth = 140
+    const pos = rect.left + minWidth > window.innerWidth
+      ? { top: rect.bottom + 4, right: window.innerWidth - rect.right }
+      : { top: rect.bottom + 4, left: rect.left }
+    setDropdownPos(pos)
     setDropdownOpciones(opciones)
     setFiltroAbierto(col)
   }
@@ -144,12 +149,7 @@ export default function GerenciaHistorial() {
 
       <div className="container">
         <h4 className="text-center mb-4" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>
-          Historial de Gerencia{' '}
-          {!cargando && (
-            <span style={{ fontWeight: 400, fontSize: '0.75em', letterSpacing: 1, textTransform: 'none' }}>
-              ({gruposFiltrados.length} pedidos)
-            </span>
-          )}
+          Historial
         </h4>
 
         {cargando ? (
@@ -222,7 +222,7 @@ export default function GerenciaHistorial() {
           style={{
             position: 'fixed',
             top: dropdownPos.top,
-            left: dropdownPos.left,
+            ...(dropdownPos.left !== undefined ? { left: dropdownPos.left } : { right: dropdownPos.right }),
             zIndex: 9999,
             background: '#fff',
             border: '1px solid #000',

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const fmtPrecio = (v) =>
@@ -75,6 +76,30 @@ export default function VerOC() {
 
   const provNombre = (id) =>
     proveedores.find(p => p._id === id)?.razonsocial || id || '—'
+
+  const marcarRetirado = async () => {
+    const { isConfirmed } = await Swal.fire({
+      title: '¿Marcar como retirado?',
+      text: 'Se actualizará el estado de todos los ítems de esta OC.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Retirado',
+      cancelButtonText: 'Cancelar',
+      buttonsStyling: false,
+      customClass: { confirmButton: 'btn btn-outline-success me-2', cancelButton: 'btn btn-outline-secondary' },
+    })
+    if (!isConfirmed) return
+    try {
+      await Promise.all((oc.items || []).map(item => {
+        const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+        return api.put(`${base}/${item.pedidoId}/items/${item.itemId}`, { estado: 'Retirado', usuario: 'Comprador' })
+      }))
+      await Swal.fire({ icon: 'success', title: 'Retirado', timer: 1500, showConfirmButton: false })
+      navigate(-1)
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
 
   if (error) return (
     <div className="container pt-4 text-center">
@@ -180,6 +205,13 @@ export default function VerOC() {
             </table>
           </div>
         </div>
+
+        {!oc._modoAnalisis && (
+          <div className="d-flex justify-content-center gap-3 mt-3">
+            <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>Cancelar</button>
+            <button className="btn btn-outline-success" onClick={marcarRetirado}>Retirado ✓</button>
+          </div>
+        )}
 
       </div>
     </div>

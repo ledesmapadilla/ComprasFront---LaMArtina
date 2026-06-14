@@ -43,14 +43,17 @@ export default function VerOC() {
             proveedor:       item[`proveedor${n}`],
             observaciones:   '',
           }))
-        const precios = filas.map(f => f.precio_unitario).filter(v => v != null && v > 0)
-        const totalMin = precios.length > 0 ? Math.min(...precios) * (item.cant || 0) : 0
+        const filasConPrecio = filas.filter(f => f.precio_unitario != null && f.precio_unitario > 0)
+        const mejorFila = filasConPrecio.length > 0
+          ? [filasConPrecio.reduce((best, f) => f.precio_unitario < best.precio_unitario ? f : best)]
+          : filas.slice(0, 1)
+        const total = mejorFila[0]?.precio_total ?? 0
         setOc({
           nro_oc_display: fmtNro(item.nro_pedido, item._src),
           fecha:          item.fecha,
           establecimiento: item._src,
-          items:          filas,
-          total:          totalMin,
+          items:          mejorFila,
+          total,
           _modoAnalisis:  true,
         })
       })

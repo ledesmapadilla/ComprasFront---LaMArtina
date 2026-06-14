@@ -119,9 +119,10 @@ export default function VerOC() {
             </div>
             <div className="ms-auto">
               <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
-                {oc._modoAnalisis ? 'Total mínimo' : 'Total'}
+                {oc._modoAnalisis ? 'Mínimo presupuesto' : 'Total'}
               </div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-accent)' }}>{fmtPrecio(oc.total)}</div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-accent)' }}>{fmtPrecio(oc._modoAnalisis ? oc.total * 1.21 : oc.total)}</div>
+              {oc._modoAnalisis && <div style={{ fontSize: 11, color: 'var(--color-muted)' }}>sin IVA: {fmtPrecio(oc.total)}</div>}
             </div>
           </div>
         </div>
@@ -165,9 +166,12 @@ export default function VerOC() {
               <tfoot>
                 <tr style={{ backgroundColor: '#f4f6f8' }}>
                   <td colSpan={5} className="text-end" style={{ fontWeight: 700, fontSize: 15 }}>
-                    {oc._modoAnalisis ? 'Total mínimo' : 'Total'}
+                    {oc._modoAnalisis ? 'Mínimo presupuesto' : 'Total'}
                   </td>
-                  <td className="text-end" style={{ fontWeight: 700, fontSize: 15, color: 'var(--color-accent)' }}>{fmtPrecio(oc.total)}</td>
+                  <td className="text-end" style={{ fontWeight: 700, fontSize: 15, color: 'var(--color-accent)' }}>
+                    {fmtPrecio(oc._modoAnalisis ? oc.total * 1.21 : oc.total)}
+                    {oc._modoAnalisis && <div style={{ fontWeight: 400, fontSize: 11, color: 'var(--color-muted)' }}>sin IVA: {fmtPrecio(oc.total)}</div>}
+                  </td>
                   <td colSpan={oc._modoAnalisis ? 1 : 2} />
                 </tr>
               </tfoot>

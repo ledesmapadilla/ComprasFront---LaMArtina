@@ -78,21 +78,34 @@ export default function VerOC() {
     proveedores.find(p => p._id === id)?.razonsocial || id || '—'
 
   const marcarRetirado = async () => {
-    const { isConfirmed } = await Swal.fire({
-      title: '¿Marcar como retirado?',
-      text: 'Se actualizará el estado de todos los ítems de esta OC.',
-      icon: 'question',
+    const fecha = new Date().toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
+    const { value: nota, isConfirmed } = await Swal.fire({
+      icon: 'success',
+      title: 'Confirmar retiro',
+      html: `<div style="text-align:left;font-size:14px;margin-bottom:10px">
+        <div><strong>OC:</strong> ${oc.nro_oc_display}</div>
+        <div style="margin-top:4px"><strong>Establecimiento:</strong> ${establecimientoLabel(oc.establecimiento)}</div>
+        <div style="margin-top:4px"><strong>Ítems:</strong> ${(oc.items || []).length}</div>
+        <div style="margin-top:4px"><strong>Fecha:</strong> ${fecha}</div>
+      </div>`,
+      input: 'textarea',
+      inputLabel: 'Observaciones del retiro',
+      inputPlaceholder: 'Quién retiró, condiciones, etc...',
       showCancelButton: true,
-      confirmButtonText: 'Retirado',
+      confirmButtonText: 'Confirmar retiro',
       cancelButtonText: 'Cancelar',
       buttonsStyling: false,
       customClass: { confirmButton: 'btn btn-outline-success me-2', cancelButton: 'btn btn-outline-secondary' },
+      preConfirm: (val) => {
+        if (!val?.trim()) { Swal.showValidationMessage('Las observaciones son obligatorias'); return false }
+        return val.trim()
+      },
     })
     if (!isConfirmed) return
     try {
       await Promise.all((oc.items || []).map(item => {
         const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
-        return api.put(`${base}/${item.pedidoId}/items/${item.itemId}`, { estado: 'Retirado', usuario: 'Comprador' })
+        return api.put(`${base}/${item.pedidoId}/items/${item.itemId}`, { estado: 'Retirado', usuario: 'Comprador', nota })
       }))
       await Swal.fire({ icon: 'success', title: 'Retirado', timer: 1500, showConfirmButton: false })
       navigate(-1)

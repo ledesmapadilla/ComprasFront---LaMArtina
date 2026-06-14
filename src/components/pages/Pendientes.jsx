@@ -293,7 +293,13 @@ export default function Pendientes({ taller }) {
                     <td>{badgeUrgencia(item.urgencia)}</td>
                     <td>{item.grupo === 'Varios' ? varios() : item.grupo}</td>
                     <td>{item.solicita === 'Varios' ? varios() : (item.solicita || '')}</td>
-                    <td>{badgeEstado(item.estado)}</td>
+                    <td
+                      onClick={() => {
+                        if (item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios')
+                          navigate(`/oc/${encodeURIComponent(item.oc)}`)
+                      }}
+                      style={item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios' ? { cursor: 'pointer' } : {}}
+                    >{badgeEstado(item.estado)}</td>
                     <td>{item.oc || '—'}</td>
                     <td className="text-nowrap">
                       <button

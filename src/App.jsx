@@ -16,6 +16,7 @@ import BerdinaPedidos from './components/pages/BerdinaPedidos'
 import NuevoPedido from './components/pages/NuevoPedido'
 import OrdenCompra from './components/pages/OrdenCompra'
 import Gerencia from './components/pages/Gerencia'
+import VerOC from './components/pages/VerOC'
 import Error404 from './components/pages/Error404'
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
           <Route path="/berdina/pedidos" element={<BerdinaPedidos />} />
           <Route path="/berdina/pedidos/nuevo" element={<NuevoPedido />} />
           <Route path="/gerencia" element={<Gerencia />} />
+          <Route path="/oc/:nro" element={<VerOC />} />
           <Route path="*" element={<Error404 />} />
         </Routes>
       </main>

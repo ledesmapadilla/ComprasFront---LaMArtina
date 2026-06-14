@@ -230,7 +230,7 @@ export default function Gerencia() {
                             onClick={() => rechazar(item)}
                           >✕</button>
                           <button
-                            className="btn btn-sm btn-outline-secondary"
+                            className="btn btn-sm btn-outline-warning"
                             title="Revisar"
                             style={{ fontSize: 15, fontWeight: 700, lineHeight: 1, padding: '3px 8px' }}
                             onClick={() => revisar(item)}

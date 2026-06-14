@@ -63,6 +63,8 @@ export default function OrdenCompra() {
     fmtNro(p.nro_pedido, p._src).toLowerCase().includes(busqueda.toLowerCase()) &&
     !pedidosAceptados.has(p._id)
   )
+  const ocItemCount = (p) => (p.items || []).filter(i => i.estado === 'Para hacer OC').length
+  const esMultiple = (p) => ocItemCount(p) > 1
 
   const pedidoSeleccionado = pedidos.find(p => `${p._src}-${p.nro_pedido}` === selectedKey)
 
@@ -211,11 +213,12 @@ export default function OrdenCompra() {
                     <div
                       key={key}
                       onMouseDown={() => elegirPedido(p)}
-                      style={{ padding: '6px 12px', cursor: 'pointer', backgroundColor: key === selectedKey ? 'rgba(13,110,253,0.08)' : 'transparent' }}
+                      style={{ padding: '6px 12px', cursor: 'pointer', fontWeight: esMultiple(p) ? 700 : 400, backgroundColor: key === selectedKey ? 'rgba(13,110,253,0.08)' : 'transparent' }}
                       onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(13,110,253,0.08)'}
                       onMouseLeave={e => e.currentTarget.style.backgroundColor = key === selectedKey ? 'rgba(13,110,253,0.08)' : 'transparent'}
                     >
                       {fmtNro(p.nro_pedido, p._src)}
+                      {esMultiple(p) && <span className="ms-1 text-muted" style={{ fontSize: 11, fontWeight: 400 }}>({ocItemCount(p)} ítems)</span>}
                     </div>
                   )
                 })}

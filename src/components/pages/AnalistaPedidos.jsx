@@ -33,8 +33,6 @@ export default function AnalistaPedidos() {
   const FILTROS_INIT = { nro: '', fecha: '', cc: '', repuesto: '', urgencia: '', grupo: '', solicita: '', estado: 'Para analisis', establecimiento: '' }
   const [filtros, setFiltros] = useState(FILTROS_INIT)
   const setF = (k, v) => setFiltros(f => ({ ...f, [k]: v }))
-  const limpiar = () => setFiltros(FILTROS_INIT)
-  const hayFiltros = Object.keys(filtros).some(k => filtros[k] !== FILTROS_INIT[k])
 
   const cargar = async () => {
     const [berdina, sanpablo] = await Promise.all([
@@ -142,27 +140,6 @@ export default function AnalistaPedidos() {
       cargar()
       cerrar()
       Swal.fire({ icon: 'success', title: 'Guardado', timer: 1500, showConfirmButton: false })
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
-    }
-  }
-
-  const borrar = async (item) => {
-    const result = await Swal.fire({
-      title: '¿Borrar ítem?',
-      text: 'Esta acción no se puede deshacer.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, borrar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#4a0812',
-    })
-    if (!result.isConfirmed) return
-    try {
-      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
-      await api.delete(`${base}/${item.pedidoId}/items/${item._id}`)
-      cargar()
-      Swal.fire({ icon: 'success', title: 'Borrado', timer: 1500, showConfirmButton: false })
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error', text: err.message })
     }

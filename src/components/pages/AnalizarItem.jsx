@@ -16,7 +16,6 @@ const FORM_ITEM_INIT = { stock: '', proveedor1: '', precio1: '', proveedor2: '',
 export default function AnalizarItem() {
   const navigate = useNavigate()
   const { state } = useLocation()
-  const esComprador = !!state?.esComprador
   const dropdownRef = useRef(null)
 
   const [pedidos, setPedidos] = useState([])
@@ -119,18 +118,6 @@ export default function AnalizarItem() {
 
   const getFoco = (itemId, campo) => !!focusMap[`${itemId}_${campo}`]
 
-  const recargar = async () => {
-    const [berdina, sanpablo] = await Promise.all([
-      api.get('/berdina/pedidos').catch(() => []),
-      api.get('/sanpablo/pedidos').catch(() => []),
-    ])
-    const todos = [
-      ...berdina.map(p => ({ ...p, _src: 'berdina' })),
-      ...sanpablo.map(p => ({ ...p, _src: 'sanpablo' })),
-    ].filter(p => (p.items || []).some(i => esParaAnalisis(i.estado)))
-    setPedidos(todos)
-  }
-
   const procesar = async () => {
     if (!pedidoSeleccionado || itemsAMostrar.length === 0) return
     const monto = calcularMontoTotal()
@@ -183,7 +170,6 @@ export default function AnalizarItem() {
         onBlur={() => setFoco(item._id, campo, false)}
         onKeyDown={e => { if (e.key === 'Enter') e.target.blur() }}
         placeholder="$"
-        disabled={esComprador}
       />
     )
   }
@@ -196,7 +182,6 @@ export default function AnalizarItem() {
         style={form[campo] ? { backgroundImage: 'none' } : {}}
         value={form[campo]}
         onChange={e => setF(item._id, campo, e.target.value)}
-        disabled={esComprador}
       >
         <option value="">—</option>
         {proveedores.map(p => <option key={p._id} value={p._id}>{p.razonsocial}</option>)}
@@ -263,18 +248,15 @@ export default function AnalizarItem() {
               </div>
             )}
           </div>
-          {!esComprador && (
-            <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 0 }}>
-              <button
-                className="btn btn-sm btn-outline-success"
-                disabled={itemsAMostrar.length === 0}
-                onClick={procesar}
-              >Procesar</button>
-            </div>
-          )}
+          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: 0 }}>
+            <button
+              className="btn btn-sm btn-outline-success"
+              disabled={itemsAMostrar.length === 0}
+              onClick={procesar}
+            >Procesar</button>
+          </div>
         </div>
 
-        <div style={esComprador ? { border: '1px solid #000', borderRadius: 6, padding: '0.75rem' } : {}}>
         <div className="card">
           <div>
             <table className="table table-hover table-striped mb-0" style={{ tableLayout: 'fixed', width: '100%', fontSize: 13 }}>
@@ -317,7 +299,6 @@ export default function AnalizarItem() {
                         value={(formsMap[item._id] || FORM_ITEM_INIT).stock}
                         onChange={e => setF(item._id, 'stock', e.target.value)}
                         placeholder="0"
-                        disabled={esComprador}
                       />
                     </td>
                     <td>{provSelect(item, 'proveedor1')}</td>
@@ -389,7 +370,6 @@ export default function AnalizarItem() {
             </div>
           )
         })()}
-        </div>
 
       </div>
     </div>

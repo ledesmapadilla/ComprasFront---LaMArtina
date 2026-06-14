@@ -255,7 +255,7 @@ export default function BerdinaPedidos() {
     }
   }
 
-  const varios = (v) => <span className="text-muted fst-italic" style={{ fontSize: 12 }}>Varios</span>
+  const varios = () => <span className="text-muted fst-italic" style={{ fontSize: 12 }}>Varios</span>
 
   const badgeUrgencia = (u) => {
     if (u === 'Varios') return varios()

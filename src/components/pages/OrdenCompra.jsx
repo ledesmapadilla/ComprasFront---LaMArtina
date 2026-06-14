@@ -121,12 +121,6 @@ export default function OrdenCompra() {
     setBusqueda('')
   }
 
-  const agregarOtroPedido = () => {
-    setPreviewItems([])
-    setSelectedKey(null)
-    setBusqueda('')
-  }
-
   const quitarItem = (itemId) => setOcItems(prev => prev.filter(i => i._id !== itemId))
 
   const total = ocItems.reduce((acc, i) => acc + (i.precio_total || 0), 0)

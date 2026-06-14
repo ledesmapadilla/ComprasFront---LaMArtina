@@ -8,7 +8,7 @@ export default function Footer() {
       fontSize: 13,
       letterSpacing: 0.5,
     }}>
-      © 2026 La Martina - Gestión de Compras - Ignacio LP
+      © 2026 La Martina - Gestión de Compras - ILP
     </footer>
   )
 }

@@ -31,52 +31,15 @@ const DEC_COLOR = {
   'A revisar': '#c87800',
 }
 
-function FiltroDropdown({ opciones, valor, onChange, abierto, onToggle, dropdownRef }) {
-  return (
-    <span style={{ position: 'relative', display: 'inline-block' }} ref={dropdownRef}>
-      <button
-        className="btn btn-link p-0 ms-1"
-        style={{ fontSize: 11, color: valor ? 'var(--bs-primary)' : 'inherit', lineHeight: 1, verticalAlign: 'middle' }}
-        onClick={onToggle}
-      >
-        {valor ? '▼' : '▽'}
-      </button>
-      {abierto && (
-        <div style={{
-          position: 'absolute', top: '100%', left: 0, zIndex: 100,
-          background: '#fff', border: '1px solid #000', borderRadius: 4,
-          minWidth: 130, boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-        }}>
-          <div
-            className="px-3 py-1"
-            style={{ cursor: 'pointer', fontSize: 13, borderBottom: '1px solid #eee', color: valor ? '#555' : '#000', fontWeight: valor ? 400 : 600 }}
-            onClick={() => onChange(null)}
-          >
-            Todos
-          </div>
-          {opciones.map(op => (
-            <div
-              key={op}
-              className="px-3 py-1"
-              style={{ cursor: 'pointer', fontSize: 13, fontWeight: valor === op ? 600 : 400, background: valor === op ? '#f0f0f0' : 'transparent' }}
-              onClick={() => onChange(op)}
-            >
-              {op}
-            </div>
-          ))}
-        </div>
-      )}
-    </span>
-  )
-}
-
 export default function GerenciaHistorial() {
   const navigate = useNavigate()
   const [grupos, setGrupos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [filtros, setFiltros] = useState({ taller: null, decision: null, fecha: null })
   const [filtroAbierto, setFiltroAbierto] = useState(null)
-  const refs = { taller: useRef(), decision: useRef(), fecha: useRef() }
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
+  const [dropdownOpciones, setDropdownOpciones] = useState([])
+  const dropdownRef = useRef()
 
   useEffect(() => {
     const cargar = async () => {
@@ -109,35 +72,42 @@ export default function GerenciaHistorial() {
   useEffect(() => {
     if (!filtroAbierto) return
     const handleClick = (e) => {
-      const ref = refs[filtroAbierto]
-      if (ref.current && !ref.current.contains(e.target)) setFiltroAbierto(null)
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+        setFiltroAbierto(null)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [filtroAbierto])
 
-  const toggleFiltro = (col) => setFiltroAbierto(prev => prev === col ? null : col)
-  const setFiltro = (col, val) => { setFiltros(f => ({ ...f, [col]: val })); setFiltroAbierto(null) }
-
   const getDecision = (grupo) => {
     const estado = grupo.items[0]?.accionesGerencia.at(-1)?.estado
     return DECISION[estado] ?? estado ?? '—'
   }
-
   const getTaller = (grupo) => grupo._src === 'berdina' ? 'Berdina' : 'San Pablo'
-
-  const getFecha = (grupo) => fmtFecha(grupo.items[0]?.accionesGerencia.at(-1)?.fecha)
-
-  const getMonto = (grupo) => {
-    const total = grupo.items.reduce((sum, i) => sum + (calcCostoItem(i) ?? 0), 0)
+  const getFecha  = (grupo) => fmtFecha(grupo.items[0]?.accionesGerencia.at(-1)?.fecha)
+  const getMonto  = (grupo) => {
     const sinPrecio = grupo.items.every(i => calcCostoItem(i) == null)
-    return sinPrecio ? null : total
+    if (sinPrecio) return null
+    return grupo.items.reduce((sum, i) => sum + (calcCostoItem(i) ?? 0), 0)
+  }
+
+  const abrirFiltro = (col, btnEl, opciones) => {
+    if (filtroAbierto === col) { setFiltroAbierto(null); return }
+    const rect = btnEl.getBoundingClientRect()
+    setDropdownPos({ top: rect.bottom + 4, left: rect.left })
+    setDropdownOpciones(opciones)
+    setFiltroAbierto(col)
+  }
+
+  const aplicarFiltro = (val) => {
+    setFiltros(f => ({ ...f, [filtroAbierto]: val }))
+    setFiltroAbierto(null)
   }
 
   const gruposFiltrados = grupos.filter(g => {
-    if (filtros.taller && getTaller(g) !== filtros.taller) return false
+    if (filtros.taller   && getTaller(g)   !== filtros.taller)   return false
     if (filtros.decision && getDecision(g) !== filtros.decision) return false
-    if (filtros.fecha && getFecha(g) !== filtros.fecha) return false
+    if (filtros.fecha    && getFecha(g)    !== filtros.fecha)    return false
     return true
   })
 
@@ -145,14 +115,18 @@ export default function GerenciaHistorial() {
   const opcionesDecision = [...new Set(grupos.map(getDecision))]
   const opcionesFecha    = [...new Set(grupos.map(getFecha))]
 
-  const badgeTaller = (src) => (
-    <span
-      className="badge"
-      style={{
-        backgroundColor: src === 'berdina' ? '#1a3326' : '#4a0812',
-        fontSize: 12, letterSpacing: 0.5, minWidth: 28,
-      }}
+  const FlechaFiltro = ({ col, opciones }) => (
+    <button
+      className="btn btn-link p-0 ms-1"
+      style={{ fontSize: 11, lineHeight: 1, verticalAlign: 'middle', color: filtros[col] ? '#0d6efd' : 'inherit', textDecoration: 'none' }}
+      onClick={(e) => abrirFiltro(col, e.currentTarget, opciones)}
     >
+      {filtros[col] ? '▼' : '▽'}
+    </button>
+  )
+
+  const badgeTaller = (src) => (
+    <span className="badge" style={{ backgroundColor: src === 'berdina' ? '#1a3326' : '#4a0812', fontSize: 12, letterSpacing: 0.5, minWidth: 28 }}>
       {src === 'berdina' ? 'B' : 'SP'}
     </span>
   )
@@ -188,38 +162,14 @@ export default function GerenciaHistorial() {
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                   <tr>
                     <th className="text-center" style={{ width: 80 }}>
-                      Taller
-                      <FiltroDropdown
-                        opciones={opcionesTaller}
-                        valor={filtros.taller}
-                        onChange={(v) => setFiltro('taller', v)}
-                        abierto={filtroAbierto === 'taller'}
-                        onToggle={() => toggleFiltro('taller')}
-                        dropdownRef={refs.taller}
-                      />
+                      Taller <FlechaFiltro col="taller" opciones={opcionesTaller} />
                     </th>
                     <th>Monto</th>
                     <th className="text-center" style={{ width: 110 }}>
-                      Decisión
-                      <FiltroDropdown
-                        opciones={opcionesDecision}
-                        valor={filtros.decision}
-                        onChange={(v) => setFiltro('decision', v)}
-                        abierto={filtroAbierto === 'decision'}
-                        onToggle={() => toggleFiltro('decision')}
-                        dropdownRef={refs.decision}
-                      />
+                      Decisión <FlechaFiltro col="decision" opciones={opcionesDecision} />
                     </th>
                     <th style={{ width: 130 }}>
-                      Fecha
-                      <FiltroDropdown
-                        opciones={opcionesFecha}
-                        valor={filtros.fecha}
-                        onChange={(v) => setFiltro('fecha', v)}
-                        abierto={filtroAbierto === 'fecha'}
-                        onToggle={() => toggleFiltro('fecha')}
-                        dropdownRef={refs.fecha}
-                      />
+                      Fecha <FlechaFiltro col="fecha" opciones={opcionesFecha} />
                     </th>
                   </tr>
                 </thead>
@@ -232,7 +182,7 @@ export default function GerenciaHistorial() {
                     </tr>
                   )}
                   {gruposFiltrados.map((grupo) => {
-                    const dec = getDecision(grupo)
+                    const dec   = getDecision(grupo)
                     const monto = getMonto(grupo)
                     return (
                       <tr key={`${grupo._src}-${grupo.nro_pedido}`} style={{ verticalAlign: 'middle' }}>
@@ -263,6 +213,42 @@ export default function GerenciaHistorial() {
           </div>
         )}
       </div>
+
+      {/* Dropdown de filtro — fuera del table para evitar clipping por overflow */}
+      {filtroAbierto && (
+        <div
+          ref={dropdownRef}
+          style={{
+            position: 'fixed',
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            zIndex: 9999,
+            background: '#fff',
+            border: '1px solid #000',
+            borderRadius: 4,
+            minWidth: 140,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+          }}
+        >
+          <div
+            className="px-3 py-2"
+            style={{ cursor: 'pointer', fontSize: 13, borderBottom: '1px solid #eee', fontWeight: filtros[filtroAbierto] ? 400 : 600 }}
+            onMouseDown={(e) => { e.preventDefault(); aplicarFiltro(null) }}
+          >
+            Todos
+          </div>
+          {dropdownOpciones.map(op => (
+            <div
+              key={op}
+              className="px-3 py-2"
+              style={{ cursor: 'pointer', fontSize: 13, fontWeight: filtros[filtroAbierto] === op ? 600 : 400, background: filtros[filtroAbierto] === op ? '#f0f0f0' : 'transparent' }}
+              onMouseDown={(e) => { e.preventDefault(); aplicarFiltro(op) }}
+            >
+              {op}
+            </div>
+          ))}
+        </div>
+      )}
 
     </div>
   )

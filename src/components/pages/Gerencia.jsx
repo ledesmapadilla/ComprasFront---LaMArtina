@@ -51,7 +51,7 @@ export default function Gerencia() {
 
   useEffect(() => { cargar() }, [])
 
-  const verAnalisis = (item) => navigate('/ver-analisis', { state: { item } })
+  const verAnalisis = (item) => navigate('/oc/ver', { state: { item } })
 
   const aprobar = async (item) => {
     const { isConfirmed } = await Swal.fire({

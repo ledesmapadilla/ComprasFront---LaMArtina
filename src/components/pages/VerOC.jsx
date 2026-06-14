@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../../services/api'
 
 const fmtPrecio = (v) =>
@@ -12,30 +12,61 @@ const fmtNro = (n, src) =>
 const fmtFecha = (d) =>
   d ? new Date(d).toLocaleDateString('es-AR') : '—'
 
+const establecimientoLabel = (e) =>
+  e === 'berdina' ? 'Berdina' : e === 'sanpablo' ? 'San Pablo' : e === 'mixto' ? 'Berdina + San Pablo' : e || '—'
+
 export default function VerOC() {
   const { nro } = useParams()
   const navigate = useNavigate()
+  const { state } = useLocation()
+  const modoAnalisis = !!state?.item
+
   const [oc, setOc] = useState(null)
   const [proveedores, setProveedores] = useState([])
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    if (modoAnalisis) {
+      const item = state.item
+      api.get('/proveedores').catch(() => []).then(provs => {
+        setProveedores(provs)
+        const filas = [1, 2, 3]
+          .filter(n => item[`proveedor${n}`])
+          .map(n => ({
+            nro_pedido:      item.nro_pedido,
+            _src:            item._src,
+            fecha:           item.fecha,
+            nombre_repuesto: item.nombre_repuesto,
+            cant:            item.cant,
+            precio_unitario: item[`precio${n}`],
+            precio_total:    item[`precio${n}`] != null && item.cant ? item[`precio${n}`] * item.cant : null,
+            proveedor:       item[`proveedor${n}`],
+            observaciones:   '',
+          }))
+        const precios = filas.map(f => f.precio_unitario).filter(v => v != null && v > 0)
+        const totalMin = precios.length > 0 ? Math.min(...precios) * (item.cant || 0) : 0
+        setOc({
+          nro_oc_display: fmtNro(item.nro_pedido, item._src),
+          fecha:          item.fecha,
+          establecimiento: item._src,
+          items:          filas,
+          total:          totalMin,
+          _modoAnalisis:  true,
+        })
+      })
+      return
+    }
+
     Promise.all([
       api.get(`/oc/by-display/${encodeURIComponent(nro)}`),
       api.get('/proveedores').catch(() => []),
     ])
-      .then(([ocData, provs]) => {
-        setOc(ocData)
-        setProveedores(provs)
-      })
+      .then(([ocData, provs]) => { setOc(ocData); setProveedores(provs) })
       .catch(err => setError(err.message))
-  }, [nro])
+  }, [nro, modoAnalisis])
 
   const provNombre = (id) =>
     proveedores.find(p => p._id === id)?.razonsocial || id || '—'
-
-  const establecimientoLabel = (e) =>
-    e === 'berdina' ? 'Berdina' : e === 'sanpablo' ? 'San Pablo' : e === 'mixto' ? 'Berdina + San Pablo' : e || '—'
 
   if (error) return (
     <div className="container pt-4 text-center">
@@ -55,18 +86,19 @@ export default function VerOC() {
 
       <div className="container d-flex justify-content-between align-items-center mb-2">
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
-          Orden de Compra
+          {oc._modoAnalisis ? 'Análisis' : 'Orden de Compra'}
         </p>
         <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">← Volver</button>
       </div>
 
       <div className="container">
 
-        {/* Encabezado OC */}
         <div className="card mb-3 p-3">
           <div className="d-flex flex-wrap gap-4 align-items-center">
             <div>
-              <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>N° OC</div>
+              <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+                {oc._modoAnalisis ? 'N° Pedido' : 'N° OC'}
+              </div>
               <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 1 }}>{oc.nro_oc_display}</div>
             </div>
             <div>
@@ -78,13 +110,14 @@ export default function VerOC() {
               <div style={{ fontSize: 16, fontWeight: 500 }}>{establecimientoLabel(oc.establecimiento)}</div>
             </div>
             <div className="ms-auto">
-              <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Total</div>
+              <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+                {oc._modoAnalisis ? 'Total mínimo' : 'Total'}
+              </div>
               <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-accent)' }}>{fmtPrecio(oc.total)}</div>
             </div>
           </div>
         </div>
 
-        {/* Tabla de ítems */}
         <div className="card">
           <div className="table-responsive">
             <table className="table table-hover table-striped mb-0">
@@ -97,7 +130,7 @@ export default function VerOC() {
                   <th className="text-end">Precio Unit.</th>
                   <th className="text-end">Precio Total</th>
                   <th>Proveedor</th>
-                  <th>Observaciones</th>
+                  {!oc._modoAnalisis && <th>Observaciones</th>}
                 </tr>
               </thead>
               <tbody>
@@ -110,9 +143,11 @@ export default function VerOC() {
                     <td className="text-end">{fmtPrecio(item.precio_unitario)}</td>
                     <td className="text-end" style={{ fontWeight: 600 }}>{fmtPrecio(item.precio_total)}</td>
                     <td>{provNombre(item.proveedor)}</td>
-                    <td style={{ color: item.observaciones ? 'inherit' : 'var(--color-muted)', fontStyle: item.observaciones ? 'normal' : 'italic' }}>
-                      {item.observaciones || 'Sin observaciones'}
-                    </td>
+                    {!oc._modoAnalisis && (
+                      <td style={{ color: item.observaciones ? 'inherit' : 'var(--color-muted)', fontStyle: item.observaciones ? 'normal' : 'italic' }}>
+                        {item.observaciones || 'Sin observaciones'}
+                      </td>
+                    )}
                   </tr>
                 ))}
                 {(oc.items || []).length === 0 && (
@@ -121,9 +156,11 @@ export default function VerOC() {
               </tbody>
               <tfoot>
                 <tr style={{ backgroundColor: '#f4f6f8' }}>
-                  <td colSpan={5} className="text-end" style={{ fontWeight: 700, fontSize: 15 }}>Total</td>
+                  <td colSpan={5} className="text-end" style={{ fontWeight: 700, fontSize: 15 }}>
+                    {oc._modoAnalisis ? 'Total mínimo' : 'Total'}
+                  </td>
                   <td className="text-end" style={{ fontWeight: 700, fontSize: 15, color: 'var(--color-accent)' }}>{fmtPrecio(oc.total)}</td>
-                  <td colSpan={2} />
+                  <td colSpan={oc._modoAnalisis ? 1 : 2} />
                 </tr>
               </tfoot>
             </table>

@@ -203,6 +203,29 @@ export default function SanPabloPedidos() {
     })
   }
 
+  const verMotivoRetirado = async (item) => {
+    try {
+      const hist = await api.get(`/sanpablo/pedidos/${item.pedidoId}/items/${item._id}/historial`)
+      const retirado = [...hist].reverse().find(h => h.estado === 'Retirado')
+      const fecha = retirado?.fecha ? new Date(retirado.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+      Swal.fire({
+        icon: 'success',
+        title: 'Retirado',
+        html: `<div style="text-align:left;font-size:14px">
+          <div><strong>Repuesto:</strong> ${item.nombre_repuesto}</div>
+          <div style="margin-top:6px"><strong>Retirado por:</strong> ${retirado?.usuario || '—'}</div>
+          <div><strong>Fecha:</strong> ${fecha}</div>
+          ${retirado?.nota ? `<div style="margin-top:10px;padding:10px;background:#f0fff4;border-left:3px solid #198754;border-radius:2px"><strong>Observaciones:</strong> ${retirado.nota}</div>` : '<div style="margin-top:6px;color:#888">Sin observaciones</div>'}
+        </div>`,
+        confirmButtonText: 'Cerrar',
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn btn-outline-secondary' },
+      })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
+
   const verMotivoRevision = async (item) => {
     try {
       const hist = await api.get(`/sanpablo/pedidos/${item.pedidoId}/items/${item._id}/historial`)
@@ -291,6 +314,7 @@ export default function SanPabloPedidos() {
     if (e === 'Para revision') return <span className="badge bg-warning">Para revision</span>
     const norm = e === 'Pedido' || e === 'En analisis' ? 'Para analisis' : e
     if (norm === 'Autorizar') return <span className="badge" style={{ backgroundColor: '#8b2035' }}>Para autorizar</span>
+    if (e === 'Retirado') return <span className="badge" style={{ backgroundColor: '#146c43' }}>Retirado</span>
     const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', 'Para retirar': 'success', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
     return <span className={`badge bg-${color[norm] || 'secondary'}`}>{norm}</span>
   }
@@ -452,9 +476,11 @@ export default function SanPabloPedidos() {
                           verMotivoRevision(item._agrupado ? item._items[0] : item)
                         } else if (item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios') {
                           navigate(`/oc/${encodeURIComponent(item.oc)}`)
+                        } else if (item.estado === 'Retirado') {
+                          verMotivoRetirado(item._agrupado ? item._items[0] : item)
                         }
                       }}
-                      style={(item.estado === 'Rechazado' || item.estado === 'Cancelado' || item.estado === 'Para revision' || item.estado === 'Para retirar') ? { cursor: 'pointer' } : {}}
+                      style={(item.estado === 'Rechazado' || item.estado === 'Cancelado' || item.estado === 'Para revision' || item.estado === 'Para retirar' || item.estado === 'Retirado') ? { cursor: 'pointer' } : {}}
                     >{badgeEstado(item.estado)}</td>
                     <td>{item.oc || '—'}</td>
                     <td className="text-nowrap">

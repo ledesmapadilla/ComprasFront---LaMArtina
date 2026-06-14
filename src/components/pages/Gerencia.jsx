@@ -224,6 +224,10 @@ export default function Gerencia() {
                     >
                       <td className="text-center">
                         {badgeTaller(grupo._src)}
+                        <div style={{ fontSize: 11, color: 'var(--color-muted)', marginTop: 4, lineHeight: 1.3 }}>
+                          {fmtNro(grupo.nro_pedido, grupo._src)}
+                          {grupo.items.length > 1 && <div>{grupo.items.length} ítems</div>}
+                        </div>
                       </td>
                       <td>
                         <div style={{ fontWeight: 700, fontSize: 16, lineHeight: 1.2 }}>
@@ -231,10 +235,6 @@ export default function Gerencia() {
                             ? <span style={{ color: 'var(--color-muted)', fontWeight: 400, fontSize: 13 }}>Sin precio</span>
                             : fmtPrecio(grupo.costo)
                           }
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--color-muted)', marginTop: 2 }}>
-                          {fmtNro(grupo.nro_pedido, grupo._src)}
-                          {grupo.items.length > 1 && <span> · {grupo.items.length} ítems</span>}
                         </div>
                         <button
                           className="btn btn-sm btn-outline-secondary mt-1"

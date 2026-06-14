@@ -39,6 +39,9 @@ export default function Menu() {
           <li className="nav-item">
             <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/comprador">Comprador</NavLink>
           </li>
+          <li className="nav-item">
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/gerencia">Gerencia</NavLink>
+          </li>
         </ul>
         <ul className="navbar-nav ms-auto">
           <li className="nav-item dropdown">

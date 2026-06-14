@@ -64,7 +64,7 @@ export default function Gerencia() {
 
   useEffect(() => { cargar() }, [])
 
-  const verAnalisis = (grupo) => navigate('/oc/ver', { state: { item: grupo.items[0] } })
+  const verAnalisis = (grupo) => navigate('/oc/ver', { state: { items: grupo.items } })
 
   const aprobar = async (grupo) => {
     const nro = fmtNro(grupo.nro_pedido, grupo._src)

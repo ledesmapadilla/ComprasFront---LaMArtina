@@ -19,40 +19,45 @@ export default function VerOC() {
   const { nro } = useParams()
   const navigate = useNavigate()
   const { state } = useLocation()
-  const modoAnalisis = !!state?.item
+  const modoAnalisis = !!state?.item || !!state?.items
 
   const [oc, setOc] = useState(null)
   const [proveedores, setProveedores] = useState([])
   const [error, setError] = useState(null)
 
+  const mejorFilaDeItem = (item) => {
+    const filas = [1, 2, 3]
+      .filter(n => item[`proveedor${n}`])
+      .map(n => ({
+        nro_pedido:      item.nro_pedido,
+        _src:            item._src,
+        fecha:           item.fecha,
+        nombre_repuesto: item.nombre_repuesto,
+        cant:            item.cant,
+        precio_unitario: item[`precio${n}`],
+        precio_total:    item[`precio${n}`] != null && item.cant ? item[`precio${n}`] * item.cant : null,
+        proveedor:       item[`proveedor${n}`],
+        observaciones:   '',
+      }))
+    const conPrecio = filas.filter(f => f.precio_unitario != null && f.precio_unitario > 0)
+    return conPrecio.length > 0
+      ? conPrecio.reduce((best, f) => f.precio_unitario < best.precio_unitario ? f : best)
+      : filas[0] ?? null
+  }
+
   useEffect(() => {
     if (modoAnalisis) {
-      const item = state.item
+      const itemsArr = state.items ?? [state.item]
       api.get('/proveedores').catch(() => []).then(provs => {
         setProveedores(provs)
-        const filas = [1, 2, 3]
-          .filter(n => item[`proveedor${n}`])
-          .map(n => ({
-            nro_pedido:      item.nro_pedido,
-            _src:            item._src,
-            fecha:           item.fecha,
-            nombre_repuesto: item.nombre_repuesto,
-            cant:            item.cant,
-            precio_unitario: item[`precio${n}`],
-            precio_total:    item[`precio${n}`] != null && item.cant ? item[`precio${n}`] * item.cant : null,
-            proveedor:       item[`proveedor${n}`],
-            observaciones:   '',
-          }))
-        const filasConPrecio = filas.filter(f => f.precio_unitario != null && f.precio_unitario > 0)
-        const mejorFila = filasConPrecio.length > 0
-          ? [filasConPrecio.reduce((best, f) => f.precio_unitario < best.precio_unitario ? f : best)]
-          : filas.slice(0, 1)
-        const total = mejorFila[0]?.precio_total ?? 0
+        const mejoresFilas = itemsArr.map(mejorFilaDeItem).filter(Boolean)
+        const total = mejoresFilas.reduce((sum, f) => sum + (f.precio_total ?? 0), 0)
+        const ref = itemsArr[0]
         setOc({
-          nro_oc_display: fmtNro(item.nro_pedido, item._src),
-          fecha:          item.fecha,
-          establecimiento: item._src,
-          items:          mejorFila,
+          nro_oc_display: fmtNro(ref.nro_pedido, ref._src),
+          fecha:          ref.fecha,
+          establecimiento: ref._src,
+          items:          mejoresFilas,
           total,
           _modoAnalisis:  true,
         })

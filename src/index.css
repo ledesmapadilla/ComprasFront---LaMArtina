@@ -18,6 +18,13 @@ body {
 }
 
 /* Navbar */
+@media (min-width: 992px) {
+  .navbar-nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
 .navbar.navbar-dark.bg-dark {
   background-color: var(--color-primary) !important;
   border-bottom: 3px solid var(--color-accent);
@@ -114,6 +121,15 @@ body {
 .form-select.select-activo {
   color: #0d6efd !important;
   font-weight: 700;
+}
+
+/* Gerencia — tabla centrada solo en desktop */
+@media (min-width: 992px) {
+  .card-gerencia {
+    width: 50% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
 }
 
 /* Layout */

@@ -7,8 +7,8 @@ const closeMenu = () => {
 
 export default function Menu() {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div className="container">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+      <div className="container position-relative">
       <Link className="navbar-brand d-flex align-items-center gap-2" to="/">
         <img
           src="/logo LM.jpg"
@@ -31,7 +31,7 @@ export default function Menu() {
         <span className="navbar-toggler-icon" />
       </button>
       <div className="collapse navbar-collapse" id="navMenu">
-        <ul className="navbar-nav ms-3">
+        <ul className="navbar-nav navbar-nav-center">
           <li className="nav-item">
             <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/berdina" onClick={closeMenu}>Berdina</NavLink>
           </li>

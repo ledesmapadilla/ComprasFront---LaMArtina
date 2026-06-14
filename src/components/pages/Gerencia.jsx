@@ -247,15 +247,15 @@ export default function Gerencia() {
             <div className="spinner-border text-secondary" role="status" />
           </div>
         ) : (
-          <div className="card">
+          <div className="card card-gerencia">
             <div className="table-responsive">
               <table className="table table-hover table-striped mb-0">
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                   <tr>
                     <th className="text-center" style={{ width: 48 }}>Taller</th>
-                    <th>Costo</th>
+                    <th className="text-center">Costo</th>
                     <th className="text-center" style={{ width: 80 }}>Urgencia</th>
-                    <th style={{ width: 120 }}></th>
+                    <th className="text-center" style={{ width: 120 }}></th>
                   </tr>
                 </thead>
                 <tbody>

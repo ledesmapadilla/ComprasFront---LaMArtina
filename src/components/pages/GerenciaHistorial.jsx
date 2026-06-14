@@ -95,7 +95,10 @@ export default function GerenciaHistorial() {
   const abrirFiltro = (col, btnEl, opciones) => {
     if (filtroAbierto === col) { setFiltroAbierto(null); return }
     const rect = btnEl.getBoundingClientRect()
-    setDropdownPos({ top: rect.bottom + 4, left: rect.left })
+    const pos = col === 'fecha'
+      ? { top: rect.bottom + 4, right: window.innerWidth - rect.right }
+      : { top: rect.bottom + 4, left: rect.left }
+    setDropdownPos(pos)
     setDropdownOpciones(opciones)
     setFiltroAbierto(col)
   }
@@ -144,12 +147,7 @@ export default function GerenciaHistorial() {
 
       <div className="container">
         <h4 className="text-center mb-4" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>
-          Historial de Gerencia{' '}
-          {!cargando && (
-            <span style={{ fontWeight: 400, fontSize: '0.75em', letterSpacing: 1, textTransform: 'none' }}>
-              ({gruposFiltrados.length} pedidos)
-            </span>
-          )}
+          Historial
         </h4>
 
         {cargando ? (
@@ -157,7 +155,7 @@ export default function GerenciaHistorial() {
             <div className="spinner-border text-secondary" role="status" />
           </div>
         ) : (
-          <div className="card">
+          <div className="card card-gerencia">
             <div className="table-responsive">
               <table className="table table-hover table-striped mb-0">
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
@@ -165,11 +163,11 @@ export default function GerenciaHistorial() {
                     <th className="text-center" style={{ width: 80 }}>
                       Taller <FlechaFiltro col="taller" opciones={opcionesTaller} />
                     </th>
-                    <th>Monto</th>
+                    <th className="text-center">Monto</th>
                     <th className="text-center" style={{ width: 110 }}>
                       Decisión <FlechaFiltro col="decision" opciones={opcionesDecision} />
                     </th>
-                    <th style={{ width: 130 }}>
+                    <th className="text-center" style={{ width: 130 }}>
                       Fecha <FlechaFiltro col="fecha" opciones={opcionesFecha} />
                     </th>
                   </tr>
@@ -222,7 +220,7 @@ export default function GerenciaHistorial() {
           style={{
             position: 'fixed',
             top: dropdownPos.top,
-            left: dropdownPos.left,
+            ...(dropdownPos.left != null ? { left: dropdownPos.left } : { right: dropdownPos.right }),
             zIndex: 9999,
             background: '#fff',
             border: '1px solid #000',

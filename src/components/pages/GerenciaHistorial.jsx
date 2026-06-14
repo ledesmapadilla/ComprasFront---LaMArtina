@@ -6,7 +6,7 @@ const fmtNro = (n, src) =>
   src === 'berdina' ? `B-${String(n).padStart(3, '0')}` : `SP-${String(n).padStart(3, '0')}`
 
 const fmtFecha = (f) =>
-  f ? new Date(f).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'
+  f ? new Date(f).toLocaleDateString('es-AR', { day: 'numeric', month: 'numeric', year: '2-digit' }) : '—'
 
 const fmtPrecio = (n) =>
   n != null && !isNaN(n)
@@ -191,16 +191,16 @@ export default function GerenciaHistorial() {
                             {fmtNro(grupo.nro_pedido, grupo._src)}
                           </div>
                         </td>
-                        <td style={{ fontWeight: 700, fontSize: 16 }}>
+                        <td style={{ fontWeight: 700, fontSize: 13 }}>
                           {monto != null
                             ? fmtPrecio(monto)
-                            : <span style={{ color: 'var(--color-muted)', fontWeight: 400, fontSize: 13 }}>Sin precio</span>
+                            : <span style={{ color: 'var(--color-muted)', fontWeight: 400, fontSize: 11 }}>Sin precio</span>
                           }
                         </td>
-                        <td className="text-center" style={{ fontWeight: 700, fontSize: 13, color: DEC_COLOR[dec] ?? 'inherit' }}>
+                        <td className="text-center" style={{ fontWeight: 700, fontSize: 11, color: DEC_COLOR[dec] ?? 'inherit' }}>
                           {dec}
                         </td>
-                        <td style={{ fontSize: 13, color: 'var(--color-muted)' }}>
+                        <td style={{ fontSize: 11, color: 'var(--color-muted)' }}>
                           {getFecha(grupo)}
                         </td>
                       </tr>

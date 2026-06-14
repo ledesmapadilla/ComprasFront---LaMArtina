@@ -11,7 +11,7 @@ const fmtNro = (n, src) =>
   src === 'berdina' ? `B-${String(n).padStart(3, '0')}` : `SP-${String(n).padStart(3, '0')}`
 
 const fmtFecha = (d) =>
-  d ? new Date(d).toLocaleDateString('es-AR') : '—'
+  d ? new Date(d).toLocaleDateString('es-AR', { day: 'numeric', month: 'numeric', year: '2-digit' }) : '—'
 
 const establecimientoLabel = (e) =>
   e === 'berdina' ? 'Berdina' : e === 'sanpablo' ? 'San Pablo' : e === 'mixto' ? 'Berdina + San Pablo' : e || '—'
@@ -157,10 +157,9 @@ export default function VerOC() {
 
         <div className="card">
           <div className="table-responsive">
-            <table className="table table-hover table-striped mb-0">
+            <table className="table table-hover table-striped mb-0" style={{ fontSize: 12 }}>
               <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                 <tr>
-                  <th>N° Pedido</th>
                   <th>Fecha</th>
                   <th>Repuesto</th>
                   <th className="text-center">Cant.</th>
@@ -173,7 +172,6 @@ export default function VerOC() {
               <tbody>
                 {(oc.items || []).map((item, idx) => (
                   <tr key={idx}>
-                    <td className="text-nowrap">{fmtNro(item.nro_pedido, item._src)}</td>
                     <td className="text-nowrap">{fmtFecha(item.fecha)}</td>
                     <td style={{ fontWeight: 500 }}>{item.nombre_repuesto}</td>
                     <td className="text-center">{item.cant ?? '—'}</td>
@@ -193,10 +191,10 @@ export default function VerOC() {
               </tbody>
               <tfoot>
                 <tr style={{ backgroundColor: '#f4f6f8' }}>
-                  <td colSpan={5} className="text-end" style={{ fontWeight: 700, fontSize: 15 }}>
+                  <td colSpan={4} className="text-end" style={{ fontWeight: 700, fontSize: 13 }}>
                     {oc._modoAnalisis ? 'Mínimo presupuesto' : 'Total'}
                   </td>
-                  <td className="text-end" style={{ fontWeight: 700, fontSize: 15, color: 'var(--color-accent)' }}>
+                  <td className="text-end" style={{ fontWeight: 700, fontSize: 13, color: 'var(--color-accent)' }}>
                     {fmtPrecio(oc.total)}{oc._modoAnalisis && <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--color-muted)', marginLeft: 4 }}>+IVA</span>}
                   </td>
                   <td colSpan={oc._modoAnalisis ? 1 : 2} />

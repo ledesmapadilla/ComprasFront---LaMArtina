@@ -4,7 +4,6 @@ import { useState } from 'react'
 const tarjetas = [
   { titulo: 'Pedidos', icono: 'bi-cart3',    ruta: '/analista/pedidos', color: 'var(--card-pedido)' },
   { titulo: 'Stock',   icono: 'bi-box-seam', ruta: '/analista/stock',   color: 'var(--card-stock)' },
-  { titulo: 'Otros',   icono: 'bi-grid',     ruta: '/analista/otros',   color: 'var(--card-pendientes)' },
 ]
 
 function Tarjeta({ titulo, icono, ruta, color }) {

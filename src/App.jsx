@@ -18,6 +18,7 @@ import OrdenCompra from './components/pages/OrdenCompra'
 import Gerencia from './components/pages/Gerencia'
 import GerenciaHistorial from './components/pages/GerenciaHistorial'
 import VerOC from './components/pages/VerOC'
+import Pendientes from './components/pages/Pendientes'
 import Error404 from './components/pages/Error404'
 
 function App() {
@@ -41,6 +42,8 @@ function App() {
           <Route path="/sanpablo/pedidos/nuevo" element={<SanPabloNuevoPedido />} />
           <Route path="/berdina/pedidos" element={<BerdinaPedidos />} />
           <Route path="/berdina/pedidos/nuevo" element={<NuevoPedido />} />
+          <Route path="/berdina/pendientes" element={<Pendientes taller="berdina" />} />
+          <Route path="/sanpablo/pendientes" element={<Pendientes taller="sanpablo" />} />
           <Route path="/gerencia" element={<Gerencia />} />
           <Route path="/gerencia/historial" element={<GerenciaHistorial />} />
           <Route path="/oc/ver" element={<VerOC />} />

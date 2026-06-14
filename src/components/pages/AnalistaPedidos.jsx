@@ -490,7 +490,7 @@ export default function AnalistaPedidos() {
           </div>
         </div>
 
-        <div className="d-flex align-items-center justify-content-between mb-2">
+        <div className="d-flex align-items-center mb-2">
           <div className="form-check form-switch mb-0">
             <input
               className="form-check-input"
@@ -505,10 +505,10 @@ export default function AnalistaPedidos() {
               Agrupar pedidos múltiples
             </label>
           </div>
-          {esComprador
-            ? <span style={{ fontSize: 14 }}>Mayor de $200.000 → <span style={{ color: '#dc3545', fontWeight: 600 }}>Autorizar</span></span>
-            : (
-              <div style={{ width: 130, textAlign: 'center' }}>
+          <div className="flex-grow-1 text-center">
+            {esComprador
+              ? <span style={{ fontSize: 14 }}>Mayor de $200.000 → <span style={{ color: '#dc3545', fontWeight: 600 }}>Autorizar</span></span>
+              : (
                 <button
                   className="btn btn-sm btn-outline-primary"
                   onClick={() => {
@@ -516,9 +516,9 @@ export default function AnalistaPedidos() {
                     navigate('/analista/analizar', { state: item ? { item } : undefined })
                   }}
                 >Analizar</button>
-              </div>
-            )
-          }
+              )
+            }
+          </div>
         </div>
 
         {esComprador && (

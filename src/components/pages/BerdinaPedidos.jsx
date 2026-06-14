@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import { api } from '../../services/api'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
-const ESTADOS   = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Pendiente', 'En proceso', 'Para retirar', 'Completado', 'Cancelado']
+const ESTADOS   = ['Para analisis', 'Para hacer OC', 'Autorizar', 'Para retirar', 'Rechazado']
 const GRUPOS    = ['Pulverizadora', 'Chancho', 'Nodriza', 'Desmalezadora', 'Herbicida', 'Abonadora', 'Riego', 'Arquito', 'Tractores', 'Camioneta', 'Manitou', 'Colectivos', 'Herreria', 'Gomeria', 'Stock', 'Otros']
 
 const ITEM_INIT = { nombre_repuesto: '', cant: '', unidad: '', descripcion: '', urgencia: 'Media', grupo: 'Tractores', cc: '', estado: 'Pendiente' }
@@ -47,7 +47,7 @@ export default function BerdinaPedidos() {
     if (filtros.urgencia && item.urgencia !== filtros.urgencia) return false
     if (filtros.grupo && item.grupo !== filtros.grupo) return false
     if (filtros.solicita && !item.solicita?.toLowerCase().includes(filtros.solicita.toLowerCase())) return false
-    if (filtros.estado) { const ne = (item.estado === 'Pedido' || item.estado === 'En analisis') ? 'Para analisis' : item.estado; if (ne !== filtros.estado) return false }
+    if (filtros.estado) { const ne = (item.estado === 'Pedido' || item.estado === 'En analisis' || item.estado === 'Para revision') ? 'Para analisis' : item.estado; if (ne !== filtros.estado) return false }
     return true
   })
 
@@ -203,6 +203,29 @@ export default function BerdinaPedidos() {
     })
   }
 
+  const verMotivoRechazo = async (item) => {
+    try {
+      const hist = await api.get(`/berdina/pedidos/${item.pedidoId}/items/${item._id}/historial`)
+      const rechazo = [...hist].reverse().find(h => h.estado === 'Rechazado' || h.estado === 'Cancelado')
+      const fecha = rechazo?.fecha ? new Date(rechazo.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+      Swal.fire({
+        icon: 'error',
+        title: 'Pedido rechazado',
+        html: `<div style="text-align:left;font-size:14px">
+          <div><strong>Repuesto:</strong> ${item.nombre_repuesto}</div>
+          <div style="margin-top:6px"><strong>Rechazado por:</strong> ${rechazo?.usuario || '—'}</div>
+          <div><strong>Fecha:</strong> ${fecha}</div>
+          ${rechazo?.nota ? `<div style="margin-top:10px;padding:10px;background:#fff5f5;border-left:3px solid #dc3545;border-radius:2px"><strong>Motivo:</strong> ${rechazo.nota}</div>` : '<div style="margin-top:6px;color:#888">Sin motivo registrado</div>'}
+        </div>`,
+        confirmButtonText: 'Cerrar',
+        buttonsStyling: false,
+        customClass: { confirmButton: 'btn btn-outline-secondary' },
+      })
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message })
+    }
+  }
+
   const verHistorial = async (item) => {
     try {
       const hist = await api.get(`/berdina/pedidos/${item.pedidoId}/items/${item._id}/historial`)
@@ -242,9 +265,10 @@ export default function BerdinaPedidos() {
 
   const badgeEstado = (e) => {
     if (e === 'Varios') return varios()
+    if (e === 'Para revision') return <span className="badge bg-warning text-dark">Para revision</span>
     const norm = e === 'Pedido' || e === 'En analisis' ? 'Para analisis' : e
     if (norm === 'Autorizar') return <span className="badge" style={{ backgroundColor: '#8b2035' }}>Para autorizar</span>
-    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', 'Para retirar': 'warning', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
+    const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', 'Para retirar': 'success', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
     return <span className={`badge bg-${color[norm] || 'secondary'}`}>{norm}</span>
   }
 
@@ -408,7 +432,7 @@ export default function BerdinaPedidos() {
                     <td
                       onClick={() => {
                         if (item.estado === 'Rechazado' || item.estado === 'Cancelado') {
-                          verHistorial(item._agrupado ? item._items[0] : item)
+                          verMotivoRechazo(item._agrupado ? item._items[0] : item)
                         } else if (item.estado === 'Para retirar' && item.oc && item.oc !== 'Varios') {
                           navigate(`/oc/${encodeURIComponent(item.oc)}`)
                         }

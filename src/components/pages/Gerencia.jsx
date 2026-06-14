@@ -167,22 +167,27 @@ export default function Gerencia() {
 
   const revisar = async (grupo) => {
     const nro = fmtNro(grupo.nro_pedido, grupo._src)
-    const { isConfirmed } = await Swal.fire({
+    const { value: motivo, isConfirmed } = await Swal.fire({
       title: '¿Enviar a revisión?',
-      html: `<div style="font-weight:600;margin-bottom:6px">${nro}</div>
-             <div style="font-size:13px;color:#555">Volverá al analista para revisión.</div>`,
-      icon: 'info',
+      html: `<div style="font-weight:600;margin-bottom:8px">${nro}</div>`,
+      input: 'textarea',
+      inputLabel: 'Motivo de la revisión',
+      inputPlaceholder: 'Explicá qué debe revisar el analista...',
       showCancelButton: true,
       confirmButtonText: 'Enviar a revisar',
       cancelButtonText: 'Cancelar',
       buttonsStyling: false,
       customClass: { confirmButton: 'btn btn-outline-warning me-2', cancelButton: 'btn btn-outline-secondary' },
+      preConfirm: (val) => {
+        if (!val?.trim()) { Swal.showValidationMessage('El motivo es obligatorio'); return false }
+        return val.trim()
+      },
     })
     if (!isConfirmed) return
     try {
       const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
       await Promise.all(grupo.items.map(item =>
-        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para analisis', usuario: 'Gerencia', nota: 'Enviado a revisión por Gerencia' })
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para revision', usuario: 'Gerencia', nota: motivo })
       ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Enviado a revisar', timer: 1500, showConfirmButton: false })

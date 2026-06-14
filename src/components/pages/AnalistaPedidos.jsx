@@ -329,7 +329,7 @@ export default function AnalistaPedidos() {
 
       <div className="container">
         <h4 className="text-center mb-4" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>
-          {esComprador ? 'Compras' : 'Pedidos'}
+          {esComprador ? 'Compras' : 'Pedidos'} <span style={{ fontWeight: 400, fontSize: '0.75em', letterSpacing: 1, textTransform: 'none' }}>(Para analisis)</span>
         </h4>
 
         <div className="d-flex flex-wrap gap-2 align-items-end mb-3">

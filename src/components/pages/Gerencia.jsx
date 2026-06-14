@@ -13,15 +13,20 @@ const fmtNro = (n, src) =>
 
 const URG_ORDER = { 'Crítica': 0, 'Alta': 1, 'Media': 2, 'Baja': 3 }
 
-const calcCosto = (item) => {
+const calcCostoItem = (item) => {
   const precios = [item.precio1, item.precio2, item.precio3].filter(v => v != null && v > 0)
   if (precios.length === 0) return null
   return Math.min(...precios) * (item.cant || 0)
 }
 
+const urgenciaMasAlta = (items) =>
+  items.reduce((best, i) =>
+    (URG_ORDER[i.urgencia] ?? 4) < (URG_ORDER[best] ?? 4) ? i.urgencia : best
+  , items[0]?.urgencia)
+
 export default function Gerencia() {
   const navigate = useNavigate()
-  const [items, setItems] = useState([])
+  const [grupos, setGrupos] = useState([])
   const [cargando, setCargando] = useState(true)
 
   const cargar = async () => {
@@ -30,27 +35,43 @@ export default function Gerencia() {
       api.get('/berdina/pedidos/por-estado/Autorizar').catch(() => []),
       api.get('/sanpablo/pedidos/por-estado/Autorizar').catch(() => []),
     ])
-    const autorizar = [
+    const todos = [
       ...berdina.map(i => ({ ...i, _src: 'berdina' })),
       ...sanpablo.map(i => ({ ...i, _src: 'sanpablo' })),
-    ].sort((a, b) => {
+    ]
+
+    const agrupado = Object.values(
+      todos.reduce((acc, item) => {
+        const key = `${item._src}-${item.nro_pedido}`
+        if (!acc[key]) acc[key] = { _src: item._src, nro_pedido: item.nro_pedido, fecha: item.fecha, items: [] }
+        acc[key].items.push(item)
+        return acc
+      }, {})
+    ).map(g => ({
+      ...g,
+      costo: g.items.reduce((sum, i) => sum + (calcCostoItem(i) ?? 0), 0),
+      sinPrecio: g.items.every(i => calcCostoItem(i) == null),
+      urgencia: urgenciaMasAlta(g.items),
+    })).sort((a, b) => {
       const ua = URG_ORDER[a.urgencia] ?? 4
       const ub = URG_ORDER[b.urgencia] ?? 4
       return ua !== ub ? ua - ub : new Date(b.fecha) - new Date(a.fecha)
     })
-    setItems(autorizar)
+
+    setGrupos(agrupado)
     setCargando(false)
   }
 
   useEffect(() => { cargar() }, [])
 
-  const verAnalisis = (item) => navigate('/oc/ver', { state: { item } })
+  const verAnalisis = (grupo) => navigate('/oc/ver', { state: { item: grupo.items[0] } })
 
-  const aprobar = async (item) => {
+  const aprobar = async (grupo) => {
+    const nro = fmtNro(grupo.nro_pedido, grupo._src)
     const { isConfirmed } = await Swal.fire({
-      title: '¿Aprobar repuesto?',
-      html: `<div style="font-weight:600;margin-bottom:6px">${item.nombre_repuesto}</div>
-             <div style="font-size:13px;color:#555">El estado pasará a <strong>Para hacer OC</strong>.</div>`,
+      title: '¿Aprobar pedido?',
+      html: `<div style="font-weight:600;margin-bottom:6px">${nro}</div>
+             <div style="font-size:13px;color:#555">${grupo.items.length > 1 ? `${grupo.items.length} ítems` : grupo.items[0].nombre_repuesto} → <strong>Para hacer OC</strong></div>`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Aprobar',
@@ -60,11 +81,10 @@ export default function Gerencia() {
     })
     if (!isConfirmed) return
     try {
-      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
-      await api.put(`${base}/${item.pedidoId}/items/${item._id}`, {
-        estado: 'Para hacer OC',
-        usuario: 'Gerencia',
-      })
+      const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      await Promise.all(grupo.items.map(item =>
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para hacer OC', usuario: 'Gerencia' })
+      ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Aprobado', timer: 1500, showConfirmButton: false })
     } catch (err) {
@@ -72,10 +92,11 @@ export default function Gerencia() {
     }
   }
 
-  const rechazar = async (item) => {
+  const rechazar = async (grupo) => {
+    const nro = fmtNro(grupo.nro_pedido, grupo._src)
     const { value: motivo, isConfirmed } = await Swal.fire({
-      title: '¿Rechazar repuesto?',
-      html: `<div style="font-weight:600;margin-bottom:8px">${item.nombre_repuesto}</div>`,
+      title: '¿Rechazar pedido?',
+      html: `<div style="font-weight:600;margin-bottom:8px">${nro}</div>`,
       input: 'textarea',
       inputLabel: 'Motivo del rechazo',
       inputPlaceholder: 'Explicá el motivo...',
@@ -91,12 +112,10 @@ export default function Gerencia() {
     })
     if (!isConfirmed) return
     try {
-      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
-      await api.put(`${base}/${item.pedidoId}/items/${item._id}`, {
-        estado: 'Cancelado',
-        usuario: 'Gerencia',
-        nota: motivo,
-      })
+      const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      await Promise.all(grupo.items.map(item =>
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Cancelado', usuario: 'Gerencia', nota: motivo })
+      ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Rechazado', timer: 1500, showConfirmButton: false })
     } catch (err) {
@@ -104,10 +123,11 @@ export default function Gerencia() {
     }
   }
 
-  const revisar = async (item) => {
+  const revisar = async (grupo) => {
+    const nro = fmtNro(grupo.nro_pedido, grupo._src)
     const { isConfirmed } = await Swal.fire({
       title: '¿Enviar a revisión?',
-      html: `<div style="font-weight:600;margin-bottom:6px">${item.nombre_repuesto}</div>
+      html: `<div style="font-weight:600;margin-bottom:6px">${nro}</div>
              <div style="font-size:13px;color:#555">Volverá al analista para revisión.</div>`,
       icon: 'info',
       showCancelButton: true,
@@ -118,12 +138,10 @@ export default function Gerencia() {
     })
     if (!isConfirmed) return
     try {
-      const base = item._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
-      await api.put(`${base}/${item.pedidoId}/items/${item._id}`, {
-        estado: 'Para analisis',
-        usuario: 'Gerencia',
-        nota: 'Enviado a revisión por Gerencia',
-      })
+      const base = grupo._src === 'berdina' ? '/berdina/pedidos' : '/sanpablo/pedidos'
+      await Promise.all(grupo.items.map(item =>
+        api.put(`${base}/${item.pedidoId}/items/${item._id}`, { estado: 'Para analisis', usuario: 'Gerencia', nota: 'Enviado a revisión por Gerencia' })
+      ))
       cargar()
       Swal.fire({ icon: 'success', title: 'Enviado a revisar', timer: 1500, showConfirmButton: false })
     } catch (err) {
@@ -169,7 +187,7 @@ export default function Gerencia() {
           Para Autorizar{' '}
           {!cargando && (
             <span style={{ fontWeight: 400, fontSize: '0.75em', letterSpacing: 1, textTransform: 'none' }}>
-              ({items.length})
+              ({grupos.length})
             </span>
           )}
         </h4>
@@ -187,43 +205,47 @@ export default function Gerencia() {
                     <th className="text-center" style={{ width: 48 }}>Taller</th>
                     <th>Costo</th>
                     <th className="text-center" style={{ width: 80 }}>Urgencia</th>
-                    <th style={{ width: 140 }}></th>
+                    <th style={{ width: 120 }}></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {items.length === 0 && (
+                  {grupos.length === 0 && (
                     <tr>
                       <td colSpan={4} className="text-center text-muted py-4">
-                        Sin repuestos para autorizar
+                        Sin pedidos para autorizar
                       </td>
                     </tr>
                   )}
-                  {items.map(item => (
+                  {grupos.map(grupo => (
                     <tr
-                      key={item._id}
-                      className={item.urgencia === 'Crítica' ? 'row-critica' : ''}
+                      key={`${grupo._src}-${grupo.nro_pedido}`}
+                      className={grupo.urgencia === 'Crítica' ? 'row-critica' : ''}
                       style={{ verticalAlign: 'middle' }}
                     >
                       <td className="text-center">
-                        {badgeTaller(item._src)}
+                        {badgeTaller(grupo._src)}
                       </td>
                       <td>
                         <div style={{ fontWeight: 700, fontSize: 16, lineHeight: 1.2 }}>
-                          {calcCosto(item) != null ? fmtPrecio(calcCosto(item)) : <span style={{ color: 'var(--color-muted)', fontWeight: 400, fontSize: 13 }}>Sin precio</span>}
+                          {grupo.sinPrecio
+                            ? <span style={{ color: 'var(--color-muted)', fontWeight: 400, fontSize: 13 }}>Sin precio</span>
+                            : fmtPrecio(grupo.costo)
+                          }
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--color-muted)', marginTop: 2, lineHeight: 1.3 }}>
-                          {item.nombre_repuesto}
+                        <div style={{ fontSize: 11, color: 'var(--color-muted)', marginTop: 2 }}>
+                          {fmtNro(grupo.nro_pedido, grupo._src)}
+                          {grupo.items.length > 1 && <span> · {grupo.items.length} ítems</span>}
                         </div>
                         <button
                           className="btn btn-sm btn-outline-secondary mt-1"
                           style={{ fontSize: 11, padding: '1px 8px', lineHeight: 1.6 }}
-                          onClick={() => verAnalisis(item)}
+                          onClick={() => verAnalisis(grupo)}
                         >
                           Ver
                         </button>
                       </td>
                       <td className="text-center">
-                        {badgeUrgencia(item.urgencia)}
+                        {badgeUrgencia(grupo.urgencia)}
                       </td>
                       <td>
                         <div className="d-flex gap-1 justify-content-center">
@@ -231,19 +253,19 @@ export default function Gerencia() {
                             className="btn btn-sm btn-outline-danger"
                             title="Rechazar"
                             style={{ fontSize: 15, fontWeight: 700, lineHeight: 1, padding: '3px 8px' }}
-                            onClick={() => rechazar(item)}
+                            onClick={() => rechazar(grupo)}
                           >✕</button>
                           <button
                             className="btn btn-sm btn-outline-warning"
                             title="Revisar"
                             style={{ fontSize: 15, fontWeight: 700, lineHeight: 1, padding: '3px 8px' }}
-                            onClick={() => revisar(item)}
+                            onClick={() => revisar(grupo)}
                           >?</button>
                           <button
                             className="btn btn-sm btn-outline-success"
                             title="Aprobar"
                             style={{ fontSize: 15, fontWeight: 700, lineHeight: 1, padding: '3px 8px' }}
-                            onClick={() => aprobar(item)}
+                            onClick={() => aprobar(grupo)}
                           >✓</button>
                         </div>
                       </td>

@@ -78,6 +78,11 @@ body {
   color: #fff !important;
 }
 
+/* Badges */
+.badge {
+  font-weight: 400 !important;
+}
+
 /* Tablas */
 .table thead th {
   background-color: var(--color-primary) !important;

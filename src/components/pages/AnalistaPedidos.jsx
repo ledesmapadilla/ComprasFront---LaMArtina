@@ -68,7 +68,10 @@ export default function AnalistaPedidos() {
     if (filtros.urgencia && item.urgencia !== filtros.urgencia) return false
     if (filtros.grupo && item.grupo !== filtros.grupo) return false
     if (filtros.solicita && !item.solicita?.toLowerCase().includes(filtros.solicita.toLowerCase())) return false
-    if (filtros.estado) { if (normEstado !== filtros.estado) return false }
+    if (filtros.estado) {
+      if (filtros.estado === 'Para analisis') { if (normEstado !== 'Para analisis' && item.estado !== 'Para retirar') return false }
+      else { if (normEstado !== filtros.estado) return false }
+    }
     if (filtros.establecimiento && item._src !== filtros.establecimiento.toLowerCase().replace(' ', '')) return false
     return true
   })

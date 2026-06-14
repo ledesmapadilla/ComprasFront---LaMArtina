@@ -207,7 +207,7 @@ export default function SanPabloPedidos() {
     try {
       const hist = await api.get(`/sanpablo/pedidos/${item.pedidoId}/items/${item._id}/historial`)
       const retirado = [...hist].reverse().find(h => h.estado === 'Retirado')
-      const fecha = retirado?.fecha ? new Date(retirado.fecha).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
+      const fecha = retirado?.fecha ? new Date(retirado.fecha).toLocaleString('es-AR', { dateStyle: 'short' }) : '—'
       Swal.fire({
         icon: 'success',
         title: 'Retirado',
@@ -314,7 +314,7 @@ export default function SanPabloPedidos() {
     if (e === 'Para revision') return <span className="badge bg-warning">Para revision</span>
     const norm = e === 'Pedido' || e === 'En analisis' ? 'Para analisis' : e
     if (norm === 'Autorizar') return <span className="badge" style={{ backgroundColor: '#8b2035' }}>Para autorizar</span>
-    if (e === 'Retirado') return <span className="badge" style={{ backgroundColor: '#146c43' }}>Retirado</span>
+    if (e === 'Retirado') return <span className="badge" style={{ backgroundColor: '#6f42c1' }}>Retirado</span>
     const color = { 'Para analisis': 'primary', 'Para hacer OC': 'info', Pendiente: 'secondary', 'En proceso': 'warning', 'Para retirar': 'success', Completado: 'success', Cancelado: 'danger', Rechazado: 'danger' }
     return <span className={`badge bg-${color[norm] || 'secondary'}`}>{norm}</span>
   }

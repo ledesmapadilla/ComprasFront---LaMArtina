@@ -101,29 +101,31 @@ export default function VerOC() {
 
       <div className="container">
 
-        <div className="card mb-3 p-3">
-          <div className="d-flex flex-wrap gap-4 align-items-center">
+        <div className="card mb-3 p-2">
+          <div className="d-flex flex-wrap gap-3 align-items-center mb-1">
             <div>
-              <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div style={{ fontSize: 10, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
                 {oc._modoAnalisis ? 'N° Pedido' : 'N° OC'}
               </div>
-              <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 1 }}>{oc.nro_oc_display}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: 1 }}>{oc.nro_oc_display}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Fecha</div>
-              <div style={{ fontSize: 16, fontWeight: 500 }}>{fmtFecha(oc.fecha)}</div>
+              <div style={{ fontSize: 10, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Fecha</div>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{fmtFecha(oc.fecha)}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Establecimiento</div>
-              <div style={{ fontSize: 16, fontWeight: 500 }}>{establecimientoLabel(oc.establecimiento)}</div>
+              <div style={{ fontSize: 10, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+                {oc._modoAnalisis ? 'Taller' : 'Establecimiento'}
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 500 }}>{establecimientoLabel(oc.establecimiento)}</div>
             </div>
-            <div className="ms-auto">
-              <div style={{ fontSize: 11, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
-                {oc._modoAnalisis ? 'Mínimo presupuesto' : 'Total'}
-              </div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-accent)' }}>
-                {fmtPrecio(oc.total)}{oc._modoAnalisis && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--color-muted)', marginLeft: 4 }}>+IVA</span>}
-              </div>
+          </div>
+          <div className="text-center" style={{ borderTop: '1px solid #eee', paddingTop: 6 }}>
+            <div style={{ fontSize: 10, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              {oc._modoAnalisis ? 'Mínimo presupuesto' : 'Total'}
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-accent)' }}>
+              {fmtPrecio(oc.total)}{oc._modoAnalisis && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--color-muted)', marginLeft: 4 }}>+IVA</span>}
             </div>
           </div>
         </div>

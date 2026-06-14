@@ -1,5 +1,10 @@
 import { Link, NavLink } from 'react-router-dom'
 
+const closeMenu = () => {
+  const el = document.getElementById('navMenu')
+  if (el?.classList.contains('show')) el.classList.remove('show')
+}
+
 export default function Menu() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -28,19 +33,19 @@ export default function Menu() {
       <div className="collapse navbar-collapse" id="navMenu">
         <ul className="navbar-nav ms-3">
           <li className="nav-item">
-            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/berdina">Berdina</NavLink>
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/berdina" onClick={closeMenu}>Berdina</NavLink>
           </li>
           <li className="nav-item">
-            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/sanpablo">San Pablo</NavLink>
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/sanpablo" onClick={closeMenu}>San Pablo</NavLink>
           </li>
           <li className="nav-item">
-            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/analista">Analista</NavLink>
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/analista" onClick={closeMenu}>Analista</NavLink>
           </li>
           <li className="nav-item">
-            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/comprador">Comprador</NavLink>
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/comprador" onClick={closeMenu}>Comprador</NavLink>
           </li>
           <li className="nav-item">
-            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/gerencia">Gerencia</NavLink>
+            <NavLink className={({ isActive }) => `nav-link${isActive ? ' nav-activo' : ''}`} to="/gerencia" onClick={closeMenu}>Gerencia</NavLink>
           </li>
         </ul>
         <ul className="navbar-nav ms-auto">
@@ -55,17 +60,17 @@ export default function Menu() {
             </a>
             <ul className="dropdown-menu dropdown-menu-dark dropdown-menu-end">
               <li>
-                <Link className="dropdown-item" to="/altas/usuarios">
+                <Link className="dropdown-item" to="/altas/usuarios" onClick={closeMenu}>
                   Usuarios
                 </Link>
               </li>
               <li>
-                <Link className="dropdown-item" to="/altas/proveedores">
+                <Link className="dropdown-item" to="/altas/proveedores" onClick={closeMenu}>
                   Proveedores
                 </Link>
               </li>
               <li>
-                <Link className="dropdown-item" to="/altas/centros-costo">
+                <Link className="dropdown-item" to="/altas/centros-costo" onClick={closeMenu}>
                   Centros de Costo (CC)
                 </Link>
               </li>

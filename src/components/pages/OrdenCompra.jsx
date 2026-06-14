@@ -32,6 +32,7 @@ export default function OrdenCompra() {
   const [selectedKey, setSelectedKey] = useState(null)
   const [previewItems, setPreviewItems] = useState([])
   const [obsPreview, setObsPreview] = useState({})
+  const [focusPrecio, setFocusPrecio] = useState({})
   const [ocItems, setOcItems] = useState([])
 
   useEffect(() => {
@@ -89,6 +90,17 @@ export default function OrdenCompra() {
     const obs = {}
     items.forEach(i => { obs[i._id] = '' })
     setObsPreview(prev => ({ ...prev, ...obs }))
+  }
+
+  const updatePreviewItem = (id, field, value) => {
+    setPreviewItems(prev => prev.map(i => {
+      if (i._id !== id) return i
+      const updated = { ...i, [field]: value }
+      const pu = field === 'precio_unitario' ? Number(value) : i.precio_unitario
+      const cant = field === 'cant' ? Number(value) : i.cant
+      updated.precio_total = pu != null && !isNaN(pu) && cant ? pu * cant : null
+      return updated
+    }))
   }
 
   const provNombre = (id) => {
@@ -245,10 +257,46 @@ export default function OrdenCompra() {
                     <tr key={item._id}>
                       <td className="text-nowrap">{item.fecha?.slice(0, 10).split('-').reverse().join('/')}</td>
                       <td>{item.nombre_repuesto}</td>
-                      <td>{item.cant || '—'}</td>
-                      <td>{item.precio_unitario != null ? fmtPrecio(item.precio_unitario) : '—'}</td>
-                      <td>{item.precio_total != null ? fmtPrecio(item.precio_total) : '—'}</td>
-                      <td>{provNombre(item.proveedor_id)}</td>
+                      <td>
+                        <input
+                          type="number"
+                          min="0"
+                          className="form-control form-control-sm"
+                          style={{ width: 70 }}
+                          value={item.cant ?? ''}
+                          onChange={e => updatePreviewItem(item._id, 'cant', e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type={focusPrecio[item._id] ? 'number' : 'text'}
+                          className="form-control form-control-sm"
+                          style={{ width: 130 }}
+                          value={focusPrecio[item._id]
+                            ? (item.precio_unitario ?? '')
+                            : (item.precio_unitario != null ? fmtPrecio(item.precio_unitario) : '')}
+                          onChange={e => updatePreviewItem(item._id, 'precio_unitario', e.target.value)}
+                          onFocus={() => setFocusPrecio(p => ({ ...p, [item._id]: true }))}
+                          onBlur={() => setFocusPrecio(p => ({ ...p, [item._id]: false }))}
+                          placeholder="$0"
+                        />
+                      </td>
+                      <td style={{ fontWeight: 500 }}>
+                        {item.precio_total != null ? fmtPrecio(item.precio_total) : '—'}
+                      </td>
+                      <td>
+                        <select
+                          className="form-select form-select-sm"
+                          style={{ minWidth: 160 }}
+                          value={item.proveedor_id || ''}
+                          onChange={e => updatePreviewItem(item._id, 'proveedor_id', e.target.value)}
+                        >
+                          <option value="">— Sin proveedor —</option>
+                          {proveedores.map(p => (
+                            <option key={p._id} value={p._id}>{p.razonsocial}</option>
+                          ))}
+                        </select>
+                      </td>
                       <td>
                         <input
                           className="form-control form-control-sm"

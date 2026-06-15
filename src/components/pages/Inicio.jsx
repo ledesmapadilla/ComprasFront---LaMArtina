@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const TARJETAS = [
-  { titulo: 'San Pablo / Berdina', icono: 'bi-tools',     ruta: '/talleres', color: 'linear-gradient(135deg, #4d9978, #111f18)', col: 1, row: 1 },
-  { titulo: 'Analista',            icono: 'bi-search',    ruta: '/analista', color: 'linear-gradient(135deg, #888888, #1c1c1c)', col: 3, row: 1 },
-  { titulo: 'Comprador',           icono: 'bi-bag-check', ruta: '/comprador',color: 'linear-gradient(135deg, #c02040, #280408)', col: 1, row: 3 },
-  { titulo: 'Gerencia',            icono: 'bi-briefcase', ruta: '/gerencia', color: 'linear-gradient(135deg, #4a6aaa, #0e1828)', col: 3, row: 3 },
+  { titulo: 'San Pablo / Berdina', icono: 'bi-tools',     ruta: '/talleres', color: 'linear-gradient(135deg, #316650, #1a3326)', col: 1, row: 1 },
+  { titulo: 'Analista',            icono: 'bi-search',    ruta: '/analista', color: 'linear-gradient(135deg, #5a5a5a, #2a2a2a)', col: 3, row: 1 },
+  { titulo: 'Comprador',           icono: 'bi-bag-check', ruta: '/comprador',color: 'linear-gradient(135deg, #7a1828, #4a0812)', col: 1, row: 3 },
+  { titulo: 'Gerencia',            icono: 'bi-briefcase', ruta: '/gerencia', color: 'linear-gradient(135deg, #2e4880, #1a2a4a)', col: 3, row: 3 },
 ]
 
 function Tarjeta({ titulo, subtitulo, icono, ruta, color, col, row }) {

@@ -44,7 +44,7 @@ export default function Inicio() {
         display: 'grid',
         gridTemplateColumns: '160px auto 160px',
         gridTemplateRows: '160px auto 160px',
-        gap: 20,
+        gap: 8,
       }}>
         {TARJETAS.map(t => <Tarjeta key={t.titulo} {...t} />)}
 

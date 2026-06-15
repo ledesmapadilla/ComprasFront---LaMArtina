@@ -23,7 +23,7 @@ function Tarjeta({ titulo, subtitulo, icono, ruta, color, col, row, children }) 
       onMouseLeave={() => setHovered(false)}
       style={{
         gridColumn: col, gridRow: row,
-        width: 160, height: 160, cursor: 'pointer', borderRadius: 14,
+        width: 190, height: 190, cursor: 'pointer', borderRadius: 14,
         background: color, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: 8,
         transition: 'transform 0.18s ease, box-shadow 0.18s ease',
@@ -70,8 +70,8 @@ export default function Inicio() {
     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '160px auto 160px',
-        gridTemplateRows: '160px auto 160px',
+        gridTemplateColumns: '190px auto 190px',
+        gridTemplateRows: '190px auto 190px',
         gap: 8,
       }}>
         {TARJETAS.map(t => (

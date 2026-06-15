@@ -21,7 +21,7 @@ export default function Usuarios() {
   }
 
   const abrirEditar = (u) => {
-    setForm({ nombre: u.nombre, usuario: u.usuario, password: u.password, rol: u.rol })
+    setForm({ nombre: u.nombre, usuario: u.usuario, password: u.password ?? '', rol: u.rol })
     setEditId(u._id)
     setShowModal(true)
   }
@@ -170,9 +170,9 @@ export default function Usuarios() {
                       onChange={e => setForm({ ...form, rol: e.target.value })}>
                       <option value="superadmin">Superadministrador</option>
                       <option value="solicitante">Solicitante</option>
-                      <option value="aprobador">Aprobador</option>
+                      <option value="analista">Analista</option>
                       <option value="comprador">Comprador</option>
-                      <option value="almacen">Almacén</option>
+                      <option value="gerente">Gerente</option>
                     </select>
                   </div>
                 </div>

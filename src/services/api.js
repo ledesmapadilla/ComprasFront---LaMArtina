@@ -12,6 +12,12 @@ const jsonHeaders = () => ({
 
 const handle = async (res) => {
   const data = await res.json();
+  if (res.status === 401 && localStorage.getItem("token")) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+    throw new Error("Sesión expirada");
+  }
   if (!res.ok) throw new Error(data.error || "Error en la solicitud");
   return data;
 };

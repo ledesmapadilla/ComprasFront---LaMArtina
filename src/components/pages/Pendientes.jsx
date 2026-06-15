@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
+import XLSX from 'xlsx-js-style'
 import { api } from '../../services/api'
 
 const URGENCIAS = ['Baja', 'Media', 'Alta', 'Crítica']
@@ -179,6 +180,43 @@ export default function Pendientes({ taller }) {
     }
   }
 
+  const exportarExcel = () => {
+    const tituloExcel = `Pendientes ${titulo} - La Martina`
+    const fecha = new Date().toLocaleDateString('es-AR')
+
+    const boldCell = (v) => ({ v, s: { font: { bold: true } } })
+    const headers = ['N° Pedido', 'Fecha', 'C.C.', 'Repuesto', 'Cant.', 'Un.', 'Descripción', 'Urgencia', 'Grupo', 'Solicita', 'Estado', 'O.C.']
+
+    const aoa = [
+      [boldCell(tituloExcel)],
+      [fecha],
+      [],
+      headers.map(boldCell),
+      ...lista.map(item => [
+        fmtNro(item.nro_pedido),
+        item.fecha?.slice(0, 10).split('-').reverse().join('/'),
+        item.cc || '',
+        item.nombre_repuesto,
+        item.cant ?? '',
+        item.unidad || '',
+        item.descripcion || '',
+        item.urgencia,
+        item.grupo,
+        item.solicita || '',
+        item.estado === 'Pedido' ? 'Para analisis' : (item.estado || ''),
+        item.oc || '',
+      ]),
+    ]
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa)
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }]
+    ws['!cols'] = [8, 10, 8, 22, 6, 8, 30, 10, 14, 16, 12, 10].map(w => ({ wch: w }))
+
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Pendientes')
+    XLSX.writeFile(wb, `Pendientes_${titulo.replace(' ', '')}_${fecha.replace(/\//g, '-')}.xlsx`)
+  }
+
   return (
     <div className="container-fluid flex-grow-1 d-flex flex-column pt-2">
 
@@ -186,7 +224,10 @@ export default function Pendientes({ taller }) {
         <p className="mb-0" style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 2 }}>
           Compras · {titulo} · Pendientes
         </p>
-        <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">← Volver</button>
+        <div className="d-flex gap-2">
+          <button className="btn btn-outline-success btn-sm" onClick={exportarExcel}>Excel</button>
+          <button onClick={() => navigate(-1)} className="btn btn-outline-dark btn-sm">← Volver</button>
+        </div>
       </div>
 
       <div className="container">

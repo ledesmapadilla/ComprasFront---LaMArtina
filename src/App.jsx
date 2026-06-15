@@ -20,7 +20,6 @@ import GerenciaHistorial from './components/pages/GerenciaHistorial'
 import VerOC from './components/pages/VerOC'
 import Pendientes from './components/pages/Pendientes'
 import AnalistaPendientes from './components/pages/AnalistaPendientes'
-import Talleres from './components/pages/Talleres'
 import Error404 from './components/pages/Error404'
 
 function App() {
@@ -33,7 +32,6 @@ function App() {
           <Route path="/altas/usuarios" element={<Usuarios />} />
           <Route path="/altas/proveedores" element={<Proveedores />} />
           <Route path="/altas/centros-costo" element={<CentrosCosto />} />
-          <Route path="/talleres" element={<Talleres />} />
           <Route path="/berdina" element={<Berdina />} />
           <Route path="/sanpablo" element={<SanPablo />} />
           <Route path="/analista" element={<Analista />} />

@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 const tarjetas = [
-  { titulo: 'Pedidos',    icono: 'bi-cart3',           ruta: '/analista/pedidos',    color: 'var(--card-pedido)' },
-  { titulo: 'Pendientes', icono: 'bi-hourglass-split', ruta: '/analista/pendientes', color: 'var(--card-pendientes)' },
-  { titulo: 'Stock',      icono: 'bi-box-seam',        ruta: '/analista/stock',      color: 'var(--card-stock)' },
+  { titulo: 'Pedidos',    icono: 'bi-cart3',           ruta: '/analista/pedidos',    color: 'linear-gradient(135deg, #c02040, #280408)' },
+  { titulo: 'Pendientes', icono: 'bi-hourglass-split', ruta: '/analista/pendientes', color: 'linear-gradient(135deg, #4d9978, #111f18)' },
+  { titulo: 'Stock',      icono: 'bi-box-seam',        ruta: '/analista/stock',      color: 'linear-gradient(135deg, #888888, #1c1c1c)' },
 ]
 
 function Tarjeta({ titulo, icono, ruta, color }) {
@@ -18,7 +18,7 @@ function Tarjeta({ titulo, icono, ruta, color }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         width: 260, height: 260, cursor: 'pointer', borderRadius: 14,
-        backgroundColor: color, display: 'flex', flexDirection: 'column',
+        background: color, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: 14,
         transition: 'transform 0.18s ease, box-shadow 0.18s ease',
         transform: hovered ? 'translateY(-6px) scale(1.03)' : 'translateY(0) scale(1)',

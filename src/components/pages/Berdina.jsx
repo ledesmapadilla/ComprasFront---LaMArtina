@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 const tarjetas = [
-  { titulo: 'Pedidos',    icono: 'bi-cart3',          ruta: '/berdina/pedidos',    color: 'var(--card-pedido)' },
-  { titulo: 'Pendientes', icono: 'bi-hourglass-split', ruta: '/berdina/pendientes', color: 'var(--card-pendientes)' },
-  { titulo: 'Stock',      icono: 'bi-box-seam',        ruta: '/berdina/stock',      color: 'var(--card-stock)' },
+  { titulo: 'Pedidos',    icono: 'bi-cart3',           ruta: '/berdina/pedidos',    color: 'linear-gradient(135deg, #c02040, #280408)' },
+  { titulo: 'Pendientes', icono: 'bi-hourglass-split', ruta: '/berdina/pendientes', color: 'linear-gradient(135deg, #4d9978, #111f18)' },
+  { titulo: 'Stock',      icono: 'bi-box-seam',        ruta: '/berdina/stock',      color: 'linear-gradient(135deg, #888888, #1c1c1c)' },
 ]
 
 function Tarjeta({ titulo, icono, ruta, color }) {
@@ -21,7 +21,7 @@ function Tarjeta({ titulo, icono, ruta, color }) {
         height: 260,
         cursor: 'pointer',
         borderRadius: 14,
-        backgroundColor: color,
+        background: color,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

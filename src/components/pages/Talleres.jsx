@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 const tarjetas = [
-  { titulo: 'Berdina',   icono: 'bi-tools',    ruta: '/berdina',   color: 'linear-gradient(135deg, #4d9978, #111f18)' },
-  { titulo: 'San Pablo', icono: 'bi-tools',    ruta: '/sanpablo',  color: 'linear-gradient(135deg, #c02040, #280408)' },
+  { titulo: 'Berdina',   icono: 'bi-tools',    ruta: '/berdina',   color: 'linear-gradient(135deg, #316650, #1a3326)' },
+  { titulo: 'San Pablo', icono: 'bi-tools',    ruta: '/sanpablo',  color: 'linear-gradient(135deg, #7a1828, #4a0812)' },
 ]
 
 function Tarjeta({ titulo, icono, ruta, color }) {

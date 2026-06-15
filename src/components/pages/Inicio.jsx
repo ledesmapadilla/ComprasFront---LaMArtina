@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const TARJETAS = [
-  { titulo: 'San Pablo / Berdina', icono: 'bi-tools',     ruta: '/talleres', color: 'linear-gradient(135deg, #5aae88, #0a1410)', col: 1, row: 1 },
-  { titulo: 'Analista',            icono: 'bi-search',    ruta: '/analista', color: 'linear-gradient(135deg, #999999, #141414)', col: 3, row: 1 },
-  { titulo: 'Comprador',           icono: 'bi-bag-check', ruta: '/comprador',color: 'linear-gradient(135deg, #d42844, #1f0306)', col: 1, row: 3 },
-  { titulo: 'Gerencia',            icono: 'bi-briefcase', ruta: '/gerencia', color: 'linear-gradient(135deg, #5578bb, #0a1020)', col: 3, row: 3 },
+  { titulo: 'San Pablo / Berdina', icono: 'bi-tools',     ruta: '/talleres', color: 'linear-gradient(135deg, #4d9978, #111f18)', col: 1, row: 1 },
+  { titulo: 'Analista',            icono: 'bi-search',    ruta: '/analista', color: 'linear-gradient(135deg, #888888, #1c1c1c)', col: 3, row: 1 },
+  { titulo: 'Comprador',           icono: 'bi-bag-check', ruta: '/comprador',color: 'linear-gradient(135deg, #c02040, #280408)', col: 1, row: 3 },
+  { titulo: 'Gerencia',            icono: 'bi-briefcase', ruta: '/gerencia', color: 'linear-gradient(135deg, #4a6aaa, #0e1828)', col: 3, row: 3 },
 ]
 
 function Tarjeta({ titulo, subtitulo, icono, ruta, color, col, row }) {
@@ -30,7 +30,7 @@ function Tarjeta({ titulo, subtitulo, icono, ruta, color, col, row }) {
     >
       <i className={`bi ${icono}`} style={{ fontSize: 40, color: '#fff' }} />
       <div style={{ textAlign: 'center', lineHeight: 1.3 }}>
-        <div style={{ fontWeight: 700, fontSize: 14, color: '#fff', letterSpacing: 1, textTransform: 'uppercase' }}>{titulo}</div>
+        <div style={{ fontWeight: 400, fontSize: 14, color: '#fff', letterSpacing: 1, textTransform: 'uppercase' }}>{titulo}</div>
         {subtitulo && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 }}>{subtitulo}</div>}
       </div>
     </div>

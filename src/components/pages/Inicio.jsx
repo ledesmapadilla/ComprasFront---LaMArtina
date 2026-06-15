@@ -52,7 +52,7 @@ export default function Inicio() {
           gridColumn: 2, gridRow: 2,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         }}>
-          <img src="/logo LM-transp.png" alt="Logo La Martina" style={{ width: 220 }} />
+          <img src="/logo LM-transp.png" alt="Logo La Martina" style={{ width: 280 }} />
           <p style={{ marginTop: 10, marginBottom: 0, fontWeight: 700, fontSize: 17, letterSpacing: 6, textTransform: 'uppercase', color: 'var(--color-muted)' }}>
             Compras
           </p>

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const TARJETAS = [
-  { titulo: 'San Pablo', subtitulo: 'Berdina',   icono: 'bi-tools',     ruta: '/talleres', color: 'var(--card-pendientes)', col: 1, row: 1 },
+  { titulo: 'San Pablo / Berdina',               icono: 'bi-tools',     ruta: '/talleres', color: 'var(--card-pendientes)', col: 1, row: 1 },
   { titulo: 'Analista',                           icono: 'bi-search',    ruta: '/analista', color: 'var(--card-stock)',      col: 3, row: 1 },
   { titulo: 'Comprador',                          icono: 'bi-bag-check', ruta: '/comprador',color: 'var(--card-pedido)',     col: 1, row: 3 },
   { titulo: 'Gerencia',                           icono: 'bi-briefcase', ruta: '/gerencia', color: '#1a2a4a',                col: 3, row: 3 },

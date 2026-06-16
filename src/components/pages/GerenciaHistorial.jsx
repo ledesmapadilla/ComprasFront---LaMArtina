@@ -27,9 +27,10 @@ const DECISION = {
 }
 
 const DEC_COLOR = {
-  'Aprobado':  '#198754',
-  'Rechazado': '#dc3545',
-  'A revisar': '#c87800',
+  'Aprobado':      '#198754',
+  'Rechazado':     '#dc3545',
+  'A revisar':     '#c87800',
+  'Para revision': '#d39e00',
 }
 
 export default function GerenciaHistorial() {
